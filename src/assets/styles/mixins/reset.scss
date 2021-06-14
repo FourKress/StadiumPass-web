@@ -1,0 +1,11 @@
+@import '~taro-ui/dist/style/variables/default.scss';
+
+@mixin reset-component {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: $color-text-base;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  list-style: none;
+}

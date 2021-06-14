@@ -1,0 +1,10 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '../../assets/styles/mixins';
+
+.indexPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}

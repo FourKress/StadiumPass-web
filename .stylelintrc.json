@@ -1,0 +1,25 @@
+{
+  "extends": ["stylelint-prettier/recommended", "stylelint-config-standard"],
+  "plugins": ["stylelint-prettier"],
+  "rules": {
+    "prettier/prettier": true,
+    "unit-case": null,
+    "no-descending-specificity": null,
+    "declaration-colon-newline-after": null,
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["function", "if", "each", "include", "mixin"]
+      }
+    ],
+    "selector-type-no-unknown": [
+      true,
+      { "ignoreTypes": ["page", "slider", "picker"] }
+    ],
+    "no-empty-source": [true, { "severity": "warning" }],
+    "font-family-no-missing-generic-family-keyword": [
+      true,
+      { "severity": "warning" }
+    ]
+  }
+}

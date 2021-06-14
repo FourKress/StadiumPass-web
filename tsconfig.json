@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "lib",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "sourceMap": false,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "@/components/*": ["./src/components/*"],
+      "@/assets/*": ["./src/assets/*"],
+      "@/interfaces/*": ["./src/interfaces/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/store/*": ["./src/store/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/src/*": ["./src/*"]
+    },
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "typeRoots": ["node_modules/@types", "global.d.ts"]
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["./src/", "./global.d.ts"],
+  "compileOnSave": false
+}

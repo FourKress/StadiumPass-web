@@ -1,0 +1,7 @@
+// 拼接背景图地址
+@mixin background-image($name) {
+  background-image: url('../../image/#{$name}');
+}
+
+@import './size.scss';
+@import './reset.scss';

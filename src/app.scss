@@ -1,0 +1,103 @@
+@import '~@/assets/styles/themes/default.scss';
+@import "~taro-ui/dist/style/index.scss";
+
+page,
+body {
+  color: $color-text-base;
+  //background-color: $color-bg-grey2;
+  background: #fff;
+  font-size: 28px;
+}
+
+.at-input__title {
+  white-space: nowrap;
+}
+
+.form-item {
+  &.required &-label {
+    &::before {
+      content: '*';
+      color: $color-red;
+      margin-right: 5px;
+    }
+  }
+}
+
+.fullScrollview {
+  height: 100vh;
+}
+
+.at-modal {
+  .at-modal__overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .at-modal__container {
+    width: 610px;
+  }
+}
+
+.input-placeholder {
+  color: $color-text-third;
+}
+
+.sst-form {
+  .at-input {
+    margin-left: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid $color-border-third2;
+
+    &::after {
+      display: none;
+    }
+
+    &.lastInput::after {
+      display: none;
+    }
+
+    input {
+      text-align: right;
+      color: $color-brand;
+    }
+  }
+
+  .at-input__title {
+    padding-left: 48px;
+    color: $color-text-333;
+  }
+
+  .at-input__title--required::before {
+    position: absolute;
+    left: 30px;
+    top: 40%;
+  }
+}
+
+/**
+*列表为空样式
+*/
+
+.emptyBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .emptyIcon {
+    width: 380px;
+    min-width: 380px;
+    height: 220px;
+    margin-top: 200px;
+  }
+
+  .emptyText {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 28px;
+    color: $color-black-2;
+  }
+}
+
+//字体加粗
+.font-bold {
+  font-weight: bold;
+}

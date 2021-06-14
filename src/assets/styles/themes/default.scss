@@ -1,0 +1,50 @@
+/* 改变主题变量，具体变量名可查看 taro-ui/dist/style/variables/default.scss 文件 */
+
+/* Custom Theme */
+$color-brand: #6190e8;
+$color-brand-light: #78a4fa;
+$color-brand-default: #6190e8;
+$color-brand-dark: #6190e8;
+$color-yellow: #ffa938;
+$color-red: #eb6464;
+$color-error: $color-red;
+$color-success: #62bd5e;
+// 比$color-bg-grey 更浅的背景色
+$color-bg-grey2: #f9f9f9;
+// 浅蓝色背景
+$color-bg-brand: #eff4ff;
+$color-text-placeholder: #999;
+$color-info: $color-brand;
+$color-black-3: #ccc;
+$color-bg-index: #4e85ed;
+
+$color-border-base: #f2f2f2;
+
+$at-noticebar-text-color: $color-yellow;
+
+$color-text-secondary: #7f7f7f;
+
+// 浅色文字
+$color-text-third: #ccc;
+$color-text-666: #666;
+//深色文字
+$color-text-333: #333;
+//灰边框颜色
+$color-border-third: #979797;
+$color-border-third2: #f7f7f7;
+//金色边框
+$color-border-third3: #eed892;
+//表单提示tip颜色
+$color-bg-yellow: #fcf6ed;
+
+// 最浅的文字颜色
+$color-text-third2: #e5e5e5;
+
+$at-switch-title-size: 32px;
+.at-input__input {
+  text-align: right;
+}
+
+
+/* 引入 Taro UI 默认样式变量名 */
+@import '../../../../node_modules/taro-ui/dist/style/variables/default.scss';
