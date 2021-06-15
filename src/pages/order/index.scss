@@ -1,0 +1,94 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+page {
+  background-color: $color-white;
+}
+
+.order-page {
+  background-color: #F4F4F4;
+
+  .at-tab-bar {
+    border-bottom: 1px solid #f8f8f8;
+    .at-tab-bar__item--active {
+      font-weight: bold;
+      color: #1A1E22;
+    }
+  }
+
+  .list {
+    width: 100vw;
+    box-sizing: border-box;
+    padding: 32px;
+
+    .item {
+      width: 100%;
+      height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 16px;
+      background-color: #fff;
+
+      .top {
+        box-sizing: border-box;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0 32px;
+        border-bottom: 1px solid #f8f8f8;
+        font-weight: bold;
+
+        .name {
+          color: #93A7B6;
+        }
+      }
+
+      .info {
+        flex: 1;
+        width: 100%;
+        padding: 20px 32px;
+        height: 140px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        text-align: left;
+        color: #0F100F;
+
+        .row {
+          text-align: left;
+          width: 100%;
+          height: 60px;
+          line-height: 60px;
+        }
+      }
+
+      .footer {
+        box-sizing: border-box;
+        width: 100%;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0 32px;
+        border-top: 1px solid #f8f8f8;
+
+        .date {
+          color: #93A6B5;
+        }
+
+        .money {
+          color: #101010;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}

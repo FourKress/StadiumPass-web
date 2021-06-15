@@ -37,7 +37,7 @@ class Index extends Component {
 
                 requestData({
                   method: 'POST',
-                  api: '/user/modify',
+                  api: '/auth/login',
                   params: {
                     openId: data.openid,
                     ...res.userInfo,
