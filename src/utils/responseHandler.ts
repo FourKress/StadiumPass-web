@@ -8,7 +8,7 @@ import Taro, { request } from '@tarojs/taro';
 export default function responseHandler() {
   return (
     response: request.SuccessCallbackResult<{
-      code: string;
+      code: number;
       msg: string;
       data: any;
       succeed: boolean;
@@ -21,7 +21,7 @@ export default function responseHandler() {
         if (response.statusCode !== 200) {
           Taro.showToast({ icon: 'none', title: '网络异常，请检查网络' });
           return reject({
-            code: response.statusCode + '',
+            code: response.statusCode,
             data: response.data,
             succeed: false,
           });
@@ -29,12 +29,12 @@ export default function responseHandler() {
 
         // 服务器返回状态
         switch (response.data.code) {
-          case '0': // 请求成功
+          case 10000: // 请求成功
             resolve(response.data.data);
             break;
           default:
             // 其他报错
-            const codeList = ['10000100', '10000102'];
+            const codeList = [10000100, 10000102];
             console.log(3333);
             if (codeList.includes(response.data.code)) {
               Taro.clearStorageSync();

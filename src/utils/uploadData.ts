@@ -26,11 +26,11 @@ export default function uploadData<T = void>(params) {
       // 发送请求 返回promise对象
       uploadFile(options)
         .then((response) => {
-          const jsonData: { code: string; data: any } = JSON.parse(
+          const jsonData: { code: number; data: any } = JSON.parse(
             response.data
           );
 
-          if (jsonData.code !== '0') {
+          if (jsonData.code !== 10000) {
             return Promise.reject(jsonData);
           }
 

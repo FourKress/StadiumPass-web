@@ -69,7 +69,7 @@ export interface ReqData {
 
 /** 错误返回 */
 export interface ResError {
-  code: string;
+  code: number;
   succeed: false;
   msg?: string;
   error?: any;
