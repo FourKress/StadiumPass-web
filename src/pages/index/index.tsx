@@ -41,8 +41,6 @@ class Index extends Component {
                   params: {
                     openId: data.openid,
                     ...res.userInfo,
-                    teamUpCount: 12,
-                    id: '60c8721533d85da3dfd242c2',
                   },
                 }).then((data) => {
                   console.log(data);
