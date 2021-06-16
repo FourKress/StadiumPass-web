@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
 import { AtTabBar } from "taro-ui"
-// import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 // import requestData from "@/utils/requestData";
 
 import './index.scss';
@@ -22,6 +22,11 @@ class OrderPage extends Component<{}, IState> {
 
   componentDidShow() {
     console.log(123)
+    // @ts-ignore
+    const index = Number(Taro.getCurrentInstance().router.params.index);
+    this.setState({
+      tabValue: index,
+    })
   }
 
   handleTabClick(value) {

@@ -85,6 +85,12 @@ class MePage extends Component<{}, IState> {
     });
   }
 
+  jumpOrder(index) {
+    Taro.navigateTo({
+      url: `../order/index?index=${index}`
+    });
+  }
+
   handleConfirm() {
     this.changeIdentity(false);
   }
@@ -127,19 +133,19 @@ class MePage extends Component<{}, IState> {
 
         <View className="main">
           <View className="order-nav">
-            <View className="item">
+            <View className="item" onClick={() => this.jumpOrder(0)}>
               <AtBadge value={10} maxValue={99}>
                 <View className="icon"></View>
               </AtBadge>
               <Text className="name">待付款</Text>
             </View>
-            <View className="item">
+            <View className="item" onClick={() => this.jumpOrder(1)}>
               <AtBadge value={10} maxValue={99}>
                 <View className="icon"></View>
               </AtBadge>
               <Text className="name">待开始</Text>
             </View>
-            <View className="item">
+            <View className="item" onClick={() => this.jumpOrder(2)}>
               <AtBadge value={10} maxValue={99}>
                 <View className="icon"></View>
               </AtBadge>
