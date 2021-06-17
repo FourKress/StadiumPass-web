@@ -6,7 +6,39 @@ page {
   background-color: $color-white;
 }
 
-.watch-page {
+.card-page {
   background-color: #F4F4F4;
+  width: 100vw;
+  min-height: 100vh;
 
+
+  .list {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 32px;
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 14px 28px 32px;
+      box-sizing: border-box;
+      border-radius: 16px;
+      background-color: #fff;
+      margin-bottom: 32px;
+
+      .label {
+        color: #101010;
+        font-size: 30px;
+      }
+
+      .info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: #A4AAAE;
+      }
+    }
+  }
 }

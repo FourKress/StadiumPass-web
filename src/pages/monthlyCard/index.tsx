@@ -9,7 +9,7 @@ interface IState {
   cardList: Array<any>;
 }
 
-class OrderPage extends Component<{}, IState> {
+class MonthlyCardPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -36,6 +36,9 @@ class OrderPage extends Component<{}, IState> {
                 </View>
                 <View className="right">
                   <View className="row">
+                    <View className="label">价格</View>：￥150.00/月
+                  </View>
+                  <View className="row">
                     <View className="label">开通场馆</View>：奥斯卡大家说的
                   </View>
                   <View className="row">
@@ -52,4 +55,4 @@ class OrderPage extends Component<{}, IState> {
   }
 }
 
-export default OrderPage;
+export default MonthlyCardPage;

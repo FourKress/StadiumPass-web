@@ -59,19 +59,17 @@ page {
         align-items: center;
         justify-content: center;
         color: #FEDBA4;
-        font-size: 22px;
+        font-size: 24px;
         padding-left: 20px;
 
         .row {
           width: 100%;
           display: flex;
           align-items: center;
-          &:last-child {
-            padding-top: 10px;
-          }
+          padding-top: 10px;
 
           .label {
-            height: 36px;
+            height: 35px;
             display: inline-block;
             width: 90px;
             text-align: justify;

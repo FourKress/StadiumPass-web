@@ -1,0 +1,17 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+page {
+  background-color: $color-white;
+}
+
+.stadium-page {
+  background-color: #F4F4F4;
+
+  .page-header {
+    background-color: #ccc;
+    width: 100vw;
+    height: 284px;
+  }
+}

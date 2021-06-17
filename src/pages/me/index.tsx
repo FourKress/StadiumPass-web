@@ -28,11 +28,15 @@ class MePage extends Component<{}, IState> {
   }
 
   componentDidShow() {
+    const userInfo = Taro.getStorageSync('userInfo') || '';
     this.setState(
       {
         userInfo: Taro.getStorageSync('userInfo') || '',
       },
       () => {
+        if(!userInfo?.id) {
+          return;
+        }
         this.getWatchList();
       }
     );
@@ -91,6 +95,18 @@ class MePage extends Component<{}, IState> {
     });
   }
 
+  jumpMonthlyCard() {
+    Taro.navigateTo({
+      url: `../monthlyCard/index`
+    });
+  }
+
+  jumpMyWatch() {
+    Taro.navigateTo({
+      url: `../myWatch/index`
+    });
+  }
+
   handleConfirm() {
     this.changeIdentity(false);
   }
@@ -123,9 +139,9 @@ class MePage extends Component<{}, IState> {
             </View>
           ) : (
             <View className="loginBox">
-              <AtIcon value="user" size="60" color="#fff"></AtIcon>
-              <View className="text" onClick={() => this.handleLogin()}>
-                点击登录
+              <AtIcon onClick={() => this.handleLogin()} value="user" size="60" color="#fff"></AtIcon>
+              <View className="text">
+                <View onClick={() => this.handleLogin()}>点击登录</View>
               </View>
             </View>
           )}
@@ -155,7 +171,7 @@ class MePage extends Component<{}, IState> {
 
           <View className="nav-list">
             <View className="panel">
-              <View className="item">
+              <View className="item" onClick={() => this.jumpMonthlyCard()}>
                 <View className="icon"></View>
                 <Text className="label">场馆月卡</Text>
                 <View className="info">
@@ -169,7 +185,7 @@ class MePage extends Component<{}, IState> {
               </View>
             </View>
             <View className="panel">
-              <View className="item">
+              <View className="item" onClick={() => this.jumpMyWatch()}>
                 <View className="icon"></View>
                 <Text className="label">我的关注</Text>
                 <View className="info">
@@ -207,14 +223,17 @@ class MePage extends Component<{}, IState> {
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
-            {/*<View>*/}
-            {/*  <AtIcon className={'row'} value='close-circle' size='24' color='#FF2000'></AtIcon>*/}
-            {/*  <View className={'row'}>对不起，您还未认证场主！</View>*/}
-            {/*  <View className={'row'}>如要认证场主，请联系：15523250903</View>*/}
-            {/*</View>*/}
-            <View>
-              <View className="row">是否切换为场主模式？</View>
-            </View>
+            {userInfo.isBoss ?
+              <View>
+                <View className="row">是否切换为场主模式？</View>
+              </View>
+             :
+              <View>
+              <AtIcon className={'row'} value='close-circle' size='24' color='#FF2000'></AtIcon>
+              <View className={'row'}>对不起，您还未认证场主！</View>
+              <View className={'row'}>如要认证场主，请联系：15523250903</View>
+              </View>
+            }
           </AtModalContent>
           <AtModalAction>
             <Button onClick={() => this.changeIdentity(false)}>取消</Button>
