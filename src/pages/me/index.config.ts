@@ -1,5 +1,6 @@
 export default {
-  navigationBarTitleText: '我的',
+  navigationBarTitleText: '个人中心',
   disableScroll: true,
-  navigationBarBackgroundColor: '#000'
+  navigationBarBackgroundColor: '#000',
+  navigationBarTextStyle: 'white',
 };

@@ -45,6 +45,9 @@ $at-switch-title-size: 32px;
   text-align: right;
 }
 
+.not-data {
+  text-align: center;
+}
 
 /* 引入 Taro UI 默认样式变量名 */
 @import '../../../../node_modules/taro-ui/dist/style/variables/default.scss';

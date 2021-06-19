@@ -2,15 +2,16 @@ import React, { Component } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import { AtTabs, AtIcon, AtTabsPane } from 'taro-ui';
 import Taro from '@tarojs/taro';
-// import requestData from "@/utils/requestData";
+import requestData from '@/utils/requestData';
 
 import './index.scss';
 
 interface IState {
-  orderList: Array<any>;
   tabValue: number;
   open: boolean;
   meBtbPosition: object;
+  stadiumInfo: any;
+  isWatch: boolean;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -19,14 +20,19 @@ class StadiumPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      orderList: [],
       tabValue: 0,
       open: false,
       meBtbPosition: {},
+      stadiumInfo: {},
+      isWatch: false,
     };
   }
 
   componentDidShow() {
+    // @ts-ignore
+    // const id = Taro.getCurrentInstance().router.params.id;
+    const id = '60cda9846c449177584f9ca3';
+    this.getStadiumInfo(id);
     this.setMeBtnPosition();
   }
 
@@ -52,6 +58,24 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
+  getStadiumInfo(id) {
+    if (!id) return;
+    requestData({
+      method: 'GET',
+      api: '/stadium/info',
+      params: {
+        id,
+        userId: Taro.getStorageSync('userInfo').id,
+      },
+    }).then((res: any) => {
+      console.log(res);
+      this.setState({
+        stadiumInfo: res,
+        isWatch: res.isWatch,
+      });
+    });
+  }
+
   handleTabClick(val) {
     this.setState({
       tabValue: val,
@@ -65,13 +89,47 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
+  jumpCenter() {
+    Taro.navigateTo({
+      url: '../me/index',
+    });
+  }
+
+  jumpOrder() {
+    Taro.navigateTo({
+      url: '../order/index',
+    });
+  }
+
+  handleCallPhone(phoneNumber) {
+    Taro.makePhoneCall({
+      phoneNumber,
+    });
+  }
+
+  handleWatch() {
+    requestData({
+      method: 'POST',
+      api: '/userRelationStadium/watch',
+      params: {
+        userId: Taro.getStorageSync('userInfo').id,
+        stadiumId: this.state.stadiumInfo.id,
+        isWatch: !this.state.isWatch,
+      },
+    }).then((res: any) => {
+      this.setState({
+        isWatch: res,
+      });
+    });
+  }
+
   render() {
-    const { tabValue, open, meBtbPosition } = this.state;
+    const { tabValue, open, meBtbPosition, stadiumInfo, isWatch } = this.state;
 
     return (
       <View className="stadium-page">
-        <View className="page-header">
-          <Image className="bg" src=""></Image>
+        <View onClick={() => this.jumpCenter()} className="page-header">
+          <Image className="bg" src={stadiumInfo.stadiumUrl}></Image>
           <View className="me" style={meBtbPosition}>
             <Image className="icon" src=""></Image>
             <Text>我的</Text>
@@ -80,13 +138,19 @@ class StadiumPage extends Component<{}, IState> {
         <View className="main">
           <View className="top">
             <View className="left">
-              <View className="name">胜多负少李逵负荆</View>
+              <View className="name">{stadiumInfo.name}</View>
               <View className="address">
                 <View className="icon"></View>
-                <Text>年开始打索拉卡建档立卡</Text>
+                <Text>{stadiumInfo.address}</Text>
               </View>
             </View>
-            <View className="watch"></View>
+            <AtIcon
+              className="watch"
+              onClick={() => this.handleWatch()}
+              value={isWatch ? 'star-2' : 'star'}
+              size="24"
+              color={isWatch ? '#FF5D46' : ''}
+            ></AtIcon>
           </View>
 
           <AtTabs
@@ -193,14 +257,29 @@ class StadiumPage extends Component<{}, IState> {
                   <View className="icon"></View>
                   <View className="label">电话</View>
                   <View className="info">
-                    <Text style="color: #0092FF">17384094579</Text>
+                    <Text
+                      onClick={() =>
+                        this.handleCallPhone(stadiumInfo.firstPhoneNum)
+                      }
+                      style="color: #0092FF; padding-right: 16px"
+                    >
+                      {stadiumInfo.firstPhoneNum}
+                    </Text>
+                    <Text
+                      onClick={() =>
+                        this.handleCallPhone(stadiumInfo.secondPhoneNum)
+                      }
+                      style="color: #0092FF"
+                    >
+                      {stadiumInfo.secondPhoneNum}
+                    </Text>
                   </View>
                 </View>
                 <View className="row">
                   <View className="icon"></View>
                   <View className="label">位置</View>
                   <View className="info">
-                    <Text>重庆市江北区洋河北路6号</Text>
+                    <Text>{stadiumInfo.address}</Text>
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px">
@@ -244,7 +323,9 @@ class StadiumPage extends Component<{}, IState> {
                 </View>
               </View>
             </View>
-            <View className="btn">立即报名</View>
+            <View onClick={() => this.jumpOrder()} className="btn">
+              立即报名
+            </View>
           </View>
         )}
       </View>
