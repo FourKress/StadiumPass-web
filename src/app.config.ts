@@ -2,14 +2,13 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'pages/stadium/index',
-    'pages/orderPay/index',
     'pages/me/index',
+    'pages/index/index',
+    'pages/orderPay/index',
     'pages/monthlyCard/index',
     'pages/myWatch/index',
     'pages/order/index',
-    'pages/index/index',
-
+    'pages/stadium/index',
     'pages/login/index',
   ],
   plugins: {
