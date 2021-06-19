@@ -128,7 +128,6 @@ class StadiumPage extends Component<{}, IState> {
       method: 'POST',
       api: '/userRelationStadium/watch',
       params: {
-        userId: Taro.getStorageSync('userInfo').id,
         stadiumId: this.state.stadiumInfo.id,
         isWatch: !this.state.isWatch,
       },

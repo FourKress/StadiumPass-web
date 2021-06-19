@@ -60,9 +60,6 @@ class MePage extends Component<{}, IState> {
     requestData({
       method: 'GET',
       api: '/order/listCount',
-      params: {
-        userId: this.state.userInfo.id,
-      },
     }).then((res: any) => {
       this.setState({
         orderCount: res,

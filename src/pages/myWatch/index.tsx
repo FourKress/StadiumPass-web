@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+// import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
@@ -26,9 +26,6 @@ class MyWatchPage extends Component<{}, IState> {
     requestData({
       method: 'GET',
       api: '/userRelationStadium/watchList',
-      params: {
-        userId: Taro.getStorageSync('userInfo').id,
-      },
     }).then((data: any) => {
       this.setState({
         watchList: data,

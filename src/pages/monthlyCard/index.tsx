@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+// import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
@@ -25,9 +25,6 @@ class MonthlyCardPage extends Component<{}, IState> {
     requestData({
       method: 'POST',
       api: '/monthlyCard/list',
-      params: {
-        userId: Taro.getStorageSync('userInfo').id,
-      },
     }).then((data: any) => {
       this.setState({
         cardList: data,

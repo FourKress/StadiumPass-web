@@ -47,9 +47,6 @@ class OrderPage extends Component<{}, IState> {
     requestData({
       method: 'GET',
       api: '/order/listCount',
-      params: {
-        userId: Taro.getStorageSync('userInfo').id,
-      },
     }).then((res: any) => {
       this.setState({
         orderCount: res,
@@ -62,7 +59,6 @@ class OrderPage extends Component<{}, IState> {
       method: 'POST',
       api: '/order/listByStatus',
       params: {
-        userId: Taro.getStorageSync('userInfo').id,
         status,
       },
     }).then((res: any) => {
