@@ -12,6 +12,7 @@ interface IState {
   meBtbPosition: object;
   stadiumInfo: any;
   isWatch: boolean;
+  spaceList: any;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -25,6 +26,7 @@ class StadiumPage extends Component<{}, IState> {
       meBtbPosition: {},
       stadiumInfo: {},
       isWatch: false,
+      spaceList: [],
     };
   }
 
@@ -32,7 +34,9 @@ class StadiumPage extends Component<{}, IState> {
     // @ts-ignore
     // const id = Taro.getCurrentInstance().router.params.id;
     const id = '60cda9846c449177584f9ca3';
+    if (!id) return;
     this.getStadiumInfo(id);
+    this.getSpace(id);
     this.setMeBtnPosition();
   }
 
@@ -59,19 +63,31 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   getStadiumInfo(id) {
-    if (!id) return;
     requestData({
       method: 'GET',
       api: '/stadium/info',
       params: {
         id,
-        userId: Taro.getStorageSync('userInfo').id,
       },
     }).then((res: any) => {
       console.log(res);
       this.setState({
         stadiumInfo: res,
         isWatch: res.isWatch,
+      });
+    });
+  }
+
+  getSpace(stadiumId) {
+    requestData({
+      method: 'GET',
+      api: '/space/list',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        spaceList: res,
       });
     });
   }
@@ -124,7 +140,8 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   render() {
-    const { tabValue, open, meBtbPosition, stadiumInfo, isWatch } = this.state;
+    const { tabValue, open, meBtbPosition, stadiumInfo, isWatch, spaceList } =
+      this.state;
 
     return (
       <View className="stadium-page">
@@ -156,31 +173,26 @@ class StadiumPage extends Component<{}, IState> {
           <AtTabs
             current={tabValue}
             tabList={tabList}
+            swipeable={false}
             onClick={(value) => this.handleTabClick(value)}
           >
             <AtTabsPane current={tabValue} index={0}>
               <View className="space-panel">
                 <View className="list">
-                  <View className="item">
-                    <View className="type">一号厂</View>
-                    <View className="unit">5V5</View>
-                    <View className="tips1">折</View>
-                  </View>
-                  <View className="item">
-                    <View className="type">一号厂</View>
-                    <View className="unit">5V5</View>
-                    <View className="tips2">满</View>
-                  </View>
-                  <View className="item">
-                    <View className="type">一号厂</View>
-                    <View className="unit">5V5</View>
-                    <View className="tips1">折</View>
-                  </View>
-                  <View className="item">
-                    <View className="type">一号厂</View>
-                    <View className="unit">5V5</View>
-                    <View className="tips1">折</View>
-                  </View>
+                  {spaceList.length &&
+                    spaceList.map((item) => {
+                      return (
+                        <View className="item">
+                          <View className="type">{item.name}</View>
+                          <View className="unit">{item.unit}</View>
+                          {item.totalPeople === item.selectPeople ? (
+                            <View className="tips2">满</View>
+                          ) : (
+                            item.rebate && <View className="tips1">折</View>
+                          )}
+                        </View>
+                      );
+                    })}
                 </View>
                 <View className="date">
                   <View className="info">

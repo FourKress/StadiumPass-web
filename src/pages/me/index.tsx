@@ -171,19 +171,31 @@ class MePage extends Component<{}, IState> {
       });
   }
 
+  checkLogin() {
+    Taro.showToast({
+      title: '请先登录',
+      icon: 'none',
+      duration: 2000,
+    });
+    return Taro.getStorageSync('token');
+  }
+
   jumpOrder(index) {
+    if (!this.checkLogin()) return;
     Taro.navigateTo({
       url: `../order/index?index=${index}`,
     });
   }
 
   jumpMonthlyCard() {
+    if (!this.checkLogin()) return;
     Taro.navigateTo({
       url: `../monthlyCard/index`,
     });
   }
 
   jumpMyWatch() {
+    if (!this.checkLogin()) return;
     Taro.navigateTo({
       url: `../myWatch/index`,
     });
@@ -274,9 +286,11 @@ class MePage extends Component<{}, IState> {
                 <View className="icon"></View>
                 <Text className="label">场馆月卡</Text>
                 <View className="info">
-                  <Text className="name">
-                    已开通：{userInfo.monthlyCardCount}张
-                  </Text>
+                  {userInfo.monthlyCardCount > 0 && (
+                    <Text className="name">
+                      已开通：{userInfo.monthlyCardCount}张
+                    </Text>
+                  )}
                   <AtIcon
                     value="chevron-right"
                     size="24"
@@ -314,12 +328,14 @@ class MePage extends Component<{}, IState> {
           </View>
         </View>
 
-        <View className="footer-btn">
-          <View className="btn" onClick={() => this.changeIdentity(true)}>
-            <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-            我是场主
+        {userInfo.id && (
+          <View className="footer-btn">
+            <View className="btn" onClick={() => this.changeIdentity(true)}>
+              <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
+              我是场主
+            </View>
           </View>
-        </View>
+        )}
 
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>
