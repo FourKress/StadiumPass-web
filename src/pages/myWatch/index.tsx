@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View } from '@tarojs/components';
-// import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
@@ -34,6 +34,12 @@ class MyWatchPage extends Component<{}, IState> {
     });
   }
 
+  jumpStadium(stadiumId) {
+    Taro.navigateTo({
+      url: `../stadium/index?id=${stadiumId}`,
+    });
+  }
+
   render() {
     const { watchList } = this.state;
 
@@ -41,10 +47,13 @@ class MyWatchPage extends Component<{}, IState> {
       <View className="card-page">
         <View className="list">
           {watchList.length ? (
-            watchList.map(() => {
+            watchList.map((item) => {
               return (
-                <View className="item">
-                  <Text className="label">啊实打实大师</Text>
+                <View
+                  className="item"
+                  onClick={() => this.jumpStadium(item.id)}
+                >
+                  <Text className="label">{item.stadiumName}</Text>
                   <View className="info">
                     <AtIcon
                       value="chevron-right"
