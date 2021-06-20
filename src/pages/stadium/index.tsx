@@ -8,11 +8,12 @@ import './index.scss';
 
 interface IState {
   tabValue: number;
-  open: boolean;
+  openList: any;
   meBtbPosition: object;
   stadiumInfo: any;
   isWatch: boolean;
   spaceList: any;
+  matchList: any;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -22,11 +23,12 @@ class StadiumPage extends Component<{}, IState> {
     super(props);
     this.state = {
       tabValue: 0,
-      open: false,
+      openList: [],
       meBtbPosition: {},
       stadiumInfo: {},
       isWatch: false,
       spaceList: [],
+      matchList: [],
     };
   }
 
@@ -86,8 +88,26 @@ class StadiumPage extends Component<{}, IState> {
         stadiumId,
       },
     }).then((res: any) => {
+      this.getMatch(res[0].id);
       this.setState({
         spaceList: res,
+      });
+    });
+  }
+
+  getMatch(spaceId) {
+    requestData({
+      method: 'GET',
+      api: '/match/info',
+      params: {
+        spaceId,
+      },
+    }).then((res: any) => {
+      console.log(res);
+      const openList = res.map(() => false);
+      this.setState({
+        matchList: res,
+        openList,
       });
     });
   }
@@ -98,10 +118,14 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  handlePeoPleOpen() {
-    const { open } = this.state;
+  handlePeoPleOpen(index) {
+    const { openList } = this.state;
+
     this.setState({
-      open: !open,
+      openList: openList.map((open, i) => {
+        open = index === i ? !open : false;
+        return open;
+      }),
     });
   }
 
@@ -139,8 +163,15 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   render() {
-    const { tabValue, open, meBtbPosition, stadiumInfo, isWatch, spaceList } =
-      this.state;
+    const {
+      tabValue,
+      openList,
+      meBtbPosition,
+      stadiumInfo,
+      isWatch,
+      spaceList,
+      matchList,
+    } = this.state;
 
     return (
       <View className="stadium-page">
@@ -178,13 +209,13 @@ class StadiumPage extends Component<{}, IState> {
             <AtTabsPane current={tabValue} index={0}>
               <View className="space-panel">
                 <View className="list">
-                  {spaceList.length &&
+                  {spaceList.length > 1 &&
                     spaceList.map((item) => {
                       return (
                         <View className="item">
                           <View className="type">{item.name}</View>
                           <View className="unit">{item.unit}</View>
-                          {item.totalPeople === item.selectPeople ? (
+                          {item.full ? (
                             <View className="tips2">满</View>
                           ) : (
                             item.rebate && <View className="tips1">折</View>
@@ -207,59 +238,74 @@ class StadiumPage extends Component<{}, IState> {
               </View>
 
               <View className="people-panel">
-                <View className="panel">
-                  <View className="p-top">
-                    <View className="info">
-                      <Text>
-                        18:00 - 20:00 / 2小时 / 2
-                        <Text style="font-weight: bold;">/</Text>15
-                      </Text>
-                      <View className="tips1">折</View>
-                    </View>
-                    <AtIcon
-                      className={open ? '' : 'open'}
-                      onClick={() => this.handlePeoPleOpen()}
-                      value="chevron-down"
-                      size="24"
-                      color="#101010"
-                    ></AtIcon>
-                  </View>
-                  <View className={open ? 'list' : 'list hidden'}>
-                    <View className="item">
-                      <View className="img">
-                        {/*<Image src=""></Image>*/}
-                        <View className="index">1</View>
+                {matchList.length > 0 &&
+                  matchList.map((item, index) => {
+                    return (
+                      <View className="panel">
+                        <View className="p-top">
+                          <View className="info">
+                            <Text>
+                              {item.runAt} / {item.duration}小时 /{' '}
+                              {item.selectPeople}
+                              <Text style="font-weight: bold;">/</Text>
+                              {item.totalPeople}
+                            </Text>
+                            {item.rebate && <View className="tips1">折</View>}
+                          </View>
+                          <AtIcon
+                            className={openList[index] ? '' : 'open'}
+                            onClick={() => this.handlePeoPleOpen(index)}
+                            value="chevron-down"
+                            size="24"
+                            color="#101010"
+                          ></AtIcon>
+                        </View>
+                        <View
+                          className={openList[index] ? 'list' : 'list hidden'}
+                        >
+                          <View className="item">
+                            <View className="img">
+                              {/*<Image src=""></Image>*/}
+                              <View className="index">1</View>
+                            </View>
+                            {/*<View className="name">白龙马不是马白龙马不是马</View>*/}
+                            {/*<View className="name default">虚位以待</View>*/}
+                            <View className="icon">
+                              <AtIcon
+                                value="check"
+                                size="24"
+                                color="#0092FF"
+                              ></AtIcon>
+                            </View>
+                          </View>
+                          <View className="item">
+                            <View className="img">
+                              <Image src=""></Image>
+                            </View>
+                            <View className="name">
+                              白龙马不是马白龙马不是马
+                            </View>
+                          </View>
+                          <View className="item">
+                            <View className="img">
+                              <Image src=""></Image>
+                            </View>
+                            <View className="name">
+                              白龙马不是马白龙马不是马
+                            </View>
+                          </View>
+                          <View className="item">
+                            <View className="img">
+                              <Image src=""></Image>
+                            </View>
+                            <View className="name">
+                              白龙马不是马白龙马不是马
+                            </View>
+                          </View>
+                        </View>
                       </View>
-                      {/*<View className="name">白龙马不是马白龙马不是马</View>*/}
-                      {/*<View className="name default">虚位以待</View>*/}
-                      <View className="icon">
-                        <AtIcon
-                          value="check"
-                          size="24"
-                          color="#0092FF"
-                        ></AtIcon>
-                      </View>
-                    </View>
-                    <View className="item">
-                      <View className="img">
-                        <Image src=""></Image>
-                      </View>
-                      <View className="name">白龙马不是马白龙马不是马</View>
-                    </View>
-                    <View className="item">
-                      <View className="img">
-                        <Image src=""></Image>
-                      </View>
-                      <View className="name">白龙马不是马白龙马不是马</View>
-                    </View>
-                    <View className="item">
-                      <View className="img">
-                        <Image src=""></Image>
-                      </View>
-                      <View className="name">白龙马不是马白龙马不是马</View>
-                    </View>
-                  </View>
-                </View>
+                    );
+                  })}
               </View>
             </AtTabsPane>
             <AtTabsPane current={tabValue} index={1}>
