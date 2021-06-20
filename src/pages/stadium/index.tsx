@@ -120,7 +120,7 @@ class StadiumPage extends Component<{}, IState> {
         stadiumId,
       },
     }).then((res: any) => {
-      this.getMatch(res[0].id);
+      this.getMatch(res[0]?.id);
       this.setState({
         spaceList: res,
       });
@@ -184,12 +184,14 @@ class StadiumPage extends Component<{}, IState> {
       console.log(123);
       return;
     }
+    const { stadiumInfo, isWatch } = this.state;
     requestData({
       method: 'POST',
       api: '/userRelationStadium/watch',
       params: {
-        stadiumId: this.state.stadiumInfo.id,
-        isWatch: !this.state.isWatch,
+        stadiumId: stadiumInfo.id,
+        isWatch: !isWatch,
+        stadiumName: stadiumInfo.name,
       },
     }).then((res: any) => {
       this.setState({
