@@ -4,6 +4,9 @@ import { AtTabs, AtIcon, AtTabsPane } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
+import * as LoginService from '../../services/loginService';
+import AuthorizeUserBtn from '../../components/authorizeUserModal';
+
 import './index.scss';
 
 interface IState {
@@ -14,6 +17,8 @@ interface IState {
   isWatch: boolean;
   spaceList: any;
   matchList: any;
+  userId: string;
+  authorize: boolean;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -29,6 +34,8 @@ class StadiumPage extends Component<{}, IState> {
       isWatch: false,
       spaceList: [],
       matchList: [],
+      userId: '',
+      authorize: false,
     };
   }
 
@@ -40,6 +47,18 @@ class StadiumPage extends Component<{}, IState> {
     this.getStadiumInfo(id);
     this.getSpace(id);
     this.setMeBtnPosition();
+    const userId = Taro.getStorageSync('userInfo').id || '';
+    this.setState(
+      {
+        userId,
+      },
+      () => {
+        if (!userId) {
+          return;
+        }
+        this.getWatchStatus(id);
+      }
+    );
   }
 
   setMeBtnPosition() {
@@ -75,7 +94,20 @@ class StadiumPage extends Component<{}, IState> {
       console.log(res);
       this.setState({
         stadiumInfo: res,
-        isWatch: res.isWatch,
+      });
+    });
+  }
+
+  getWatchStatus(stadiumId) {
+    requestData({
+      method: 'POST',
+      api: '/userRelationStadium/watchFlag',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        isWatch: res?.isWatch,
       });
     });
   }
@@ -148,6 +180,10 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   handleWatch() {
+    if (!this.state.userId) {
+      console.log(123);
+      return;
+    }
     requestData({
       method: 'POST',
       api: '/userRelationStadium/watch',
@@ -162,6 +198,19 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
+  async handleAuthorize(status) {
+    if (!status) {
+      this.setState({
+        authorize: status,
+      });
+      return;
+    }
+    const userInfo: any = await LoginService.handleAuthorize();
+    this.setState({
+      userId: userInfo.id,
+    });
+  }
+
   render() {
     const {
       tabValue,
@@ -171,6 +220,7 @@ class StadiumPage extends Component<{}, IState> {
       isWatch,
       spaceList,
       matchList,
+      authorize,
     } = this.state;
 
     return (
@@ -385,6 +435,11 @@ class StadiumPage extends Component<{}, IState> {
             </View>
           </View>
         )}
+
+        <AuthorizeUserBtn
+          authorize={authorize}
+          onChange={(value) => this.handleAuthorize(value)}
+        ></AuthorizeUserBtn>
       </View>
     );
   }

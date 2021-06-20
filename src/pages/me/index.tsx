@@ -10,6 +10,8 @@ import {
 } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
+import * as LoginService from '../../services/loginService';
+import AuthorizeUserBtn from '../../components/authorizeUserModal';
 
 import './index.scss';
 
@@ -67,38 +69,6 @@ class MePage extends Component<{}, IState> {
     });
   }
 
-  handleLogin() {
-    Taro.login()
-      .then((res) => {
-        if (res.code) {
-          // 发起网络请求;
-          return this.getOpenId(res.code);
-        } else {
-          console.log('登录失败！' + res.errMsg);
-        }
-      })
-      .then((res: any) => {
-        Taro.setStorageSync('openId', res.openid);
-        return this.checkFirstLogin(res.openid);
-      })
-      .then((res: any) => {
-        if (res) {
-          return this.sendLogin(res.openId);
-        } else {
-          console.log('第一次登陆');
-          this.authorizeUserInfo(true);
-          return Promise.reject('第一次登陆');
-        }
-      })
-      .then((res: any) => {
-        console.log(res);
-        this.saveUserInfo(res);
-      })
-      .catch((err) => {
-        console.log('登录失败！' + err);
-      });
-  }
-
   getOpenId(code) {
     return requestData({
       method: 'GET',
@@ -107,65 +77,6 @@ class MePage extends Component<{}, IState> {
         code,
       },
     });
-  }
-
-  sendLogin(openId, userInfo = {}) {
-    return requestData({
-      method: 'POST',
-      api: '/auth/login',
-      params: {
-        openId,
-        ...userInfo,
-      },
-    });
-  }
-
-  saveUserInfo(res) {
-    Taro.setStorageSync('token', res.token);
-    Taro.setStorageSync('userInfo', res.userInfo);
-    this.setState({
-      userInfo: res.userInfo,
-    });
-  }
-
-  async checkFirstLogin(openId) {
-    return requestData({
-      method: 'GET',
-      api: '/user/findOneByOpenId',
-      params: {
-        openId,
-      },
-    })
-      .then((res) => {
-        return Promise.resolve(res);
-      })
-      .catch(() => {
-        return Promise.reject(false);
-      });
-  }
-
-  authorizeUserInfo(status) {
-    this.setState({
-      authorize: status,
-    });
-  }
-
-  handleAuthorize() {
-    Taro.getUserProfile({
-      desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-      lang: 'zh_CN',
-    })
-      .then((res) => {
-        const openId = Taro.getStorageSync('openId');
-        return this.sendLogin(openId, res.userInfo);
-      })
-      .then((res) => {
-        this.authorizeUserInfo(false);
-        this.saveUserInfo(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   }
 
   checkLogin() {
@@ -208,8 +119,37 @@ class MePage extends Component<{}, IState> {
     });
   }
 
+  async handleLogin() {
+    console.log(99111);
+    const userInfo = await LoginService.login();
+    if (!userInfo) {
+      this.setState({
+        authorize: true,
+      });
+      return;
+    }
+    console.log(userInfo, 11);
+    this.setState({
+      userInfo,
+    });
+  }
+
+  async handleAuthorize(status) {
+    if (!status) {
+      this.setState({
+        authorize: status,
+      });
+      return;
+    }
+    const userInfo = await LoginService.handleAuthorize();
+    this.setState({
+      userInfo,
+      authorize: false,
+    });
+  }
+
   render() {
-    const { userInfo, isOpened, authorize, orderCount } = this.state;
+    const { userInfo, isOpened, orderCount, authorize } = this.state;
 
     return (
       <View className="mePage">
@@ -360,20 +300,10 @@ class MePage extends Component<{}, IState> {
           </AtModalAction>
         </AtModal>
 
-        <AtModal isOpened={authorize}>
-          <AtModalHeader>登陆提示</AtModalHeader>
-          <AtModalContent>
-            <View>
-              <View className="row">
-                当前是您第一次登录，为了给你更好的体验，请授权完善用户信息。
-              </View>
-            </View>
-          </AtModalContent>
-          <AtModalAction>
-            <Button onClick={() => this.authorizeUserInfo(false)}>取消</Button>
-            <Button onClick={() => this.handleAuthorize()}>授权</Button>
-          </AtModalAction>
-        </AtModal>
+        <AuthorizeUserBtn
+          authorize={authorize}
+          onChange={(value) => this.handleAuthorize(value)}
+        ></AuthorizeUserBtn>
       </View>
     );
   }
