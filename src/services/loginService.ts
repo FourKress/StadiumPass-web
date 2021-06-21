@@ -29,7 +29,6 @@ const login = () => {
         return saveUserInfo(res);
       })
       .then((res) => {
-        console.log(res, 999);
         resolve(res);
       })
       .catch((err) => {

@@ -120,7 +120,6 @@ class MePage extends Component<{}, IState> {
   }
 
   async handleLogin() {
-    console.log(99111);
     const userInfo = await LoginService.login();
     if (!userInfo) {
       this.setState({
@@ -128,7 +127,6 @@ class MePage extends Component<{}, IState> {
       });
       return;
     }
-    console.log(userInfo, 11);
     this.setState({
       userInfo,
     });

@@ -19,6 +19,7 @@ interface IState {
   matchList: any;
   userId: string;
   authorize: boolean;
+  stadiumId: string;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -36,18 +37,30 @@ class StadiumPage extends Component<{}, IState> {
       matchList: [],
       userId: '',
       authorize: false,
+      stadiumId: '',
     };
   }
 
   componentDidShow() {
     // @ts-ignore
     // const id = Taro.getCurrentInstance().router.params.id;
-    const id = '60cda9846c449177584f9ca3';
-    if (!id) return;
-    this.getStadiumInfo(id);
-    this.getSpace(id);
     this.setMeBtnPosition();
-    const userId = Taro.getStorageSync('userInfo').id || '';
+    const id = '60c9870beb158eec73c90249';
+    this.setState(
+      {
+        stadiumId: id,
+      },
+      () => {
+        if (!id) return;
+        this.getStadiumInfo(id);
+        this.getSpace(id);
+        const userId = Taro.getStorageSync('userInfo').id || '';
+        this.loginInit(userId);
+      }
+    );
+  }
+
+  loginInit(userId) {
     this.setState(
       {
         userId,
@@ -56,7 +69,7 @@ class StadiumPage extends Component<{}, IState> {
         if (!userId) {
           return;
         }
-        this.getWatchStatus(id);
+        this.getWatchStatus(this.state.stadiumId);
       }
     );
   }
@@ -181,7 +194,30 @@ class StadiumPage extends Component<{}, IState> {
 
   handleWatch() {
     if (!this.state.userId) {
-      console.log(123);
+      Taro.showModal({
+        title: '提示',
+        content: '您当前未登录，请先登录。',
+        confirmText: '登录',
+        success: async (res) => {
+          if (res.confirm) {
+            const userInfo: any = await LoginService.login();
+            if (!userInfo) {
+              this.setState({
+                authorize: true,
+              });
+              return;
+            }
+            this.setState(
+              {
+                userId: userInfo.id,
+              },
+              () => {
+                this.loginInit(userInfo.id);
+              }
+            );
+          }
+        },
+      });
       return;
     }
     const { stadiumInfo, isWatch } = this.state;
@@ -208,9 +244,15 @@ class StadiumPage extends Component<{}, IState> {
       return;
     }
     const userInfo: any = await LoginService.handleAuthorize();
-    this.setState({
-      userId: userInfo.id,
-    });
+
+    this.setState(
+      {
+        userId: userInfo.id,
+      },
+      () => {
+        this.loginInit(userInfo.id);
+      }
+    );
   }
 
   render() {
