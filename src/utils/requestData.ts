@@ -15,7 +15,7 @@ export default function requestData<T = void>(data: ReqData) {
   return new Promise<T>(
     (resolve: (data: any) => void, reject: (err: ResError) => void) => {
       const completeApi = SERVER_API_ROOT + api;
-      Taro.showToast({ icon: 'none', duration: 0, title: '请求中...' });
+      // Taro.showToast({ icon: 'none', duration: 0, title: '请求中...' });
       const mergeData = Object.assign({}, params);
       let requestParams: Record<string, any> | string = {};
 
@@ -51,7 +51,7 @@ export default function requestData<T = void>(data: ReqData) {
           resolve(res);
         })
         .catch((err) => {
-          Taro.hideLoading();
+          // Taro.hideLoading();
           console.log(
             '请求地址=',
             options.url,
