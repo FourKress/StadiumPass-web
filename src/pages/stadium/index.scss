@@ -39,10 +39,10 @@ page {
       font-weight: bold;
       color: #000000;
       position: fixed;
-      border: 1px solid #D5DDE5;
+      border: 1px solid #d5dde5;
       box-sizing: border-box;
 
-      .icon{
+      .icon {
         display: block;
         width: 32px;
         height: 32px;
@@ -82,7 +82,7 @@ page {
 
         .address {
           font-size: 28px;
-          color: #6A6A7D;
+          color: #6a6a7d;
           display: flex;
           align-items: center;
 
@@ -112,12 +112,12 @@ page {
         left: 50%;
         height: 8px;
         border-radius: 8px;
-        background-color: #1A1E22;
+        background-color: #1a1e22;
       }
 
       .at-tabs__item--active {
         font-weight: bold;
-        color: #1A1E22;
+        color: #1a1e22;
 
         .at-tabs__item-underline {
           transform: translateX(-50%) scaleX(1);
@@ -146,13 +146,15 @@ page {
           flex: none;
           width: 200px;
           height: 160px;
-          background-color: #F3F4F3;
+          background-color: #f3f4f3;
           border-radius: 16px;
           margin-left: 16px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
+          border: 1px solid #fff;
+          box-sizing: border-box;
 
           .type {
             color: #101010;
@@ -164,7 +166,8 @@ page {
             font-size: 26px;
             margin: 8px 0;
           }
-          .tips1, .tips2 {
+          .tips1,
+          .tips2 {
             width: 32px;
             height: 32px;
             line-height: 32px;
@@ -173,27 +176,26 @@ page {
             border-radius: 8px;
           }
           .tips1 {
-            background-color: #FDCA3C;
-            color: #FF9502;
+            background-color: #fdca3c;
+            color: #ff9502;
           }
           .tips2 {
             background-color: #fff;
-            color: #FF5D46;
+            color: #ff5d46;
           }
           &:first-child {
             margin-left: 0;
           }
 
           &.active {
-            border: 1px solid #B7E1FF;
+            border-color: #b7e1ff;
             .type {
-              color: #B7E1FF;
+              color: #b7e1ff;
             }
             .unit {
-              color: #B7E1FF;
+              color: #b7e1ff;
             }
           }
-
         }
       }
 
@@ -207,7 +209,6 @@ page {
         .at-icon {
           margin-left: 4px;
         }
-
 
         .info {
           display: flex;
@@ -232,7 +233,7 @@ page {
 
       .panel {
         width: 100%;
-        background-color: #F2F4F2;
+        background-color: #f2f4f2;
         border-radius: 16px;
         padding: 0 30px;
         box-sizing: border-box;
@@ -251,6 +252,10 @@ page {
             display: flex;
             align-items: center;
 
+            .text {
+              font-weight: bold;
+            }
+
             .tips1 {
               width: 32px;
               height: 32px;
@@ -258,8 +263,8 @@ page {
               text-align: center;
               font-size: 24px;
               border-radius: 8px;
-              background-color: #FDCA3C;
-              color: #FF9502;
+              background-color: #fdca3c;
+              color: #ff9502;
               margin-left: 12px;
             }
           }
@@ -270,7 +275,7 @@ page {
             &.open {
               transform: rotate(0deg);
             }
-            transition: all .5s;
+            transition: all 0.5s;
           }
         }
 
@@ -281,7 +286,7 @@ page {
           justify-content: space-between;
           padding-bottom: 16px;
           box-sizing: border-box;
-          transition: all .5s;
+          transition: all 0.5s;
           opacity: 1;
 
           &.hidden {
@@ -306,13 +311,13 @@ page {
               width: 80px;
               height: 80px;
               border-radius: 80px;
-              background-color: #F1F4F1;
+              background-color: #f1f4f1;
               display: flex;
               align-items: center;
               .index {
                 width: 100%;
                 text-align: center;
-                color: #E2E2E2;
+                color: #e2e2e2;
               }
               img {
                 display: block;
@@ -340,20 +345,19 @@ page {
             }
 
             &:hover {
-              border-color: #0092FF;
+              border-color: #0092ff;
               .img {
-                background-color: #E9F6FF;
-                color: #0092FF;
+                background-color: #e9f6ff;
+                color: #0092ff;
               }
             }
           }
         }
       }
-
     }
 
     .details {
-      background-color: #F4F4F4;
+      background-color: #f4f4f4;
       padding-top: 32px;
 
       .row {
@@ -384,7 +388,7 @@ page {
 
         .label {
           font-size: 32px;
-          color: #93A8B7;
+          color: #93a8b7;
           margin: 0 24px 0 8px;
         }
 
@@ -397,7 +401,7 @@ page {
             height: 100px;
             line-height: 100px;
             &:first-child {
-              border-bottom: 1px solid #F2F2F2;
+              border-bottom: 1px solid #f2f2f2;
             }
           }
         }
@@ -437,13 +441,13 @@ page {
 
         .new {
           font-size: 36px;
-          color: #FF3A30;
+          color: #ff3a30;
           font-weight: bold;
         }
 
         .old {
           font-size: 24px;
-          color: #C7C7CC;
+          color: #c7c7cc;
           display: flex;
           align-items: center;
           .price {
@@ -457,13 +461,14 @@ page {
             text-align: center;
             font-size: 24px;
             border-radius: 8px;
-            background-color: #FDCA3C;
-            color: #FF9502;
+            background-color: #fdca3c;
+            color: #ff9502;
             margin-left: 4px;
           }
         }
 
-        .new, .price {
+        .new,
+        .price {
           &:before {
             content: '￥';
             font-size: 24px;
@@ -472,17 +477,19 @@ page {
       }
     }
 
-
-
     .btn {
       width: 320px;
       height: 88px;
       line-height: 88px;
       text-align: center;
-      background-color: #FF9502;
+      background-color: #ff9502;
       color: #fff;
       font-size: 28px;
       border-radius: 88px;
+
+      &.disabled {
+        background-color: #ccc;
+      }
     }
   }
 }

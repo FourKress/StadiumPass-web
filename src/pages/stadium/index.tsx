@@ -20,6 +20,8 @@ interface IState {
   userId: string;
   authorize: boolean;
   stadiumId: string;
+  selectCount: number;
+  spaceActive: number;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -38,6 +40,8 @@ class StadiumPage extends Component<{}, IState> {
       userId: '',
       authorize: false,
       stadiumId: '',
+      selectCount: 0,
+      spaceActive: 0,
     };
   }
 
@@ -45,7 +49,7 @@ class StadiumPage extends Component<{}, IState> {
     // @ts-ignore
     // const id = Taro.getCurrentInstance().router.params.id;
     this.setMeBtnPosition();
-    const id = '60c9870beb158eec73c90249';
+    const id = '60cda9846c449177584f9ca3';
     this.setState(
       {
         stadiumId: id,
@@ -133,14 +137,14 @@ class StadiumPage extends Component<{}, IState> {
         stadiumId,
       },
     }).then((res: any) => {
-      this.getMatch(res[0]?.id);
+      this.getMatch(res[0]?.id, 0);
       this.setState({
         spaceList: res,
       });
     });
   }
 
-  getMatch(spaceId) {
+  getMatch(spaceId, index) {
     requestData({
       method: 'GET',
       api: '/match/info',
@@ -153,6 +157,7 @@ class StadiumPage extends Component<{}, IState> {
       this.setState({
         matchList: res,
         openList,
+        spaceActive: index,
       });
     });
   }
@@ -180,6 +185,12 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
+  handleSubmit() {
+    if (this.state.selectCount <= 0) return;
+    if (!this.checkLogin()) return;
+    // this.jumpOrder();
+  }
+
   jumpOrder() {
     Taro.navigateTo({
       url: '../order/index',
@@ -193,6 +204,26 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   handleWatch() {
+    if (!this.checkLogin()) {
+      return;
+    }
+    const { stadiumInfo, isWatch } = this.state;
+    requestData({
+      method: 'POST',
+      api: '/userRelationStadium/watch',
+      params: {
+        stadiumId: stadiumInfo.id,
+        isWatch: !isWatch,
+        stadiumName: stadiumInfo.name,
+      },
+    }).then((res: any) => {
+      this.setState({
+        isWatch: res,
+      });
+    });
+  }
+
+  checkLogin() {
     if (!this.state.userId) {
       Taro.showModal({
         title: '提示',
@@ -218,22 +249,9 @@ class StadiumPage extends Component<{}, IState> {
           }
         },
       });
-      return;
+      return false;
     }
-    const { stadiumInfo, isWatch } = this.state;
-    requestData({
-      method: 'POST',
-      api: '/userRelationStadium/watch',
-      params: {
-        stadiumId: stadiumInfo.id,
-        isWatch: !isWatch,
-        stadiumName: stadiumInfo.name,
-      },
-    }).then((res: any) => {
-      this.setState({
-        isWatch: res,
-      });
-    });
+    return true;
   }
 
   async handleAuthorize(status) {
@@ -265,6 +283,8 @@ class StadiumPage extends Component<{}, IState> {
       spaceList,
       matchList,
       authorize,
+      selectCount,
+      spaceActive,
     } = this.state;
 
     return (
@@ -304,9 +324,14 @@ class StadiumPage extends Component<{}, IState> {
               <View className="space-panel">
                 <View className="list">
                   {spaceList.length > 1 &&
-                    spaceList.map((item) => {
+                    spaceList.map((item, index) => {
                       return (
-                        <View className="item">
+                        <View
+                          onClick={() => this.getMatch(item.id, index)}
+                          className={
+                            spaceActive === index ? 'item active' : 'item'
+                          }
+                        >
                           <View className="type">{item.name}</View>
                           <View className="unit">{item.unit}</View>
                           {item.full ? (
@@ -338,12 +363,14 @@ class StadiumPage extends Component<{}, IState> {
                       <View className="panel">
                         <View className="p-top">
                           <View className="info">
-                            <Text>
-                              {item.runAt} / {item.duration}小时 /{' '}
-                              {item.selectPeople}
-                              <Text style="font-weight: bold;">/</Text>
-                              {item.totalPeople}
-                            </Text>
+                            <View>
+                              <Text className="text">{item.runAt}</Text> /{' '}
+                              <Text className="text">{item.duration}小时</Text>{' '}
+                              /{' '}
+                              <Text className="text">{item.selectPeople}</Text>
+                              <Text className="text">/</Text>
+                              <Text className="text">{item.totalPeople}人</Text>
+                            </View>
                             {item.rebate && <View className="tips1">折</View>}
                           </View>
                           <AtIcon
@@ -465,7 +492,7 @@ class StadiumPage extends Component<{}, IState> {
         {tabValue === 0 && (
           <View className="pay-btn">
             <View className="info">
-              <View className="text">已选数量：2，共：</View>
+              <View className="text">已选席位：2，共：</View>
               <View className="money">
                 <View className="new">50</View>
                 <View className="old">
@@ -474,7 +501,10 @@ class StadiumPage extends Component<{}, IState> {
                 </View>
               </View>
             </View>
-            <View onClick={() => this.jumpOrder()} className="btn">
+            <View
+              onClick={() => this.handleSubmit()}
+              className={selectCount ? 'btn' : 'btn disabled'}
+            >
               立即报名
             </View>
           </View>
