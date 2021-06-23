@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
-// import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 // import requestData from "@/utils/requestData";
 
 import './index.scss';
@@ -26,6 +26,7 @@ class OrderPayPage extends Component<{}, IState> {
   componentDidShow() {
     // @ts-ignore
     const orderId = Taro.getCurrentInstance().router.params.orderId + '';
+    console.log(orderId);
     // const orderId = '60d351030a33c54f3cf97be9';
     this.getOrderInfo(orderId);
     this.setState({
