@@ -189,9 +189,11 @@ page {
 
           &.active {
             border-color: #b7e1ff;
+
             .type {
               color: #b7e1ff;
             }
+
             .unit {
               color: #b7e1ff;
             }
@@ -199,12 +201,18 @@ page {
         }
       }
 
-      .date {
+      .picker {
         height: 100%;
         display: flex;
         align-items: center;
         box-shadow: -50px 0px 50px 5px #fff;
         z-index: 5;
+      }
+
+      .date {
+        height: 100%;
+        display: flex;
+        align-items: center;
 
         .at-icon {
           margin-left: 4px;

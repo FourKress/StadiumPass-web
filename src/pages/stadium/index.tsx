@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
-import { View, Text, Image } from '@tarojs/components';
+import { View, Text, Image, Picker } from '@tarojs/components';
 import { AtTabs, AtIcon, AtTabsPane } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
 import * as LoginService from '../../services/loginService';
 import AuthorizeUserBtn from '../../components/authorizeUserModal';
+import dayjs from 'dayjs';
 
 import './index.scss';
+
+const STAR_DATE = dayjs().format('YYYY.MM.DD');
+const END_DATE = dayjs().add(7, 'day').format('YYYY.MM.DD');
 
 interface IState {
   tabValue: number;
@@ -24,6 +28,7 @@ interface IState {
   currentMatch: any;
   personList: any;
   selectList: any;
+  spaceDate: string;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -46,6 +51,7 @@ class StadiumPage extends Component<{}, IState> {
       currentMatch: {},
       personList: [],
       selectList: [],
+      spaceDate: dayjs().format('YYYY-MM-DD'),
     };
   }
 
@@ -61,7 +67,7 @@ class StadiumPage extends Component<{}, IState> {
       () => {
         if (!id) return;
         this.getStadiumInfo(id);
-        this.getSpace(id);
+        this.getSpace(id, dayjs().format('YYYY-MM-DD')).then(() => {});
         const userId = Taro.getStorageSync('userInfo').id || '';
         this.loginInit(userId);
       }
@@ -133,19 +139,39 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  getSpace(stadiumId) {
-    requestData({
-      method: 'GET',
+  getSpace(stadiumId, date) {
+    return requestData({
+      method: 'POST',
       api: '/space/list',
       params: {
         stadiumId,
+        validateDate: date,
       },
     }).then((res: any) => {
+      if (!res?.length) {
+        Taro.showToast({
+          icon: 'none',
+          title: '选择的日期暂无组队场次，请重新选择其它日期。',
+        });
+        return false;
+      }
       this.getMatchList(res[0]?.id, 0);
       this.setState({
         spaceList: res,
+        selectList: [],
       });
+      return res;
     });
+  }
+
+  async onSpaceDateChange(e) {
+    const { value } = e.detail;
+    const result = await this.getSpace(this.state.stadiumId, value);
+    if (result) {
+      this.setState({
+        spaceDate: value,
+      });
+    }
   }
 
   getMatchList(spaceId, index) {
@@ -188,11 +214,11 @@ class StadiumPage extends Component<{}, IState> {
             if (index <= res.length - 1) return res[index];
             return item;
           });
-        console.log(personList, 9998);
         list = personList;
       }
       this.setState({
         personList: list,
+        currentMatch,
       });
     });
   }
@@ -224,10 +250,12 @@ class StadiumPage extends Component<{}, IState> {
     if (item.nickName) {
       return;
     }
+    if (!this.checkLogin()) {
+      return;
+    }
     const { selectList } = this.state;
     const flag = selectList.some((d) => d === index);
     if (!flag) {
-      console.log(12, item);
       this.setState({
         selectList: [...selectList, index],
       });
@@ -247,12 +275,29 @@ class StadiumPage extends Component<{}, IState> {
   handleSubmit() {
     if (this.state.selectList.length <= 0) return;
     if (!this.checkLogin()) return;
-    // this.jumpOrder();
+    const { currentMatch, stadiumId, selectList } = this.state;
+    const { spaceId, id } = currentMatch;
+    const payAmount =
+      selectList.length * currentMatch.price * (currentMatch.rebate / 10);
+    return requestData({
+      method: 'POST',
+      api: '/order/add',
+      params: {
+        matchId: id,
+        spaceId,
+        stadiumId,
+        payAmount,
+        personCount: selectList.length,
+      },
+    }).then((res: any) => {
+      console.log(res);
+      this.jumpOrderPay();
+    });
   }
 
-  jumpOrder() {
+  jumpOrderPay() {
     Taro.navigateTo({
-      url: '../order/index',
+      url: '../orderPay/index',
     });
   }
 
@@ -343,10 +388,10 @@ class StadiumPage extends Component<{}, IState> {
       matchList,
       authorize,
       spaceActive,
-      userId,
       currentMatch,
       personList,
       selectList,
+      spaceDate,
     } = this.state;
 
     console.log(currentMatch);
@@ -388,7 +433,7 @@ class StadiumPage extends Component<{}, IState> {
             <AtTabsPane current={tabValue} index={0}>
               <View className="space-panel">
                 <View className="list">
-                  {spaceList.length > 1 &&
+                  {spaceList.length > 0 &&
                     spaceList.map((item, index) => {
                       return (
                         <View
@@ -408,17 +453,28 @@ class StadiumPage extends Component<{}, IState> {
                       );
                     })}
                 </View>
-                <View className="date">
-                  <View className="info">
-                    <View className="day">今天</View>
-                    <View>06.09</View>
+                <Picker
+                  value={spaceDate}
+                  start={STAR_DATE}
+                  end={END_DATE}
+                  className="picker"
+                  mode="date"
+                  onChange={(e) => this.onSpaceDateChange(e)}
+                >
+                  <View className="date">
+                    <View className="info">
+                      <View className="day">今天</View>
+                      <View>
+                        {spaceDate.replace(/-/g, '.').substring(5, 10)}
+                      </View>
+                    </View>
+                    <AtIcon
+                      value="chevron-down"
+                      size="24"
+                      color="#101010"
+                    ></AtIcon>
                   </View>
-                  <AtIcon
-                    value="chevron-down"
-                    size="24"
-                    color="#101010"
-                  ></AtIcon>
-                </View>
+                </Picker>
               </View>
 
               <View className="people-panel">
@@ -426,7 +482,10 @@ class StadiumPage extends Component<{}, IState> {
                   matchList.map((item, index) => {
                     return (
                       <View className="panel">
-                        <View className="p-top">
+                        <View
+                          className="p-top"
+                          onClick={() => this.handlePeoPleOpen(index)}
+                        >
                           <View className="info">
                             <View>
                               <Text className="text">{item.runAt}</Text> /{' '}
@@ -440,7 +499,6 @@ class StadiumPage extends Component<{}, IState> {
                           </View>
                           <AtIcon
                             className={openList[index] ? '' : 'open'}
-                            onClick={() => this.handlePeoPleOpen(index)}
                             value="chevron-down"
                             size="24"
                             color="#101010"
@@ -561,7 +619,7 @@ class StadiumPage extends Component<{}, IState> {
         {tabValue === 0 && (
           <View className="pay-btn">
             <View className="warp">
-              {userId ? (
+              {selectList.length > 0 ? (
                 <View className="info">
                   <View className="text">
                     已选席位：
