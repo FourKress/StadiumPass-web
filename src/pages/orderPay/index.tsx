@@ -25,8 +25,8 @@ class OrderPayPage extends Component<{}, IState> {
 
   componentDidShow() {
     // @ts-ignore
-    // const orderId = Taro.getCurrentInstance().router.params.orderId + '';
-    const orderId = '60d351030a33c54f3cf97be9';
+    const orderId = Taro.getCurrentInstance().router.params.orderId + '';
+    // const orderId = '60d351030a33c54f3cf97be9';
     this.getOrderInfo(orderId);
     this.setState({
       orderId,
