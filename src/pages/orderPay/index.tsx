@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 interface IState {
   orderId: string;
   orderInfo: any;
+  countdown: number;
 }
 
 class OrderPayPage extends Component<{}, IState> {
@@ -18,6 +19,7 @@ class OrderPayPage extends Component<{}, IState> {
     this.state = {
       orderId: '',
       orderInfo: {},
+      countdown: 0,
     };
   }
 
@@ -40,28 +42,41 @@ class OrderPayPage extends Component<{}, IState> {
       },
     }).then((res: any) => {
       console.log(res);
-      this.setState({
-        orderInfo: res,
-      });
+      this.setState(
+        {
+          orderInfo: res,
+          countdown: res.countdown,
+        },
+        () => {
+          setInterval(() => {
+            this.setState({
+              countdown: this.state.countdown - 1000,
+            });
+          }, 1000);
+        }
+      );
     });
   }
 
   render() {
-    const { orderInfo } = this.state;
+    const { orderInfo, countdown } = this.state;
     const totalPrice = orderInfo.price * orderInfo.personCount;
+    const countdownArr = dayjs(countdown).format('mm:ss').split(':');
+    console.log(countdownArr);
 
-    console.log(dayjs(orderInfo.countdown).format('mm:ss'));
+    const M = countdownArr[0].split('');
+    const S = countdownArr[1].split('');
 
     return (
       <View className="pay-page">
         <View className="top-bar">
           <View className="tips">为提升组队成功率，请在倒计时结束前支付！</View>
           <View className="date">
-            <View className="block">2</View>
-            <View className="block">3</View>
+            <View className="block">{M[0]}</View>
+            <View className="block">{M[1]}</View>
             <View className="line">:</View>
-            <View className="block">1</View>
-            <View className="block">9</View>
+            <View className="block">{S[0]}</View>
+            <View className="block">{S[1]}</View>
           </View>
         </View>
 
