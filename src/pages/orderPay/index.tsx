@@ -1,26 +1,57 @@
 import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
-// import {  } from "taro-ui"
 // import Taro from '@tarojs/taro';
 // import requestData from "@/utils/requestData";
 
 import './index.scss';
+import requestData from '@/utils/requestData';
+import dayjs from 'dayjs';
 
 interface IState {
-  orderList: Array<any>;
+  orderId: string;
+  orderInfo: any;
 }
 
 class OrderPayPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      orderList: [],
+      orderId: '',
+      orderInfo: {},
     };
   }
 
-  componentDidShow() {}
+  componentDidShow() {
+    // @ts-ignore
+    // const orderId = Taro.getCurrentInstance().router.params.orderId + '';
+    const orderId = '60d351030a33c54f3cf97be9';
+    this.getOrderInfo(orderId);
+    this.setState({
+      orderId,
+    });
+  }
+
+  getOrderInfo(orderId) {
+    requestData({
+      method: 'GET',
+      api: '/order/info',
+      params: {
+        id: orderId,
+      },
+    }).then((res: any) => {
+      console.log(res);
+      this.setState({
+        orderInfo: res,
+      });
+    });
+  }
 
   render() {
+    const { orderInfo } = this.state;
+    const totalPrice = orderInfo.price * orderInfo.personCount;
+
+    console.log(dayjs(orderInfo.countdown).format('mm:ss'));
+
     return (
       <View className="pay-page">
         <View className="top-bar">
@@ -39,23 +70,31 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="top">场次信息</View>
             <View className="row">
               <Text className="label">场馆</Text>
-              <Text className="text">可能荆防颗粒时代峻峰</Text>
+              <Text className="text">{orderInfo.stadiumName}</Text>
             </View>
             <View className="row">
               <Text className="label">场地</Text>
-              <Text className="text">足球 / 5V5 / 一号场</Text>
+              <Text className="text">
+                足球 / {orderInfo.unit} / {orderInfo.spaceName}
+              </Text>
             </View>
             <View className="row">
               <Text className="label">时间</Text>
-              <Text className="text">今天 06.09 / 18:00-20:00 / 2小时</Text>
+              <Text className="text">
+                今天 {orderInfo.validateDate} / {orderInfo.runAt} /{' '}
+                {orderInfo.duration}小时
+              </Text>
             </View>
             <View className="row">
               <Text className="label">人数</Text>
-              <Text className="text">2人</Text>
+              <Text className="text">{orderInfo.personCount}人</Text>
             </View>
             <View className="row">
               <Text className="label">金额</Text>
-              <Text className="text">￥25.00/人，共50.00</Text>
+              <Text className="text">
+                ￥{orderInfo.price}/人，共
+                {totalPrice}
+              </Text>
             </View>
           </View>
         </View>
@@ -66,25 +105,38 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="row">
               <Text className="icon"></Text>
               <Text className="label">微信支付</Text>
-              <Text className="money">￥50</Text>
+              <Text className="money">￥{totalPrice}</Text>
               <Text className="icon"></Text>
             </View>
             <View className="row">
               <Text className="icon"></Text>
               <Text className="label">
-                {/*<Text>场地月卡</Text>*/}
-                {/*<Text className="text">(每场仅可免费1个名额)</Text>*/}
+                <Text>场地月卡</Text>
+                {orderInfo.isMonthlyCard && (
+                  <Text className="text">(每场仅可免费1个名额)</Text>
+                )}
               </Text>
               <Text className="money">
-                <Text>￥50</Text>
-                <Text className="text">(开通并使用月卡)</Text>
+                <Text>
+                  ￥
+                  {orderInfo.isMonthlyCard
+                    ? orderInfo.price
+                    : orderInfo.monthlyCardPrice}
+                </Text>
+                {!orderInfo.isMonthlyCard && (
+                  <Text className="text">(开通并使用月卡)</Text>
+                )}
               </Text>
+
               <Text className="icon"></Text>
             </View>
-            {/*<View className="tips">月卡有效期：2021.06.09-2021.07.08</View>*/}
-            <View className="tips">
-              月卡有效期内，不限次数免费订场！仅需¥150/月！
-            </View>
+            {orderInfo.isMonthlyCard ? (
+              <View className="tips">月卡有效期：2021.06.09-2021.07.08</View>
+            ) : (
+              <View className="tips">
+                月卡有效期内，不限次数免费订场！仅需¥150/月！
+              </View>
+            )}
           </View>
         </View>
 

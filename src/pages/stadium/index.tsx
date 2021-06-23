@@ -291,13 +291,13 @@ class StadiumPage extends Component<{}, IState> {
       },
     }).then((res: any) => {
       console.log(res);
-      this.jumpOrderPay();
+      this.jumpOrderPay(res);
     });
   }
 
-  jumpOrderPay() {
+  jumpOrderPay(orderId) {
     Taro.navigateTo({
-      url: '../orderPay/index',
+      url: `../orderPay/index?orderId=${orderId}`,
     });
   }
 
@@ -509,13 +509,17 @@ class StadiumPage extends Component<{}, IState> {
                         >
                           {personList?.length > 0 &&
                             personList.map((item, index) => {
+                              const flag = index + 1 === currentMatch.minPeople;
+                              let className = 'item';
+                              if (flag) {
+                                className += ' line';
+                              }
+                              if (selectList.includes(index)) {
+                                className += ' hover';
+                              }
                               return (
                                 <View
-                                  className={
-                                    selectList.includes(index)
-                                      ? 'item hover'
-                                      : 'item'
-                                  }
+                                  className={className}
                                   onClick={() =>
                                     this.handleSelectPerson(item, index)
                                   }
@@ -545,6 +549,11 @@ class StadiumPage extends Component<{}, IState> {
                                         size="24"
                                         color="#0092FF"
                                       ></AtIcon>
+                                    </View>
+                                  )}
+                                  {flag && (
+                                    <View className="tips">
+                                      满{currentMatch.minPeople}人即可开赛
                                     </View>
                                   )}
                                 </View>
