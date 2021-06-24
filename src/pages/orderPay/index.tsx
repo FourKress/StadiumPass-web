@@ -13,6 +13,8 @@ interface IState {
   countdown: number;
 }
 
+let timer: any = null;
+
 class OrderPayPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
@@ -24,6 +26,9 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   componentDidShow() {
+    if (timer) {
+      clearInterval(timer);
+    }
     // @ts-ignore
     const orderId = Taro.getCurrentInstance().router.params.orderId + '';
     console.log(orderId);
@@ -49,7 +54,7 @@ class OrderPayPage extends Component<{}, IState> {
           countdown: res.countdown,
         },
         () => {
-          setInterval(() => {
+          timer = setInterval(() => {
             this.setState({
               countdown: this.state.countdown - 1000,
             });
@@ -61,9 +66,7 @@ class OrderPayPage extends Component<{}, IState> {
 
   render() {
     const { orderInfo, countdown } = this.state;
-    const totalPrice = orderInfo.price * orderInfo.personCount;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
-    console.log(countdownArr);
 
     const M = countdownArr[0].split('');
     const S = countdownArr[1].split('');
@@ -109,7 +112,7 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="label">金额</Text>
               <Text className="text">
                 ￥{orderInfo.price}/人，共
-                {totalPrice}
+                {orderInfo.totalPrice}
               </Text>
             </View>
           </View>
@@ -121,7 +124,7 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="row">
               <Text className="icon"></Text>
               <Text className="label">微信支付</Text>
-              <Text className="money">￥{totalPrice}</Text>
+              <Text className="money">￥{orderInfo.totalPrice}</Text>
               <Text className="icon"></Text>
             </View>
             <View className="row">
