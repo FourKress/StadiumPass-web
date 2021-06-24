@@ -32,7 +32,6 @@ class OrderPayPage extends Component<{}, IState> {
     // @ts-ignore
     const orderId = Taro.getCurrentInstance().router.params.orderId + '';
     console.log(orderId);
-    // const orderId = '60d351030a33c54f3cf97be9';
     this.getOrderInfo(orderId);
     this.setState({
       orderId,
@@ -100,8 +99,8 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="row">
               <Text className="label">时间</Text>
               <Text className="text">
-                今天 {orderInfo.validateDate} / {orderInfo.runAt} /{' '}
-                {orderInfo.duration}小时
+                今天 {orderInfo.validateDate} / {orderInfo.startAt} -{' '}
+                {orderInfo.endAt} / {orderInfo.duration}小时
               </Text>
             </View>
             <View className="row">
@@ -153,7 +152,8 @@ class OrderPayPage extends Component<{}, IState> {
               <View className="tips">月卡有效期：2021.06.09-2021.07.08</View>
             ) : (
               <View className="tips">
-                月卡有效期内，不限次数免费订场！仅需¥150/月！
+                月卡有效期内，不限次数免费订场！仅需¥
+                {orderInfo.monthlyCardPrice}/月！
               </View>
             )}
           </View>
@@ -173,7 +173,7 @@ class OrderPayPage extends Component<{}, IState> {
         </View>
 
         <View className="pay-btn">
-          <View className="btn">立即支付 ￥50.00</View>
+          <View className="btn">立即支付 ￥{orderInfo.totalPrice}</View>
         </View>
       </View>
     );

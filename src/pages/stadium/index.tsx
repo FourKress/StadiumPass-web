@@ -488,7 +488,10 @@ class StadiumPage extends Component<{}, IState> {
                         >
                           <View className="info">
                             <View>
-                              <Text className="text">{item.runAt}</Text> /{' '}
+                              <Text className="text">
+                                {item.startAt} - {item.endAt}
+                              </Text>{' '}
+                              /{' '}
                               <Text className="text">{item.duration}小时</Text>{' '}
                               /{' '}
                               <Text className="text">{item.selectPeople}</Text>

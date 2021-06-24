@@ -80,12 +80,15 @@ class MePage extends Component<{}, IState> {
   }
 
   checkLogin() {
-    Taro.showToast({
-      title: '请先登录',
-      icon: 'none',
-      duration: 2000,
-    });
-    return Taro.getStorageSync('token');
+    const token = Taro.getStorageSync('token');
+    if (!token) {
+      Taro.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 2000,
+      });
+    }
+    return token;
   }
 
   jumpOrder(index) {
@@ -184,7 +187,7 @@ class MePage extends Component<{}, IState> {
         <View className="main">
           <View className="order-nav">
             <View className="item" onClick={() => this.jumpOrder(0)}>
-              {orderCount.allCount ? (
+              {orderCount.payCount ? (
                 <AtBadge value={orderCount.payCount} maxValue={99}>
                   <View className="icon"></View>
                 </AtBadge>

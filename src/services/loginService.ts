@@ -3,6 +3,9 @@ import requestData from '@/utils/requestData';
 
 const login = () => {
   return new Promise((resolve, reject) => {
+    Taro.showLoading({
+      title: '快捷登陆中',
+    });
     Taro.login()
       .then((res) => {
         if (res.code) {
@@ -33,6 +36,7 @@ const login = () => {
       })
       .catch((err) => {
         console.log('登录失败！' + err);
+        Taro.hideLoading();
         reject();
       });
   });
@@ -89,6 +93,9 @@ const handleAuthorize = () => {
     })
       .then((res) => {
         const openId = Taro.getStorageSync('openId');
+        Taro.showLoading({
+          title: '快捷登陆中',
+        });
         return sendLogin(openId, res.userInfo);
       })
       .then((res) => {
@@ -99,6 +106,7 @@ const handleAuthorize = () => {
       })
       .catch((err) => {
         console.log(err);
+        Taro.hideLoading();
         reject();
       });
   });

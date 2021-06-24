@@ -6,6 +6,7 @@ import Taro from '@tarojs/taro';
 
 import './index.scss';
 import requestData from '@/utils/requestData';
+import dayjs from 'dayjs';
 
 interface IOrderCount {
   payCount: number;
@@ -59,7 +60,7 @@ class OrderPage extends Component<{}, IState> {
       method: 'POST',
       api: '/order/listByStatus',
       params: {
-        status,
+        status: status === 2 ? undefined : status,
       },
     }).then((res: any) => {
       this.setState({
@@ -69,6 +70,7 @@ class OrderPage extends Component<{}, IState> {
   }
 
   handleTabClick(value) {
+    console.log(value);
     this.setState({
       tabValue: value,
     });
@@ -92,22 +94,28 @@ class OrderPage extends Component<{}, IState> {
 
         <View className="list">
           {orderList.length ? (
-            orderList.map(() => {
+            orderList.map((item) => {
               return (
                 <View className="item">
                   <View className="top">
-                    <Text className="name">立长大大打算</Text>
-                    <Text className="status">待付款</Text>
+                    <Text className="name">{item.stadiumName}</Text>
+                    <Text className="status">{item.statusName}</Text>
                   </View>
                   <View className="info">
                     <View className="row">
-                      2021.06.09 / 18:00-20:00 / 2小时
+                      {item.validateDate} / {item.startAt} - {item.endAt} /{' '}
+                      {item.duration}小时
                     </View>
-                    <View className="row">足球 / 5v5 / 一号场 / 2人</View>
+                    <View className="row">
+                      足球 / {item.unit} / {item.spaceName} / {item.personCount}
+                      人
+                    </View>
                   </View>
                   <View className="footer">
-                    <Text className="date">2021.01.01 12:22:22</Text>
-                    <Text className="money">总价：￥50.00</Text>
+                    <Text className="date">
+                      {dayjs(item.createdAt).format('YYYY-MM-DD hh:mm:ss')}
+                    </Text>
+                    <Text className="money">总价：￥{item.totalPrice}</Text>
                   </View>
                 </View>
               );
