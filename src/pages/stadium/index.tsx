@@ -29,6 +29,7 @@ interface IState {
   personList: any;
   selectList: any;
   spaceDate: string;
+  isStart: boolean;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -52,17 +53,21 @@ class StadiumPage extends Component<{}, IState> {
       personList: [],
       selectList: [],
       spaceDate: dayjs().format('YYYY-MM-DD'),
+      isStart: false,
     };
   }
 
   componentDidShow() {
     // @ts-ignore
-    // const id = Taro.getCurrentInstance().router.params.id;
+    const pageParams = Taro.getCurrentInstance().router.params;
+    console.log(pageParams);
+    // const id = pageParams.stadiumId + '';
     this.setMeBtnPosition();
     const id = '60cda9846c449177584f9ca3';
     this.setState(
       {
         stadiumId: id,
+        isStart: !!pageParams.isStart,
       },
       () => {
         if (!id) return;
@@ -197,6 +202,7 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   getPeoPelList(currentMatch) {
+    if (!currentMatch?.id) return;
     return requestData({
       method: 'GET',
       api: '/userRMatch/findAllByMatchId',
@@ -392,10 +398,10 @@ class StadiumPage extends Component<{}, IState> {
       personList,
       selectList,
       spaceDate,
+      isStart,
     } = this.state;
 
-    console.log(currentMatch);
-    console.log(personList);
+    const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
 
     return (
       <View className="stadium-page">
@@ -431,53 +437,55 @@ class StadiumPage extends Component<{}, IState> {
             onClick={(value) => this.handleTabClick(value)}
           >
             <AtTabsPane current={tabValue} index={0}>
-              <View className="space-panel">
-                <View className="list">
-                  {spaceList.length > 0 &&
-                    spaceList.map((item, index) => {
-                      return (
-                        <View
-                          onClick={() => this.getMatchList(item.id, index)}
-                          className={
-                            spaceActive === index ? 'item active' : 'item'
-                          }
-                        >
-                          <View className="type">{item.name}</View>
-                          <View className="unit">{item.unit}</View>
-                          {item.full ? (
-                            <View className="tips2">满</View>
-                          ) : (
-                            item.rebate !== 1 && (
-                              <View className="tips1">折</View>
-                            )
-                          )}
-                        </View>
-                      );
-                    })}
-                </View>
-                <Picker
-                  value={spaceDate}
-                  start={STAR_DATE}
-                  end={END_DATE}
-                  className="picker"
-                  mode="date"
-                  onChange={(e) => this.onSpaceDateChange(e)}
-                >
-                  <View className="date">
-                    <View className="info">
-                      <View className="day">今天</View>
-                      <View>
-                        {spaceDate.replace(/-/g, '.').substring(5, 10)}
-                      </View>
-                    </View>
-                    <AtIcon
-                      value="chevron-down"
-                      size="24"
-                      color="#101010"
-                    ></AtIcon>
+              {!isStart && (
+                <View className="space-panel">
+                  <View className="list">
+                    {spaceList.length > 0 &&
+                      spaceList.map((item, index) => {
+                        return (
+                          <View
+                            onClick={() => this.getMatchList(item.id, index)}
+                            className={
+                              spaceActive === index ? 'item active' : 'item'
+                            }
+                          >
+                            <View className="type">{item.name}</View>
+                            <View className="unit">{item.unit}</View>
+                            {item.full ? (
+                              <View className="tips2">满</View>
+                            ) : (
+                              item.rebate !== 1 && (
+                                <View className="tips1">折</View>
+                              )
+                            )}
+                          </View>
+                        );
+                      })}
                   </View>
-                </Picker>
-              </View>
+                  <Picker
+                    value={spaceDate}
+                    start={STAR_DATE}
+                    end={END_DATE}
+                    className="picker"
+                    mode="date"
+                    onChange={(e) => this.onSpaceDateChange(e)}
+                  >
+                    <View className="date">
+                      <View className="info">
+                        <View className="day">{isNow ? '今天' : ''}</View>
+                        <View>
+                          {spaceDate.replace(/-/g, '.').substring(5, 10)}
+                        </View>
+                      </View>
+                      <AtIcon
+                        value="chevron-down"
+                        size="24"
+                        color="#101010"
+                      ></AtIcon>
+                    </View>
+                  </Picker>
+                </View>
+              )}
 
               <View className="people-panel">
                 {matchList.length > 0 &&
@@ -515,9 +523,14 @@ class StadiumPage extends Component<{}, IState> {
                           {personList?.length > 0 &&
                             personList.map((item, index) => {
                               const flag = index + 1 === currentMatch.minPeople;
+                              const isPrev =
+                                index + 2 === currentMatch.minPeople;
+                              const isOdd = currentMatch.minPeople % 2;
                               let className = 'item';
                               if (flag) {
-                                className += ' line';
+                                className += isOdd ? ' odd-line' : ' even-line';
+                              } else if (isPrev && !isOdd) {
+                                className += ' pre-line';
                               }
                               if (selectList.includes(index)) {
                                 className += ' hover';
@@ -608,7 +621,6 @@ class StadiumPage extends Component<{}, IState> {
                     <View className="text">
                       足球 - 5v5 x3；8v8 x2；11v11 x1。
                     </View>
-                    <View className="text">篮球 - 5v5x1。</View>
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px">
@@ -658,14 +670,14 @@ class StadiumPage extends Component<{}, IState> {
                 <View className="not-login">
                   <View className="text">
                     当前报名人数：
-                    {currentMatch.selectPeople && (
+                    {currentMatch?.selectPeople && (
                       <Text style="font-weight： bold;">
-                        {selectList.length + currentMatch.selectPeople}
+                        {selectList.length + currentMatch?.selectPeople}
                       </Text>
                     )}
                   </View>
                   <View className="tips">
-                    报满{currentMatch.minPeople}人即可组队成功
+                    报满{currentMatch?.minPeople}人即可组队成功
                   </View>
                 </View>
               )}
@@ -674,7 +686,7 @@ class StadiumPage extends Component<{}, IState> {
               onClick={() => this.handleSubmit()}
               className={selectList.length ? 'btn' : 'btn disabled'}
             >
-              立即报名
+              {isStart ? '追加' : '立即'}报名
             </View>
           </View>
         )}

@@ -41,6 +41,7 @@ page {
       position: fixed;
       border: 1px solid #d5dde5;
       box-sizing: border-box;
+      z-index: 9;
 
       .icon {
         display: block;
@@ -133,7 +134,7 @@ page {
       width: 100vw;
       height: 160px;
       padding: 0 32px;
-      margin: 34px 0;
+      margin-top: 34px;
 
       .list {
         flex: 1;
@@ -238,6 +239,7 @@ page {
       width: 100vw;
       box-sizing: border-box;
       padding: 0 32px;
+      margin-top: 32px;
 
       .panel {
         width: 100%;
@@ -315,25 +317,47 @@ page {
             margin-bottom: 16px;
             border: 2px solid #fff;
 
-            &.line {
+            &.odd-line {
               margin: 0 50% 88rpx 0;
               position: relative;
+              &:after {
+                left: 0;
+              }
+              .tips {
+                left: 100%;
+                transform: translateX(-45%);
+              }
+            }
+
+            &.even-line, &.pre-line {
+              margin-bottom: 88rpx;
+              position: relative;
+
+            }
+
+            &.even-line {
+              &:after {
+                left: -100%;
+              }
+              .tips {
+                transform: translateX(-56%);
+              }
+            }
+
+            &.odd-line, &.even-line {
               &:after {
                 content: ' ';
                 width: 204%;
                 height: 0;
                 border: 1px dashed #ccc;
                 position: absolute;
-                left: 0;
                 bottom: -48rpx;
               }
               .tips {
                 position: absolute;
-                left: 100%;
                 color: #ccc;
                 width: 210px;
                 text-align: center;
-                transform: translateX(-45%);
                 bottom: -62rpx;
                 background-color: #f2f4f2;
                 z-index: 3;

@@ -2,10 +2,9 @@ import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
 import { AtTabBar } from 'taro-ui';
 import Taro from '@tarojs/taro';
-// import requestData from "@/utils/requestData";
+import requestData from '@/utils/requestData';
 
 import './index.scss';
-import requestData from '@/utils/requestData';
 import dayjs from 'dayjs';
 
 interface IOrderCount {
@@ -77,6 +76,21 @@ class OrderPage extends Component<{}, IState> {
     this.getStatusOrderList(value);
   }
 
+  handleOrderJump(order) {
+    const { status, id, stadiumId } = order;
+    if ([0, 1].includes(status)) {
+      let url = '';
+      if (status === 0) {
+        url = `../orderPay/index?orderId=${id}`;
+      } else if (status === 1) {
+        url = `../stadium/index?stadiumId=${stadiumId}&isStart=true`;
+      }
+      Taro.navigateTo({
+        url,
+      });
+    }
+  }
+
   render() {
     const { tabValue, orderCount, orderList } = this.state;
 
@@ -96,7 +110,10 @@ class OrderPage extends Component<{}, IState> {
           {orderList.length ? (
             orderList.map((item) => {
               return (
-                <View className="item">
+                <View
+                  className="item"
+                  onClick={() => this.handleOrderJump(item)}
+                >
                   <View className="top">
                     <Text className="name">{item.stadiumName}</Text>
                     <Text className="status">{item.statusName}</Text>

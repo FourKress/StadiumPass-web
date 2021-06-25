@@ -36,7 +36,7 @@ class MyWatchPage extends Component<{}, IState> {
 
   jumpStadium(stadiumId) {
     Taro.navigateTo({
-      url: `../stadium/index?id=${stadiumId}`,
+      url: `../stadium/index?stadiumId=${stadiumId}`,
     });
   }
 
@@ -51,7 +51,7 @@ class MyWatchPage extends Component<{}, IState> {
               return (
                 <View
                   className="item"
-                  onClick={() => this.jumpStadium(item.id)}
+                  onClick={() => this.jumpStadium(item.stadiumId)}
                 >
                   <Text className="label">{item.stadiumName}</Text>
                   <View className="info">

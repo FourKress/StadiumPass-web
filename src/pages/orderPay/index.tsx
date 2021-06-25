@@ -80,12 +80,8 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   render() {
-    const {
-      orderInfo,
-      countdown,
-      payAmount,
-      hasMonthlyCardAmount,
-    } = this.state;
+    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount } =
+      this.state;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
 
     const M = countdownArr[0].split('');
@@ -120,8 +116,8 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="row">
               <Text className="label">时间</Text>
               <Text className="text">
-                今天 {orderInfo.validateDate} / {orderInfo.startAt} -{' '}
-                {orderInfo.endAt} / {orderInfo.duration}小时
+                今天 {orderInfo.validateDate} / {orderInfo.runAt} /{' '}
+                {orderInfo.duration}小时
               </Text>
             </View>
             <View className="row">
@@ -172,7 +168,7 @@ class OrderPayPage extends Component<{}, IState> {
             </View>
             {orderInfo.isMonthlyCard ? (
               <View className="tips">
-                月卡有效期：{dayjs().format('YYYY-MM-DD')} -{' '}
+                月卡有效期：{dayjs().format('YYYY-MM-DD')}-
                 {dayjs().add(1, 'month').format('YYYY-MM-DD')}
               </View>
             ) : (

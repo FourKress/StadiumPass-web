@@ -4,6 +4,7 @@ import { View, Image } from '@tarojs/components';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
+import Taro from '@tarojs/taro';
 
 interface IState {
   cardList: Array<any>;
@@ -33,6 +34,12 @@ class MonthlyCardPage extends Component<{}, IState> {
     });
   }
 
+  jumpStadium(stadiumId) {
+    Taro.navigateTo({
+      url: `../stadium/index?stadiumId=${stadiumId}`,
+    });
+  }
+
   render() {
     const { cardList } = this.state;
 
@@ -43,7 +50,10 @@ class MonthlyCardPage extends Component<{}, IState> {
           {cardList.length ? (
             cardList.map((item) => {
               return (
-                <View className="item">
+                <View
+                  className="item"
+                  onClick={() => this.jumpStadium(item.stadiumId)}
+                >
                   <View className="left">
                     <Image src="" className="icon"></Image>
                   </View>
@@ -58,7 +68,7 @@ class MonthlyCardPage extends Component<{}, IState> {
                     </View>
                     <View className="row">
                       <View className="label">有效期</View>：
-                      {item.validPeriodStart} - {item.validPeriodEnd}
+                      {item.validPeriodStart}-{item.validPeriodEnd}
                     </View>
                   </View>
                 </View>
