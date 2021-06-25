@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-// import requestData from "@/utils/requestData";
+import requestData from '@/utils/requestData';
 
 import './index.scss';
-import requestData from '@/utils/requestData';
 import dayjs from 'dayjs';
 
 interface IState {
   orderId: string;
   orderInfo: any;
   countdown: number;
+  payAmount: number;
+  hasMonthlyCardAmount: number;
 }
 
 let timer: any = null;
@@ -22,6 +23,8 @@ class OrderPayPage extends Component<{}, IState> {
       orderId: '',
       orderInfo: {},
       countdown: 0,
+      payAmount: 0,
+      hasMonthlyCardAmount: 0,
     };
   }
 
@@ -47,6 +50,13 @@ class OrderPayPage extends Component<{}, IState> {
       },
     }).then((res: any) => {
       console.log(res);
+      const hasMonthlyCardAmount = res.isMonthlyCard
+        ? res.totalPrice - res.price
+        : res.monthlyCardPrice;
+      this.setState({
+        hasMonthlyCardAmount,
+        payAmount: hasMonthlyCardAmount || res.totalPrice,
+      });
       this.setState(
         {
           orderInfo: res,
@@ -63,8 +73,19 @@ class OrderPayPage extends Component<{}, IState> {
     });
   }
 
+  selectPayMethod(payAmount) {
+    this.setState({
+      payAmount,
+    });
+  }
+
   render() {
-    const { orderInfo, countdown } = this.state;
+    const {
+      orderInfo,
+      countdown,
+      payAmount,
+      hasMonthlyCardAmount,
+    } = this.state;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
 
     const M = countdownArr[0].split('');
@@ -124,7 +145,10 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="icon"></Text>
               <Text className="label">微信支付</Text>
               <Text className="money">￥{orderInfo.totalPrice}</Text>
-              <Text className="icon"></Text>
+              <Text
+                className="icon"
+                onClick={() => this.selectPayMethod(orderInfo.totalPrice)}
+              ></Text>
             </View>
             <View className="row">
               <Text className="icon"></Text>
@@ -135,21 +159,22 @@ class OrderPayPage extends Component<{}, IState> {
                 )}
               </Text>
               <Text className="money">
-                <Text>
-                  ￥
-                  {orderInfo.isMonthlyCard
-                    ? orderInfo.price
-                    : orderInfo.monthlyCardPrice}
-                </Text>
+                <Text>￥{hasMonthlyCardAmount}</Text>
                 {!orderInfo.isMonthlyCard && (
                   <Text className="text">(开通并使用月卡)</Text>
                 )}
               </Text>
 
-              <Text className="icon"></Text>
+              <Text
+                className="icon"
+                onClick={() => this.selectPayMethod(hasMonthlyCardAmount)}
+              ></Text>
             </View>
             {orderInfo.isMonthlyCard ? (
-              <View className="tips">月卡有效期：2021.06.09-2021.07.08</View>
+              <View className="tips">
+                月卡有效期：{dayjs().format('YYYY-MM-DD')} -{' '}
+                {dayjs().add(1, 'month').format('YYYY-MM-DD')}
+              </View>
             ) : (
               <View className="tips">
                 月卡有效期内，不限次数免费订场！仅需¥
@@ -173,7 +198,7 @@ class OrderPayPage extends Component<{}, IState> {
         </View>
 
         <View className="pay-btn">
-          <View className="btn">立即支付 ￥{orderInfo.totalPrice}</View>
+          <View className="btn">立即支付 ￥{payAmount}</View>
         </View>
       </View>
     );

@@ -447,7 +447,9 @@ class StadiumPage extends Component<{}, IState> {
                           {item.full ? (
                             <View className="tips2">满</View>
                           ) : (
-                            item.rebate && <View className="tips1">折</View>
+                            item.rebate !== 1 && (
+                              <View className="tips1">折</View>
+                            )
                           )}
                         </View>
                       );

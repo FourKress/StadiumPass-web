@@ -38,10 +38,10 @@ class MonthlyCardPage extends Component<{}, IState> {
 
     return (
       <View className="card-page">
-        <View className="tips">已开通：{cardList.length}张</View>
+        <View className="tips">已开通：{cardList.length} 张</View>
         <View className="list">
           {cardList.length ? (
-            cardList.map(() => {
+            cardList.map((item) => {
               return (
                 <View className="item">
                   <View className="left">
@@ -49,14 +49,16 @@ class MonthlyCardPage extends Component<{}, IState> {
                   </View>
                   <View className="right">
                     <View className="row">
-                      <View className="label">价格</View>：￥150.00/月
+                      <View className="label">价格</View>：￥
+                      {item.monthlyCardPrice}/月
                     </View>
                     <View className="row">
-                      <View className="label">开通场馆</View>：奥斯卡大家说的
+                      <View className="label">开通场馆</View>：
+                      {item.stadiumName}
                     </View>
                     <View className="row">
-                      <View className="label">有效期</View>
-                      ：2011-01-01—2011-11-11
+                      <View className="label">有效期</View>：
+                      {item.validPeriodStart} - {item.validPeriodEnd}
                     </View>
                   </View>
                 </View>
