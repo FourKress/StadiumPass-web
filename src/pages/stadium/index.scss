@@ -255,12 +255,17 @@ page {
           height: 96px;
           display: flex;
           align-items: center;
+
           .info {
             flex: 1;
             color: #101010;
             font-size: 32px;
             display: flex;
             align-items: center;
+
+            &.disabled {
+              color: #ccc;
+            }
 
             .text {
               font-weight: bold;

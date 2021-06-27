@@ -195,7 +195,7 @@ class StadiumPage extends Component<{}, IState> {
         spaceId,
       },
     }).then(async (res: any) => {
-      const notDone = res.findIndex((d) => !d.isDone);
+      const notDone = res.findIndex((d) => !d.isDone && !d.isCancel);
       const openList = res.map(() => false);
       openList[notDone] = true;
       this.setState({
@@ -283,7 +283,8 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   handleSelectPerson(item, index) {
-    if (this.state.currentMatch.isDone) {
+    const { isDone, isCancel } = this.state.currentMatch;
+    if (isDone || isCancel) {
       return;
     }
     if (item.nickName) {
@@ -522,33 +523,45 @@ class StadiumPage extends Component<{}, IState> {
 
               <View className="people-panel">
                 {matchList.length > 0 &&
-                  matchList.map((item, index) => {
+                  matchList.map((match, index) => {
                     return (
                       <View className="panel">
                         <View
                           className="p-top"
                           onClick={() => this.handlePeoPleOpen(index)}
                         >
-                          <View className="info">
+                          <View
+                            className={
+                              match.isDone || match.isCancel
+                                ? 'info disabled'
+                                : 'info'
+                            }
+                          >
                             <View>
                               <Text className="text">
-                                {item.startAt.split(' ')[1]} -{' '}
-                                {item.endAt.split(' ')[1]}
+                                {match.startAt.split(' ')[1]} -{' '}
+                                {match.endAt.split(' ')[1]}
                               </Text>{' '}
                               /{' '}
-                              <Text className="text">{item.duration}小时</Text>{' '}
+                              <Text className="text">{match.duration}小时</Text>{' '}
                               /{' '}
-                              <Text className="text">{item.selectPeople}</Text>
+                              <Text className="text">{match.selectPeople}</Text>
                               <Text className="text">/</Text>
-                              <Text className="text">{item.totalPeople}人</Text>
+                              <Text className="text">
+                                {match.totalPeople}人
+                              </Text>
                             </View>
-                            {item.rebate && <View className="tips1">折</View>}
+                            {match.rebate && <View className="tips1">折</View>}
                           </View>
                           <AtIcon
                             className={openList[index] ? '' : 'open'}
                             value="chevron-down"
                             size="24"
-                            color="#101010"
+                            color={
+                              match.isDone || match.isCancel
+                                ? '#ccc'
+                                : '#101010'
+                            }
                           ></AtIcon>
                         </View>
                         <View
@@ -590,8 +603,10 @@ class StadiumPage extends Component<{}, IState> {
                                   ) : (
                                     !selectList.includes(index) && (
                                       <View className="name default">
-                                        {currentMatch.isDone
+                                        {match.isDone
                                           ? '已结束'
+                                          : match.isCancel
+                                          ? '组队失败'
                                           : '虚位以待'}
                                       </View>
                                     )
