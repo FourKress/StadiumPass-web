@@ -77,13 +77,13 @@ class OrderPage extends Component<{}, IState> {
   }
 
   handleOrderJump(order) {
-    const { status, id, stadiumId } = order;
+    const { status, id, stadiumId, matchId } = order;
     if ([0, 1].includes(status)) {
       let url = '';
       if (status === 0) {
         url = `../orderPay/index?orderId=${id}`;
       } else if (status === 1) {
-        url = `../stadium/index?stadiumId=${stadiumId}&isStart=true`;
+        url = `../stadium/index?stadiumId=${stadiumId}&isStart=true&matchId=${matchId}`;
       }
       Taro.navigateTo({
         url,
@@ -120,8 +120,7 @@ class OrderPage extends Component<{}, IState> {
                   </View>
                   <View className="info">
                     <View className="row">
-                      {item.validateDate} / {item.startAt} - {item.endAt} /{' '}
-                      {item.duration}小时
+                      {item.validateDate} / {item.runAt} / {item.duration}小时
                     </View>
                     <View className="row">
                       足球 / {item.unit} / {item.spaceName} / {item.personCount}
@@ -130,7 +129,7 @@ class OrderPage extends Component<{}, IState> {
                   </View>
                   <View className="footer">
                     <Text className="date">
-                      {dayjs(item.createdAt).format('YYYY-MM-DD hh:mm:ss')}
+                      {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}
                     </Text>
                     <Text className="money">总价：￥{item.totalPrice}</Text>
                   </View>

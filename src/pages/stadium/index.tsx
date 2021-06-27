@@ -58,21 +58,27 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   componentDidShow() {
+    this.setMeBtnPosition();
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     console.log(pageParams);
     // const id = pageParams.stadiumId + '';
-    this.setMeBtnPosition();
     const id = '60cda9846c449177584f9ca3';
+    const matchId = pageParams.matchId;
+    const isStart = !!pageParams.isStart;
     this.setState(
       {
         stadiumId: id,
-        isStart: !!pageParams.isStart,
+        isStart,
       },
       () => {
         if (!id) return;
         this.getStadiumInfo(id);
-        this.getSpace(id, dayjs().format('YYYY-MM-DD')).then(() => {});
+        if (!isStart) {
+          this.getSpace(id, dayjs().format('YYYY-MM-DD')).then(() => {});
+        } else {
+          this.getOrderMatch(matchId);
+        }
         const userId = Taro.getStorageSync('userInfo').id || '';
         this.loginInit(userId);
       }
@@ -201,6 +207,26 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
+  getOrderMatch(matchId) {
+    requestData({
+      method: 'POST',
+      api: '/match/orderMatchInfo',
+      params: {
+        matchId,
+      },
+    }).then(async (res: any) => {
+      console.log(res);
+      const openList = [true];
+      this.setState({
+        matchList: [res],
+        openList,
+        currentMatch: res,
+        selectList: [],
+      });
+      await this.getPeoPelList(res);
+    });
+  }
+
   getPeoPelList(currentMatch) {
     if (!currentMatch?.id) return;
     return requestData({
@@ -253,6 +279,9 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   handleSelectPerson(item, index) {
+    if (dayjs().diff(this.state.currentMatch.endAt) > 0) {
+      return;
+    }
     if (item.nickName) {
       return;
     }
@@ -499,7 +528,8 @@ class StadiumPage extends Component<{}, IState> {
                           <View className="info">
                             <View>
                               <Text className="text">
-                                {item.startAt} - {item.endAt}
+                                {item.startAt.split(' ')[1]} -{' '}
+                                {item.endAt.split(' ')[1]}
                               </Text>{' '}
                               /{' '}
                               <Text className="text">{item.duration}小时</Text>{' '}
@@ -556,7 +586,9 @@ class StadiumPage extends Component<{}, IState> {
                                   ) : (
                                     !selectList.includes(index) && (
                                       <View className="name default">
-                                        虚位以待
+                                        {dayjs().diff(currentMatch.endAt) > 0
+                                          ? '已结束'
+                                          : '虚位以待'}
                                       </View>
                                     )
                                   )}
