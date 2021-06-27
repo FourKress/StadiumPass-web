@@ -79,6 +79,23 @@ class OrderPayPage extends Component<{}, IState> {
     });
   }
 
+  handleOrderPay() {
+    requestData({
+      method: 'POST',
+      api: '/order/pay',
+      params: {
+        id: this.state.orderId,
+        openId: Taro.getStorageSync('openId'),
+      },
+    }).then((res: any) => {
+      if (res) {
+        Taro.navigateTo({
+          url: '../order/index?index=2',
+        });
+      }
+    });
+  }
+
   render() {
     const { orderInfo, countdown, payAmount, hasMonthlyCardAmount } =
       this.state;
@@ -116,7 +133,7 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="row">
               <Text className="label">时间</Text>
               <Text className="text">
-                今天 {orderInfo.validateDate} / {orderInfo.runAt} /{' '}
+                {orderInfo.validateDate} / {orderInfo.runAt} /{' '}
                 {orderInfo.duration}小时
               </Text>
             </View>
@@ -193,7 +210,7 @@ class OrderPayPage extends Component<{}, IState> {
           </View>
         </View>
 
-        <View className="pay-btn">
+        <View className="pay-btn" onClick={() => this.handleOrderPay()}>
           <View className="btn">立即支付 ￥{payAmount}</View>
         </View>
       </View>

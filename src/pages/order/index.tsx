@@ -19,6 +19,17 @@ interface IState {
   tabValue: number;
 }
 
+const colorMap = {
+  0: '#FF2000',
+  5: '#FF2000',
+  1: '#0092FF',
+  7: '#0092FF',
+  4: '#1A1E22',
+  3: '#1A1E22',
+  2: '#93A7B6',
+  6: '#ccc',
+};
+
 class OrderPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
@@ -69,20 +80,20 @@ class OrderPage extends Component<{}, IState> {
   }
 
   handleTabClick(value) {
-    console.log(value);
     this.setState({
       tabValue: value,
     });
+    this.getOrderCount();
     this.getStatusOrderList(value);
   }
 
   handleOrderJump(order) {
     const { status, id, stadiumId, matchId } = order;
-    if ([0, 1].includes(status)) {
+    if ([0, 1, 7].includes(status)) {
       let url = '';
       if (status === 0) {
         url = `../orderPay/index?orderId=${id}`;
-      } else if (status === 1) {
+      } else if ([1, 7].includes(status)) {
         url = `../stadium/index?stadiumId=${stadiumId}&isStart=true&matchId=${matchId}`;
       }
       Taro.navigateTo({
@@ -116,7 +127,14 @@ class OrderPage extends Component<{}, IState> {
                 >
                   <View className="top">
                     <Text className="name">{item.stadiumName}</Text>
-                    <Text className="status">{item.statusName}</Text>
+                    <Text
+                      style={{ color: colorMap[item.status] }}
+                      className="status"
+                    >
+                      {[1, 7].includes(item.status) && <Text>组队成功 </Text>}
+                      {[3, 4].includes(item.status) && <Text>组队失败 </Text>}
+                      {item.statusName}
+                    </Text>
                   </View>
                   <View className="info">
                     <View className="row">

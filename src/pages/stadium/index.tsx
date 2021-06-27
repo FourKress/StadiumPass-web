@@ -30,6 +30,7 @@ interface IState {
   selectList: any;
   spaceDate: string;
   isStart: boolean;
+  openIndex: number;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -54,6 +55,7 @@ class StadiumPage extends Component<{}, IState> {
       selectList: [],
       spaceDate: dayjs().format('YYYY-MM-DD'),
       isStart: false,
+      openIndex: 0,
     };
   }
 
@@ -193,17 +195,17 @@ class StadiumPage extends Component<{}, IState> {
         spaceId,
       },
     }).then(async (res: any) => {
-      console.log(res);
+      const notDone = res.findIndex((d) => !d.isDone);
       const openList = res.map(() => false);
-      openList[0] = true;
+      openList[notDone] = true;
       this.setState({
         matchList: res,
         openList,
         spaceActive: index,
-        currentMatch: res[0],
+        currentMatch: res[notDone],
         selectList: [],
       });
-      await this.getPeoPelList(res[0]);
+      await this.getPeoPelList(res[notDone]);
     });
   }
 
@@ -215,7 +217,6 @@ class StadiumPage extends Component<{}, IState> {
         matchId,
       },
     }).then(async (res: any) => {
-      console.log(res);
       const openList = [true];
       this.setState({
         matchList: [res],
@@ -262,12 +263,14 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   async handlePeoPleOpen(index) {
-    const { openList, matchList } = this.state;
+    const { openList, matchList, openIndex } = this.state;
     const status = openList[index];
     if (!status) {
-      this.setState({
-        selectList: [],
-      });
+      if (openIndex !== index) {
+        this.setState({
+          selectList: [],
+        });
+      }
       await this.getPeoPelList(matchList[index]);
     }
     this.setState({
@@ -275,11 +278,12 @@ class StadiumPage extends Component<{}, IState> {
         open = index === i ? !open : false;
         return open;
       }),
+      openIndex: index,
     });
   }
 
   handleSelectPerson(item, index) {
-    if (dayjs().diff(this.state.currentMatch.endAt) > 0) {
+    if (this.state.currentMatch.isDone) {
       return;
     }
     if (item.nickName) {
@@ -586,7 +590,7 @@ class StadiumPage extends Component<{}, IState> {
                                   ) : (
                                     !selectList.includes(index) && (
                                       <View className="name default">
-                                        {dayjs().diff(currentMatch.endAt) > 0
+                                        {currentMatch.isDone
                                           ? '已结束'
                                           : '虚位以待'}
                                       </View>
