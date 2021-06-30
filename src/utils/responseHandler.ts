@@ -1,5 +1,6 @@
 import { ResError } from 'src/interfaces/common';
 import Taro, { request } from '@tarojs/taro';
+import * as LoginService from '../services/loginService';
 
 /**
  * 处理返回值
@@ -19,6 +20,34 @@ export default function responseHandler() {
         // 服务器返回状态
         /**服务器异常报错 */
         if (response.statusCode !== 200) {
+          if (response.statusCode === 401) {
+            Taro.clearStorageSync();
+            Taro.showModal({
+              title: '提示',
+              content: '当前登录已失效，请返回登录。',
+              confirmText: '去登录',
+              showCancel: false,
+              success: async (res) => {
+                if (res.confirm) {
+                  const userInfo: any = await LoginService.login();
+                  if (!userInfo) {
+                    this.setState({
+                      authorize: true,
+                    });
+                    return;
+                  }
+                  this.setState(
+                    {
+                      userId: userInfo.id,
+                    },
+                    () => {
+                      this.loginInit(userInfo.id);
+                    }
+                  );
+                }
+              },
+            });
+          }
           Taro.showToast({ icon: 'none', title: '网络异常，请检查网络' });
           return reject({
             code: response.statusCode,
@@ -35,7 +64,6 @@ export default function responseHandler() {
           default:
             // 其他报错
             const codeList = [10000100, 10000102];
-            console.log(3333);
             if (codeList.includes(response.data.code)) {
               Taro.clearStorageSync();
               // Taro.switchTab({
