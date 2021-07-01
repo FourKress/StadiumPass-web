@@ -147,7 +147,6 @@ class MePage extends Component<{}, IState> {
         phoneNum,
       },
     }).then((res) => {
-      console.log(res);
       this.setState({
         userInfo: {
           ...userInfo,
@@ -368,7 +367,7 @@ class MePage extends Component<{}, IState> {
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
             <AtInput
-              style={{ textAlign: 'left' }}
+              className="phoneNum"
               name="value"
               title="联系电话"
               type="number"
