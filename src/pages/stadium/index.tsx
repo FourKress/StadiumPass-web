@@ -202,7 +202,7 @@ class StadiumPage extends Component<{}, IState> {
         matchList: res,
         openList,
         spaceActive: index,
-        currentMatch: res[notDone],
+        currentMatch: res[notDone] || res.reverse()[0],
         selectList: [],
       });
       await this.getPeoPelList(res[notDone]);
@@ -313,9 +313,10 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   handleSubmit() {
-    if (this.state.selectList.length <= 0) return;
-    if (!this.checkLogin()) return;
     const { currentMatch, stadiumId, selectList } = this.state;
+    if (selectList.length <= 0) return;
+    if (currentMatch.selectPeople === currentMatch.totalPeople) return;
+    if (!this.checkLogin()) return;
     const { spaceId, id } = currentMatch;
     const payAmount =
       selectList.length * currentMatch.price * (currentMatch.rebate / 10);
@@ -551,7 +552,13 @@ class StadiumPage extends Component<{}, IState> {
                                 {match.totalPeople}人
                               </Text>
                             </View>
-                            {match.rebate && <View className="tips1">折</View>}
+                            {match.selectPeople === match.totalPeople ? (
+                              <View className="tips2">满</View>
+                            ) : (
+                              match.rebate !== 1 && (
+                                <View className="tips1">折</View>
+                              )
+                            )}
                           </View>
                           <AtIcon
                             className={openList[index] ? '' : 'open'}
@@ -737,7 +744,9 @@ class StadiumPage extends Component<{}, IState> {
               onClick={() => this.handleSubmit()}
               className={selectList.length ? 'btn' : 'btn disabled'}
             >
-              {isStart ? '追加' : '立即'}报名
+              {currentMatch.selectPeople === currentMatch.totalPeople
+                ? '已满员'
+                : `${isStart ? '追加' : '立即'}报名`}
             </View>
           </View>
         )}

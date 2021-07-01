@@ -126,6 +126,24 @@ page {
       }
     }
 
+    .tips1,
+    .tips2 {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      font-size: 24px;
+      border-radius: 8px;
+    }
+    .tips1 {
+      background-color: #fdca3c;
+      color: #ff9502;
+    }
+    .tips2 {
+      background-color: #fff;
+      color: #ff5d46;
+    }
+
     .space-panel {
       display: flex;
       align-items: center;
@@ -271,16 +289,8 @@ page {
               font-weight: bold;
             }
 
-            .tips1 {
-              width: 32px;
-              height: 32px;
-              line-height: 32px;
-              text-align: center;
-              font-size: 24px;
-              border-radius: 8px;
-              background-color: #fdca3c;
-              color: #ff9502;
-              margin-left: 12px;
+            .tips1, .tips2 {
+              margin-left: 16px;
             }
           }
 

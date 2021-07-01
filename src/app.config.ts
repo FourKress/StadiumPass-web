@@ -2,7 +2,6 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'pages/share/index',
     'pages/stadium/index',
     'pages/orderPay/index',
     'pages/me/index',
@@ -11,6 +10,7 @@ const config: Config = {
     'pages/myWatch/index',
     'pages/order/index',
     'pages/login/index',
+    'pages/share/index',
   ],
   plugins: {
     ocrPlugin: {

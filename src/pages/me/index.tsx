@@ -7,11 +7,13 @@ import {
   AtModalContent,
   AtModalAction,
   AtBadge,
+  AtInput,
 } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 import * as LoginService from '../../services/loginService';
 import AuthorizeUserBtn from '../../components/authorizeUserModal';
+import { validateRegular } from '../../utils/validateRule';
 
 import './index.scss';
 
@@ -26,6 +28,8 @@ interface IState {
   isOpened: boolean;
   authorize: boolean;
   orderCount: IOrderCount;
+  showPhoneModal: boolean;
+  phoneNum: any;
 }
 
 class MePage extends Component<{}, IState> {
@@ -35,11 +39,13 @@ class MePage extends Component<{}, IState> {
       userInfo: {},
       isOpened: false,
       authorize: false,
+      showPhoneModal: false,
       orderCount: {
         payCount: 0,
         startCount: 0,
         allCount: 0,
       },
+      phoneNum: '',
     };
   }
 
@@ -47,7 +53,7 @@ class MePage extends Component<{}, IState> {
     const userInfo = Taro.getStorageSync('userInfo') || '';
     this.setState(
       {
-        userInfo: Taro.getStorageSync('userInfo') || '',
+        userInfo,
       },
       () => {
         if (!userInfo?.id) {
@@ -112,6 +118,53 @@ class MePage extends Component<{}, IState> {
     });
   }
 
+  handlePhoneModal(status) {
+    if (status) {
+      if (!this.checkLogin()) return;
+      this.setState({
+        phoneNum: this.state.userInfo.phoneNum,
+      });
+    }
+    this.setState({
+      showPhoneModal: status,
+    });
+  }
+
+  changePhoneNum() {
+    const { userInfo, phoneNum } = this.state;
+    if (!validateRegular.phone.test(phoneNum)) {
+      Taro.showToast({
+        title: '请输入正确的手机号码',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
+    requestData({
+      method: 'POST',
+      api: '/user/modify',
+      params: {
+        phoneNum,
+      },
+    }).then((res) => {
+      console.log(res);
+      this.setState({
+        userInfo: {
+          ...userInfo,
+          phoneNum,
+        },
+      });
+      Taro.setStorageSync('userInfo', res);
+      this.handlePhoneModal(false);
+    });
+  }
+
+  handlePhoneNum(value) {
+    this.setState({
+      phoneNum: value,
+    });
+  }
+
   handleConfirm() {
     this.changeIdentity(false);
   }
@@ -150,7 +203,14 @@ class MePage extends Component<{}, IState> {
   }
 
   render() {
-    const { userInfo, isOpened, orderCount, authorize } = this.state;
+    const {
+      userInfo,
+      isOpened,
+      orderCount,
+      authorize,
+      showPhoneModal,
+      phoneNum,
+    } = this.state;
 
     return (
       <View className="mePage">
@@ -250,7 +310,10 @@ class MePage extends Component<{}, IState> {
                   ></AtIcon>
                 </View>
               </View>
-              <View className="item">
+              <View
+                className="item"
+                onClick={() => this.handlePhoneModal(true)}
+              >
                 <View className="icon"></View>
                 <Text className="label">联系电话</Text>
                 <View className="info">
@@ -298,6 +361,26 @@ class MePage extends Component<{}, IState> {
           <AtModalAction>
             <Button onClick={() => this.changeIdentity(false)}>取消</Button>
             <Button onClick={() => this.handleConfirm()}>确定</Button>
+          </AtModalAction>
+        </AtModal>
+
+        <AtModal isOpened={showPhoneModal}>
+          <AtModalHeader>提示</AtModalHeader>
+          <AtModalContent>
+            <AtInput
+              style={{ textAlign: 'left' }}
+              name="value"
+              title="联系电话"
+              type="number"
+              maxlength={11}
+              placeholder="请输入联系电话"
+              value={phoneNum}
+              onChange={(value) => this.handlePhoneNum(value)}
+            />
+          </AtModalContent>
+          <AtModalAction>
+            <Button onClick={() => this.handlePhoneModal(false)}>取消</Button>
+            <Button onClick={() => this.changePhoneNum()}>确定</Button>
           </AtModalAction>
         </AtModal>
 

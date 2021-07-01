@@ -89,8 +89,8 @@ class OrderPayPage extends Component<{}, IState> {
       },
     }).then((res: any) => {
       if (res) {
-        Taro.navigateTo({
-          url: '../order/index?index=2',
+        Taro.reLaunch({
+          url: '../share/index?index=2',
         });
       }
     });
