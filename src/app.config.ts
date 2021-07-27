@@ -2,6 +2,7 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
+    'pages/revenue/index',
     'pages/stadium/index',
     'pages/orderPay/index',
     'pages/me/index',
@@ -17,6 +18,23 @@ const config: Config = {
       version: '3.0.6',
       provider: 'wx4418e3e031e551be',
     },
+  },
+  tabBar: {
+    custom: true,
+    list: [
+      {
+        pagePath: 'pages/revenue/index',
+        text: '营收',
+      },
+      {
+        pagePath: 'pages/index/index',
+        text: '场次',
+      },
+      {
+        pagePath: 'pages/me/index',
+        text: '我的',
+      },
+    ],
   },
   window: {
     backgroundTextStyle: 'light',

@@ -8,8 +8,12 @@ class App extends Component {
   componentWillMount() {
     const params = Taro.getCurrentInstance().router?.params;
     console.log('启动参数params', params);
-    if (params && params.recommendId) {
-      Taro.setStorageSync('recommendId', params.recommendId);
+
+    const isBoss = Taro.getStorageSync('userInfo').isBoss || true;
+    if (!isBoss) {
+      Taro.reLaunch({
+        url: '/pages/stadium/index',
+      });
     }
   }
   componentDidShow() {
@@ -59,7 +63,7 @@ class App extends Component {
 
   // this.props.children 就是要渲染的页面
   render() {
-    return <Provider >{this.props.children}</Provider>;
+    return <Provider>{this.props.children}</Provider>;
   }
 }
 

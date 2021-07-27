@@ -366,16 +366,18 @@ class MePage extends Component<{}, IState> {
         <AtModal isOpened={showPhoneModal}>
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
-            <AtInput
-              className="phoneNum"
-              name="value"
-              title="联系电话"
-              type="number"
-              maxlength={11}
-              placeholder="请输入联系电话"
-              value={phoneNum}
-              onChange={(value) => this.handlePhoneNum(value)}
-            />
+            {showPhoneModal && (
+              <AtInput
+                className="phoneNum"
+                name="value"
+                title="联系电话"
+                type="number"
+                maxlength={11}
+                placeholder="请输入联系电话"
+                value={phoneNum}
+                onChange={(value) => this.handlePhoneNum(value)}
+              />
+            )}
           </AtModalContent>
           <AtModalAction>
             <Button onClick={() => this.handlePhoneModal(false)}>取消</Button>

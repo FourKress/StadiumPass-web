@@ -24,7 +24,7 @@ export default function responseHandler() {
             Taro.clearStorageSync();
             Taro.showModal({
               title: '提示',
-              content: '当前登录已失效，请返回登录。',
+              content: '当前登录已失效，请重新登录。',
               confirmText: '去登录',
               showCancel: false,
               success: async (res) => {

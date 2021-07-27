@@ -59,8 +59,48 @@ class StadiumPage extends Component<{}, IState> {
     };
   }
 
+  async onShareAppMessage() {
+    const activityId: any = await this.getActivityId();
+    console.log('activityId', activityId);
+    await Taro.updateShareMenu({
+      isUpdatableMessage: true,
+      activityId: activityId, // 活动 ID
+      templateInfo: {
+        parameterList: [
+          {
+            name: 'member_count',
+            value: '1',
+          },
+          {
+            name: 'room_limit',
+            value: '3',
+          },
+        ],
+      },
+      fail: (err) => {
+        console.log('err', err);
+        Taro.showToast({
+          icon: 'none',
+          title: '分享失败',
+        });
+      },
+    });
+    return {
+      title: '测试分享,自定义Title',
+      imageUrl:
+        'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg',
+      path: '/pages/stadium/index',
+    };
+  }
+
   componentDidShow() {
     this.setMeBtnPosition();
+    // @ts-ignore
+    Taro.showShareMenu({
+      withShareTicket: true,
+      // @ts-ignore
+      menus: ['shareAppMessage', 'shareTimeline'],
+    });
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     console.log(pageParams);
@@ -85,6 +125,15 @@ class StadiumPage extends Component<{}, IState> {
         this.loginInit(userId);
       }
     );
+  }
+
+  getActivityId() {
+    return requestData({
+      method: 'GET',
+      api: '/wx/getActivityId',
+    }).then((res) => {
+      return res;
+    });
   }
 
   loginInit(userId) {
