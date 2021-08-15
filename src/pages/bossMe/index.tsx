@@ -32,7 +32,7 @@ interface IState {
   phoneNum: any;
 }
 
-class MePage extends Component<{}, IState> {
+class BossMePage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -166,14 +166,6 @@ class MePage extends Component<{}, IState> {
 
   handleConfirm() {
     this.changeIdentity(false);
-    const userInfo = Taro.getStorageSync('userInfo');
-    Taro.setStorageSync('userInfo', {
-      ...userInfo,
-      isBoss: true,
-    });
-    Taro.reLaunch({
-      url: '/pages/revenue/index',
-    });
   }
 
   changeIdentity(status) {
@@ -402,4 +394,4 @@ class MePage extends Component<{}, IState> {
   }
 }
 
-export default MePage;
+export default BossMePage;

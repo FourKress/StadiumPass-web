@@ -3,11 +3,14 @@ import { Config } from '@tarojs/taro';
 const config: Config = {
   pages: [
     'pages/revenue/index',
+    'pages/revenue-details/index',
+    'pages/statistics/index',
+    'pages/bossMe/index',
     'pages/stadium/index',
     'pages/orderPay/index',
     'pages/me/index',
     'pages/monthlyCard/index',
-    'pages/index/index',
+    'pages/sequence/index',
     'pages/myWatch/index',
     'pages/order/index',
     'pages/login/index',
@@ -27,11 +30,11 @@ const config: Config = {
         text: '营收',
       },
       {
-        pagePath: 'pages/index/index',
+        pagePath: 'pages/sequence/index',
         text: '场次',
       },
       {
-        pagePath: 'pages/me/index',
+        pagePath: 'pages/bossMe/index',
         text: '我的',
       },
     ],

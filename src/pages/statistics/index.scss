@@ -1,0 +1,218 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+page {
+  background-color: #303043;
+}
+
+.statistics-page {
+  background-color: #F2F2F2;
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+  //padding-bottom: env(safe-area-inset-bottom);
+
+  ::-webkit-scrollbar {
+    display: none; /* Chrome Safari */
+  }
+
+  .page-banner {
+    width: 100vw;
+    height: 440px;
+    background-color: #303043;
+    box-sizing: border-box;
+    position: relative;
+
+    .page-header {
+      width: 100vw;
+      height: 88px;
+      position: fixed;
+      z-index: 9;
+
+      .back-icon {
+        position: absolute;
+        top: 50%;
+        left: 32px;
+        transform: translateY(-50%);
+      }
+
+      .tab {
+        position: absolute;
+        z-index: 8;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+        width: 320px;
+        height: 64px;
+        line-height: 64px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        font-size: 32px;
+        font-weight: bold;
+
+        .item {
+          width: 50%;
+          height: 100%;
+          background-color: #303043;
+          border: 1px solid #fff;
+
+          &:last-child {
+            border-top-right-radius: 32px;
+            border-bottom-right-radius: 32px;
+            border-left: none;
+          }
+
+          &:first-child {
+            border-top-left-radius: 32px;
+            border-bottom-left-radius: 32px;
+            border-right: none;
+          }
+
+          &.active {
+            color: #101010;
+            background-color: #fff;
+          }
+        }
+      }
+    }
+
+    .info {
+      position: absolute;
+      left: 48px;
+      bottom: 52px;
+      z-index: 1;
+      font-weight: bold;
+
+      .date {
+        font-size: 32px;
+        color: #fff;
+        font-weight: bold;
+        margin-bottom: 20px;
+
+        .time {
+          width: 200px;
+          display: inline-block;
+
+          .text {
+            display: inline-block;
+            text-align: center;
+
+            &:first-child {
+              width: 84px;
+            }
+
+            &:last-child {
+              width: 48px;
+            }
+          }
+        }
+
+        .at-icon {
+          margin-left: 8px;
+        }
+      }
+
+      .money {
+        color: #fff;
+        font-size: 72px;
+        display: flex;
+        align-items: baseline;
+
+        &:before {
+          content: '￥';
+          font-size: 40px;
+          padding-right: 16px;
+        }
+      }
+    }
+  }
+
+  .main {
+    width: 100vw;
+    box-sizing: border-box;
+    padding: 0 32px;
+    background-color: #F2F2F2;
+    padding-bottom: env(safe-area-inset-bottom);
+
+    .title {
+      padding: 32px 0 24px 0;
+      color: #101010;
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .charts {
+      width: 100%;
+      height: 480px;
+    }
+
+    .list {
+      width: 100%;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      box-sizing: border-box;
+
+      .item {
+        width: 100%;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #E7E7E7;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .index {
+          color: #93A7B6;
+          transform: translate(8px, -30px);
+        }
+
+        .user {
+          flex: 1;
+          display: flex;
+          align-items: center;
+
+          image {
+            display: block;
+            width: 80px;
+            height: 80px;
+            margin: 0 16px 0 28px;
+            border-radius: 50%;
+            background-color: #979797;
+          }
+
+          .name {
+            font-size: 32px;
+            color: #000000;
+          }
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+
+          .money {
+            font-size: 28px;
+            color: #101010;
+
+            &:before {
+              content: '￥';
+              font-size: 26px;
+            }
+          }
+
+          .count {
+            font-size: 24px;
+            color: #93A7B6;
+          }
+        }
+      }
+    }
+  }
+}

@@ -228,6 +228,7 @@ class StadiumPage extends Component<{}, IState> {
 
   async onSpaceDateChange(e) {
     const { value } = e.detail;
+    if (value === this.state.spaceDate) return;
     const result = await this.getSpace(this.state.stadiumId, value);
     if (result) {
       this.setState({
@@ -489,9 +490,13 @@ class StadiumPage extends Component<{}, IState> {
 
     return (
       <View className="stadium-page">
-        <View onClick={() => this.jumpCenter()} className="page-header">
+        <View className="page-header">
           <Image className="bg" src={stadiumInfo.stadiumUrl}></Image>
-          <View className="me" style={meBtbPosition}>
+          <View
+            className="me"
+            style={meBtbPosition}
+            onClick={() => this.jumpCenter()}
+          >
             <Image className="icon" src=""></Image>
             <Text>我的</Text>
           </View>

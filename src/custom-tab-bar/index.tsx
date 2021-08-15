@@ -3,42 +3,55 @@ import Taro from '@tarojs/taro';
 import { CoverView, CoverImage } from '@tarojs/components';
 import './index.scss';
 
-class CustomTabBar extends Component {
-  state = {
-    selected: 0,
-    color: 'rgba(68, 68, 68, 1)',
-    selectedColor: 'rgba(68, 68, 68, 1)',
-    list: [
-      {
-        pagePath: '/pages/revenue/index',
-        text: '营收',
-        iconPath: '',
-        selectedIconPath: '',
-      },
-      {
-        pagePath: '/pages/index/index',
-        text: '场次',
-        iconPath: '',
-        selectedIconPath: '',
-      },
-      {
-        pagePath: '/pages/me/index',
-        text: '我的',
-        iconPath: '',
-        selectedIconPath: '',
-      },
-    ],
-  };
+interface IState {
+  selected: number;
+  color: string;
+  selectedColor: string;
+  list: Array<any>;
+}
 
-  switchTab = (item) => {
+class CustomTabBar extends Component<{}, IState> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selected: 0,
+      color: '#93A7B6',
+      selectedColor: '#0080FF',
+      list: [
+        {
+          pagePath: '/pages/revenue/index',
+          text: '营收',
+          iconPath: '',
+          selectedIconPath: '',
+        },
+        {
+          pagePath: '/pages/sequence/index',
+          text: '场次',
+          iconPath: '',
+          selectedIconPath: '',
+        },
+        {
+          pagePath: '/pages/bossMe/index',
+          text: '我的',
+          iconPath: '',
+          selectedIconPath: '',
+        },
+      ],
+    };
+  }
+
+  switchTab(item, index) {
     Taro.switchTab({
       url: item.pagePath,
     });
-  };
+    this.setState({
+      selected: index,
+    });
+  }
 
   render() {
     const isBoss = Taro.getStorageSync('userInfo').isBoss || true;
-    console.log(isBoss);
+    console.log(isBoss, this.state.selected);
     if (!isBoss) {
       return '';
     }
@@ -48,7 +61,7 @@ class CustomTabBar extends Component {
           return (
             <CoverView
               className="bottom-tab-item"
-              onClick={this.switchTab.bind(this, item)}
+              onClick={() => this.switchTab(item, index)}
               data-path={item.pagePath}
               key={item.text}
             >

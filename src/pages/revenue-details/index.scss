@@ -1,0 +1,174 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+page {
+  background-color: $color-white;
+}
+
+.revenue-details-page {
+  background-color: #F2F2F2;
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+
+  .top {
+    width: 100vw;
+    height: 100px;
+    padding: 0 32px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    font-size: 32px;
+    background-color: #1EBD69;
+    font-weight: bold;
+
+    &.fail {
+      background-color: #FF0000;
+    }
+  }
+
+  .main {
+    width: 100vw;
+    box-sizing: border-box;
+    padding: 0 32px;
+    background-color: #F2F2F2;
+    padding-bottom: env(safe-area-inset-bottom);
+
+    .title {
+      padding: 32px 0 24px 0;
+      color: #101010;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .signUp-list {
+      width: 100%;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 0 32px 32px 32px;
+      box-sizing: border-box;
+
+      .sub-title {
+        width: 100%;
+        padding: 32px 0 16px 0;
+        font-size: 32px;
+        font-weight: bold;
+        color: #302F43;
+
+        &:first-child {
+          padding-top: 20px;
+        }
+
+        &.pay {
+          color: #0080FF;
+        }
+
+        &.fail {
+          color: #FF0000;
+        }
+      }
+
+      .item {
+        width: 100%;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #E7E7E7;
+
+        &.fail {
+
+          .user {
+            opacity: .5;
+          }
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .index {
+          color: #0080FF;
+          transform: translate(8px, -30px);
+        }
+
+        .user {
+          flex: 1;
+          display: flex;
+          align-items: center;
+
+          image {
+            display: block;
+            width: 80px;
+            height: 80px;
+            margin: 0 16px 0 28px;
+            border-radius: 50%;
+            background-color: #979797;
+          }
+
+          .name {
+            max-width: 220px;
+            font-size: 32px;
+            color: #000000;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        .info {
+          width: 240px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+
+          .money {
+            font-size: 28px;
+            color: #101010;
+
+            &:before {
+              content: '￥';
+              font-size: 26px;
+            }
+          }
+
+          .count {
+            font-size: 24px;
+            color: #93A7B6;
+          }
+        }
+      }
+    }
+
+    .stadium-list {
+      width: 100%;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      box-sizing: border-box;
+      font-size: 32px;
+
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        height: 100px;
+
+        &:last-child {
+          border-top: 1px solid #E7E7E7;
+        }
+
+        .left {
+          color: #93A7B6;
+        }
+
+        .right {
+          color: #101010;
+        }
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ class Index extends Component {
   componentDidShow() {}
 
   render() {
-    return <View className="indexPage"></View>;
+    return <View className="indexPage">321</View>;
   }
 }
 

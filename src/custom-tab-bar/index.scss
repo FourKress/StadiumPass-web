@@ -2,27 +2,30 @@
   position: fixed;
   display: flex;
   width: 100%;
-  height: 49PX;
-  background: white;
-  box-shadow: 0PX -5PX 10PX 0PX rgba(0, 0, 0, 0.03);
+  height: calc(100px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom);
+  background-color: #fff;
   bottom: 0;
   &-item {
     flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    background-color: #fff;
     &-img {
-      margin: 5PX auto 0;
-      width: 24PX;
-      height: 24PX;
+      margin: 0 auto;
+      width: 32PX;
+      height: 32PX;
+      background-color: #ccc;
     }
     &-text {
-      height: 14PX;
-      line-height: 14PX;
-      font-size: 10PX;
+      font-size: 24px;
       font-family: PingFangSC-Light, PingFang SC;
       font-weight: 300;
-      color: rgba(68, 68, 68, 1);
+      color: #93A7B6;
     }
   }
 }

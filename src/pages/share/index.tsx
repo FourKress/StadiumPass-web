@@ -9,7 +9,7 @@ interface IState {
   type: string;
 }
 
-class OrderPayPage extends Component<{}, IState> {
+class SharePage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -50,4 +50,4 @@ class OrderPayPage extends Component<{}, IState> {
   }
 }
 
-export default OrderPayPage;
+export default SharePage;
