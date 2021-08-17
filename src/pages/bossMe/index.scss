@@ -51,58 +51,29 @@ page {
     box-sizing: border-box;
     padding: 32px;
 
-    .order-nav {
-      width: 100%;
-      padding: 0 52px;
-      box-sizing: border-box;
-      height: 240px;
-      background-color: #fff;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      .item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        .name {
-          color: rgba(36, 42, 49, 100);
-          font-size: 28px;
-          font-weight: bold;
-        }
-
-        .icon {
-          width: 72px;
-          height: 72px;
-          display: block;
-          background-color: #ccc;
-          margin-bottom: 16px;
-        }
-      }
+    .title {
+      font-size: 40px;
+      color: #101010;
+      font-weight: bold;
+      margin-bottom: 16px;
     }
 
     .nav-list {
       width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
 
       .panel {
         background-color: #fff;
-        border-radius: 16px;
-        padding: 0 14px 0 32px;
-
-        &:first-child {
-          margin: 32px 0;
-        }
+        padding: 0 32px 0 32px;
 
         .item {
+          padding: 28px 0;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 28px 0;
           &:last-child {
-            border-top: 1px solid #f8f8f8;
+            border-top: 1px solid #E5E5E5;
           }
 
           .icon {
@@ -113,17 +84,15 @@ page {
             margin-right: 16px;
           }
 
+          .at-icon {
+            margin-right: -16px;
+          }
+
           .label {
             color: rgba(36, 42, 49, 100);
             font-size: 28px;
-          }
-
-          .info {
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            color: #A4AAAE;
+            text-align: left;
           }
         }
       }
@@ -133,39 +102,20 @@ page {
   .footer-btn {
     position: fixed;
     left: 0;
-    bottom: 120px;
+    bottom: calc(132px + env(safe-area-inset-bottom));
     width: 100%;
     text-align: center;
 
     .btn {
       display: flex;
       align-items: center;
-      width: 160px;
+      width: 200px;
       margin: 0 auto;
 
       .at-icon {
         display: block;
         margin-right: 4px;
       }
-    }
-  }
-
-  .at-modal__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    .row {
-      width: 100%;
-      text-align: center;
-      margin: 0 auto 24px;
-    }
-  }
-
-  .phoneNum {
-    input {
-      text-align: left;
     }
   }
 }

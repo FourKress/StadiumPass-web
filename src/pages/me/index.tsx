@@ -177,6 +177,7 @@ class MePage extends Component<{}, IState> {
   }
 
   changeIdentity(status) {
+    if (!this.checkLogin()) return;
     this.setState({
       isOpened: status,
     });
@@ -336,14 +337,12 @@ class MePage extends Component<{}, IState> {
           </View>
         </View>
 
-        {userInfo.id && (
-          <View className="footer-btn">
-            <View className="btn" onClick={() => this.changeIdentity(true)}>
-              <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-              我是场主
-            </View>
+        <View className="footer-btn">
+          <View className="btn" onClick={() => this.changeIdentity(true)}>
+            <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
+            我是场主
           </View>
-        )}
+        </View>
 
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>

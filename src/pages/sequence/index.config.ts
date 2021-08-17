@@ -1,5 +1,4 @@
 export default {
-  navigationBarTitleText: '场次',
+  navigationStyle: 'custom',
   disableScroll: true,
-  enablePullDownRefresh: false,
 };
