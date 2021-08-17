@@ -2,62 +2,47 @@ import React, { Component } from 'react';
 import Taro from '@tarojs/taro';
 import { CoverView, CoverImage } from '@tarojs/components';
 import './index.scss';
+import config from '@/src/app.config';
 
-interface IState {
-  selected: number;
-  color: string;
-  selectedColor: string;
-  list: Array<any>;
+import { inject, observer } from 'mobx-react';
+import TabBarStore from '@/store/tabbarStore';
+
+interface InjectStoreProps {
+  tabBarStore: TabBarStore;
 }
 
-class CustomTabBar extends Component<{}, IState> {
+@inject('tabBarStore')
+@observer
+class CustomTabBar extends Component<InjectStoreProps, {}> {
   constructor(props) {
     super(props);
-    this.state = {
-      selected: 0,
-      color: '#93A7B6',
-      selectedColor: '#0080FF',
-      list: [
-        {
-          pagePath: '/pages/revenue/index',
-          text: '营收',
-          iconPath: '',
-          selectedIconPath: '',
-        },
-        {
-          pagePath: '/pages/sequence/index',
-          text: '场次',
-          iconPath: '',
-          selectedIconPath: '',
-        },
-        {
-          pagePath: '/pages/bossMe/index',
-          text: '我的',
-          iconPath: '',
-          selectedIconPath: '',
-        },
-      ],
-    };
+  }
+
+  get inject() {
+    // 兼容注入store 类型
+    return this.props as InjectStoreProps;
   }
 
   switchTab(item, index) {
+    this.inject.tabBarStore.setSelected(index);
     Taro.switchTab({
-      url: item.pagePath,
-    });
-    this.setState({
-      selected: index,
+      url: `/${item.pagePath}`,
     });
   }
 
   render() {
     const isBoss = Taro.getStorageSync('userInfo').isBoss || true;
-    console.log(isBoss, this.state.selected);
     if (!isBoss) {
       return '';
     }
+    const {
+      tabBarStore: { selected },
+    } = this.inject;
+    const tabBar: any = config?.tabBar || {};
+
     return (
       <CoverView className="bottom-tab">
-        {this.state.list.map((item, index) => {
+        {tabBar.list.map((item, index) => {
           return (
             <CoverView
               className="bottom-tab-item"
@@ -67,19 +52,13 @@ class CustomTabBar extends Component<{}, IState> {
             >
               <CoverImage
                 className="bottom-tab-item-img"
-                src={
-                  this.state.selected === index
-                    ? item.selectedIconPath
-                    : item.iconPath
-                }
+                src={selected === index ? item.selectedIconPath : item.iconPath}
               />
               <CoverView
                 className="bottom-tab-item-text"
                 style={{
                   color:
-                    this.state.selected === index
-                      ? this.state.selectedColor
-                      : this.state.color,
+                    selected === index ? tabBar.selectedColor : tabBar.color,
                 }}
               >
                 {item.text}

@@ -4,6 +4,12 @@ import { Provider } from 'mobx-react';
 
 import './app.scss';
 
+import TabBarStore from './store/tabbarStore';
+
+const store = {
+  tabBarStore: new TabBarStore(),
+};
+
 class App extends Component {
   componentWillMount() {
     const params = Taro.getCurrentInstance().router?.params;
@@ -63,7 +69,7 @@ class App extends Component {
 
   // this.props.children 就是要渲染的页面
   render() {
-    return <Provider>{this.props.children}</Provider>;
+    return <Provider {...store}>{this.props.children}</Provider>;
   }
 }
 

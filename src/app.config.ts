@@ -24,18 +24,26 @@ const config: Config = {
   },
   tabBar: {
     custom: true,
+    color: '#93A7B6',
+    selectedColor: '#0080FF',
     list: [
       {
         pagePath: 'pages/revenue/index',
         text: '营收',
+        iconPath: '',
+        selectedIconPath: '',
       },
       {
         pagePath: 'pages/sequence/index',
         text: '场次',
+        iconPath: '',
+        selectedIconPath: '',
       },
       {
         pagePath: 'pages/bossMe/index',
         text: '我的',
+        iconPath: '',
+        selectedIconPath: '',
       },
     ],
   },

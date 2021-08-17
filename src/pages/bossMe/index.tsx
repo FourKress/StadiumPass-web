@@ -17,6 +17,13 @@ import { validateRegular } from '../../utils/validateRule';
 
 import './index.scss';
 
+import { inject, observer } from 'mobx-react';
+import TabBarStore from '@/store/tabbarStore';
+
+interface InjectStoreProps {
+  tabBarStore: TabBarStore;
+}
+
 interface IOrderCount {
   payCount: number;
   startCount: number;
@@ -32,7 +39,9 @@ interface IState {
   phoneNum: any;
 }
 
-class BossMePage extends Component<{}, IState> {
+@inject('tabBarStore')
+@observer
+class BossMePage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -49,7 +58,13 @@ class BossMePage extends Component<{}, IState> {
     };
   }
 
+  get inject() {
+    // 兼容注入store 类型
+    return this.props as InjectStoreProps;
+  }
+
   componentDidShow() {
+    this.inject.tabBarStore.setSelected(2);
     const userInfo = Taro.getStorageSync('userInfo') || '';
     this.setState(
       {

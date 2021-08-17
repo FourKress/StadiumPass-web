@@ -7,6 +7,13 @@ import { AtIcon, AtDrawer, AtInput } from 'taro-ui';
 import './index.scss';
 import dayjs from 'dayjs';
 
+import { inject, observer } from 'mobx-react';
+import TabBarStore from '@/store/tabbarStore';
+
+interface InjectStoreProps {
+  tabBarStore: TabBarStore;
+}
+
 interface IState {
   showDrawer: boolean;
   selectList: Array<any>;
@@ -16,7 +23,9 @@ interface IState {
 
 const dateNow = dayjs().format('YYYY-MM-DD');
 
-class RevenuePage extends Component<{}, IState> {
+@inject('tabBarStore')
+@observer
+class RevenuePage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,7 +40,15 @@ class RevenuePage extends Component<{}, IState> {
       stadiumDate: dateNow,
     };
   }
-  componentDidShow() {}
+
+  get inject() {
+    // 兼容注入store 类型
+    return this.props as InjectStoreProps;
+  }
+
+  componentDidShow() {
+    this.inject.tabBarStore.setSelected(0);
+  }
 
   showTotal() {
     console.log(1);

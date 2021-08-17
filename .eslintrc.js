@@ -23,6 +23,7 @@ module.exports = {
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/ban-ts-ignore': ['warn'],
     'import/first': 'off',
+    '@typescript-eslint/no-shadow': 'off',
   },
   parserOptions: {
     ecmaFeatures: {
