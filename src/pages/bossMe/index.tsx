@@ -66,17 +66,10 @@ class BossMePage extends Component<InjectStoreProps, IState> {
     return token;
   }
 
-  jumpMonthlyCard() {
+  jumpDetails() {
     if (!this.checkLogin()) return;
     Taro.navigateTo({
-      url: `../monthlyCard/index`,
-    });
-  }
-
-  jumpMyWatch() {
-    if (!this.checkLogin()) return;
-    Taro.navigateTo({
-      url: `../myWatch/index`,
+      url: `../stadium-details/index`,
     });
   }
 
@@ -151,18 +144,7 @@ class BossMePage extends Component<InjectStoreProps, IState> {
           <View className="title">我的球场</View>
           <View className="nav-list">
             <View className="panel">
-              <View className="item" onClick={() => this.jumpMonthlyCard()}>
-                <View className="icon"></View>
-                <Text className="label">球场啊实打实大师多</Text>
-                <AtIcon
-                  value="chevron-right"
-                  size="24"
-                  color="#333D44"
-                ></AtIcon>
-              </View>
-            </View>
-            <View className="panel">
-              <View className="item" onClick={() => this.jumpMyWatch()}>
+              <View className="item" onClick={() => this.jumpDetails()}>
                 <View className="icon"></View>
                 <Text className="label">球场啊实打实大师多</Text>
                 <AtIcon

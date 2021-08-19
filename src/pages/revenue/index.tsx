@@ -92,6 +92,12 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     this.handleCloseDrawer();
   }
 
+  jumpDetails() {
+    Taro.navigateTo({
+      url: '../revenue-details/index',
+    });
+  }
+
   render() {
     const { showDrawer, selectList, stadiumId, stadiumDate } = this.state;
 
@@ -138,43 +144,50 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                     <Text>圣诞节时空裂缝</Text>
                   </View>
                   <View className="list">
-                    <View className="item">
-                      <View className="left">
-                        <Text>18:00 — 20:00</Text>
-                        <Text className="index">2号场</Text>
-                      </View>
-                      <View className="right">
-                        <View className="price">
-                          <View className="success">
-                            <Text className="sign">-&nbsp;￥</Text>
-                            <Text className="money">25.00</Text>
+                    {[1, 2].map(() => {
+                      return (
+                        <View
+                          className="item"
+                          onClick={() => this.jumpDetails()}
+                        >
+                          <View className="left">
+                            <Text>18:00 — 20:00</Text>
+                            <Text className="index">2号场</Text>
                           </View>
-                          <View className="tips">32123啥的</View>
+                          <View className="right">
+                            <View className="price">
+                              <View className="success">
+                                <Text className="sign">-&nbsp;￥</Text>
+                                <Text className="money">25.00</Text>
+                              </View>
+                              <View className="tips">32123啥的</View>
+                            </View>
+                            <AtIcon
+                              value="chevron-right"
+                              size="20"
+                              color="#93A7B6"
+                            ></AtIcon>
+                          </View>
                         </View>
-                        <AtIcon
-                          value="chevron-right"
-                          size="20"
-                          color="#93A7B6"
-                        ></AtIcon>
-                      </View>
-                    </View>
-                    <View className="item">
-                      <View className="left">
-                        <Text>18:00 — 20:00</Text>
-                        <Text className="index">2号场</Text>
-                      </View>
-                      <View className="right">
-                        <View className="price">
-                          <View className="fail">组队失败</View>
-                          <View className="tips">32123啥的</View>
-                        </View>
-                        <AtIcon
-                          value="chevron-right"
-                          size="20"
-                          color="#93A7B6"
-                        ></AtIcon>
-                      </View>
-                    </View>
+                      );
+                    })}
+                    {/*<View className="item">*/}
+                    {/*  <View className="left">*/}
+                    {/*    <Text>18:00 — 20:00</Text>*/}
+                    {/*    <Text className="index">2号场</Text>*/}
+                    {/*  </View>*/}
+                    {/*  <View className="right">*/}
+                    {/*    <View className="price">*/}
+                    {/*      <View className="fail">组队失败</View>*/}
+                    {/*      <View className="tips">32123啥的</View>*/}
+                    {/*    </View>*/}
+                    {/*    <AtIcon*/}
+                    {/*      value="chevron-right"*/}
+                    {/*      size="20"*/}
+                    {/*      color="#93A7B6"*/}
+                    {/*    ></AtIcon>*/}
+                    {/*  </View>*/}
+                    {/*</View>*/}
                   </View>
                   <View className="service-fee">
                     <View className="left">技术服务费</View>

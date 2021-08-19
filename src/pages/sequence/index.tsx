@@ -102,6 +102,13 @@ class SequencePage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  jumpDetails(item) {
+    console.log(item);
+    Taro.navigateTo({
+      url: '../sequence-details/index',
+    });
+  }
+
   render() {
     const { selectList, tabPosition, selectDate } = this.state;
 
@@ -142,13 +149,22 @@ class SequencePage extends Component<InjectStoreProps, IState> {
 
         <View className="list">
           <View className="scroll-warp">
-            {[1, 2, 3, 4, 5, 6].map((d) => {
-              console.log(d);
+            {[1, 2, 3, 4, 5, 6].map((item) => {
               return (
-                <View className="item">
+                <View className="item" onClick={() => this.jumpDetails(item)}>
                   <View className="top">
-                    <Text className="left">重复场次</Text>
-                    <Text className="right">已报名：2人</Text>
+                    <View className="left">重复场次</View>
+                    <View className="right">
+                      <Text>已报名：2人</Text>
+                      <View className="share">
+                        <AtIcon
+                          value="share"
+                          size="14"
+                          color="#0080FF"
+                        ></AtIcon>
+                        <Text>分享</Text>
+                      </View>
+                    </View>
                   </View>
                   <View className="item-body">
                     <View>场地：撒娇的尽可能</View>

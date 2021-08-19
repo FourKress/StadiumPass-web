@@ -147,6 +147,29 @@ page {
         .err {
           color: #FF0000;
         }
+
+        .right {
+          display: flex;
+          align-items: center;
+
+          .share {
+            width: 128px;
+            height: 64px;
+            line-height: 64px;
+            box-sizing: border-box;
+            border-radius: 62px;
+            color: #0080FF;
+            border: 2px solid #0080FF;
+            text-align: center;
+            font-size: 28px;
+            margin-left: 32px;
+
+            .at-icon {
+              margin-right: 14px;
+              transform: translateY(-2px);
+            }
+          }
+        }
       }
 
       .item-body {

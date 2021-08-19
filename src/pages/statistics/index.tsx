@@ -101,6 +101,12 @@ class StatisticsPage extends Component<{}, IState> {
     });
   }
 
+  goBack() {
+    Taro.navigateBack({
+      delta: -1,
+    });
+  }
+
   refChart = React.createRef();
 
   // renderChart() {
@@ -124,6 +130,7 @@ class StatisticsPage extends Component<{}, IState> {
         <View className="page-banner">
           <View className="page-header" style={tabPosition}>
             <AtIcon
+              onClick={() => this.goBack()}
               className="back-icon"
               value="chevron-left"
               size="20"
