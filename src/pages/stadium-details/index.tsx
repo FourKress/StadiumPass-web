@@ -9,6 +9,7 @@ import './index.scss';
 interface IState {
   list: Array<any>;
   current: number;
+  stadiumId: string;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -17,10 +18,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
     this.state = {
       current: 0,
       list: [],
+      stadiumId: '',
     };
   }
 
-  handleClick(index) {
+  componentDidShow() {
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const stadiumId = (pageParams.id + '').toString();
+    this.setState({
+      stadiumId,
+    });
+  }
+
+  handleTabClick(index) {
     this.setState({
       current: index,
     });
@@ -46,7 +57,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       <View className="stadium-details-page">
         <AtTabBar
           tabList={[{ title: '场次设置' }, { title: '场馆设置' }]}
-          onClick={(index) => this.handleClick(index)}
+          onClick={(index) => this.handleTabClick(index)}
           current={current}
         />
         <View className="list">

@@ -18,6 +18,7 @@ interface InjectStoreProps {
 interface IState {
   userInfo: any;
   authorize: boolean;
+  stadiumList: Array<any>;
 }
 
 @inject('tabBarStore')
@@ -28,6 +29,7 @@ class BossMePage extends Component<InjectStoreProps, IState> {
     this.state = {
       userInfo: {},
       authorize: false,
+      stadiumList: [],
     };
   }
 
@@ -39,18 +41,16 @@ class BossMePage extends Component<InjectStoreProps, IState> {
   componentDidShow() {
     this.inject.tabBarStore.setSelected(2);
     const userInfo = Taro.getStorageSync('userInfo') || '';
+    requestData({
+      method: 'GET',
+      api: '/stadium/stadiumList',
+    }).then((res: any) => {
+      this.setState({
+        stadiumList: res,
+      });
+    });
     this.setState({
       userInfo,
-    });
-  }
-
-  getOpenId(code) {
-    return requestData({
-      method: 'GET',
-      api: '/wx/code2Session',
-      params: {
-        code,
-      },
     });
   }
 
@@ -66,10 +66,10 @@ class BossMePage extends Component<InjectStoreProps, IState> {
     return token;
   }
 
-  jumpDetails() {
+  jumpDetails(id) {
     if (!this.checkLogin()) return;
     Taro.navigateTo({
-      url: `../stadium-details/index`,
+      url: `../stadium-details/index?id=${id}`,
     });
   }
 
@@ -107,7 +107,7 @@ class BossMePage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const { userInfo, authorize } = this.state;
+    const { userInfo, authorize, stadiumList } = this.state;
 
     return (
       <View className="mePage">
@@ -143,17 +143,24 @@ class BossMePage extends Component<InjectStoreProps, IState> {
         <View className="main">
           <View className="title">我的球场</View>
           <View className="nav-list">
-            <View className="panel">
-              <View className="item" onClick={() => this.jumpDetails()}>
-                <View className="icon"></View>
-                <Text className="label">球场啊实打实大师多</Text>
-                <AtIcon
-                  value="chevron-right"
-                  size="24"
-                  color="#333D44"
-                ></AtIcon>
-              </View>
-            </View>
+            {stadiumList.map((item) => {
+              return (
+                <View className="panel">
+                  <View
+                    className="item"
+                    onClick={() => this.jumpDetails(item.id)}
+                  >
+                    <View className="icon"></View>
+                    <Text className="label">{item.name}</Text>
+                    <AtIcon
+                      value="chevron-right"
+                      size="24"
+                      color="#333D44"
+                    ></AtIcon>
+                  </View>
+                </View>
+              );
+            })}
           </View>
         </View>
 

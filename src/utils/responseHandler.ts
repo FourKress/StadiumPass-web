@@ -10,7 +10,7 @@ export default function responseHandler() {
   return (
     response: request.SuccessCallbackResult<{
       code: number;
-      msg: string;
+      message: string;
       data: any;
       succeed: boolean;
     }>
@@ -72,7 +72,7 @@ export default function responseHandler() {
             }
             reject({
               ...response.data,
-              msg: response.data.msg,
+              msg: response.data.message,
               succeed: false,
             });
             break;

@@ -25,7 +25,7 @@ class MyWatchPage extends Component<{}, IState> {
   getWatchList() {
     requestData({
       method: 'GET',
-      api: '/userRelationStadium/watchList',
+      api: '/userRStadium/watchList',
     }).then((data: any) => {
       this.setState({
         watchList: data,

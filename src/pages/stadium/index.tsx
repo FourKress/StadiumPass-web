@@ -105,7 +105,7 @@ class StadiumPage extends Component<{}, IState> {
     const pageParams = Taro.getCurrentInstance().router.params;
     console.log(pageParams);
     // const id = pageParams.stadiumId + '';
-    const id = '60cda9846c449177584f9ca3';
+    const id = '611fd5493278a82ba8e8e855';
     const matchId = pageParams.matchId;
     const isStart = !!pageParams.isStart;
     this.setState(
@@ -190,7 +190,7 @@ class StadiumPage extends Component<{}, IState> {
   getWatchStatus(stadiumId) {
     requestData({
       method: 'POST',
-      api: '/userRelationStadium/watchFlag',
+      api: '/userRStadium/watchFlag',
       params: {
         stadiumId,
       },
@@ -403,9 +403,12 @@ class StadiumPage extends Component<{}, IState> {
       return;
     }
     const { stadiumInfo, isWatch } = this.state;
+    if (!stadiumInfo?.id) {
+      return;
+    }
     requestData({
       method: 'POST',
-      api: '/userRelationStadium/watch',
+      api: '/userRStadium/watch',
       params: {
         stadiumId: stadiumInfo.id,
         isWatch: !isWatch,

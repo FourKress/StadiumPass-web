@@ -30,7 +30,7 @@ export default function requestData<T = void>(data: ReqData) {
         method,
         header: {
           'Content-Type': 'application/json',
-          token: Taro.getStorageSync('token'),
+          Authorization: `Bearer ${Taro.getStorageSync('token')}`,
         },
         data: requestParams,
       };
@@ -62,7 +62,7 @@ export default function requestData<T = void>(data: ReqData) {
           );
           Taro.showToast({
             icon: 'none',
-            title: err.msg,
+            title: err.message,
           });
           reject(err);
         });

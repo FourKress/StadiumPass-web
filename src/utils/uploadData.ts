@@ -49,7 +49,7 @@ export default function uploadData<T = void>(params) {
           }
           Taro.showToast({
             icon: 'none',
-            title: err.msg,
+            title: err.message,
           });
           reject(err);
         });

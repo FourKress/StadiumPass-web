@@ -2,14 +2,14 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'pages/sequence-edit/index',
+    'pages/bossMe/index',
     'pages/revenue/index',
     'pages/stadium-details/index',
+    'pages/sequence-edit/index',
     'pages/fail-stadium/index',
     'pages/sequence/index',
     'pages/sequence-details/index',
     'pages/revenue-details/index',
-    'pages/bossMe/index',
     'pages/statistics/index',
     'pages/stadium/index',
     'pages/orderPay/index',
