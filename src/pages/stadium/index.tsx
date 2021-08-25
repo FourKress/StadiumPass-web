@@ -34,6 +34,7 @@ interface IState {
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
+const currentDay = dayjs().format('YYYY-MM-DD');
 
 class StadiumPage extends Component<{}, IState> {
   constructor(props) {
@@ -53,7 +54,7 @@ class StadiumPage extends Component<{}, IState> {
       currentMatch: {},
       personList: [],
       selectList: [],
-      spaceDate: dayjs().format('YYYY-MM-DD'),
+      spaceDate: currentDay,
       isStart: false,
       openIndex: 0,
     };
@@ -105,7 +106,7 @@ class StadiumPage extends Component<{}, IState> {
     const pageParams = Taro.getCurrentInstance().router.params;
     console.log(pageParams);
     // const id = pageParams.stadiumId + '';
-    const id = '60cda9846c449177584f9ca3';
+    const id = '611fd5493278a82ba8e8e855';
     const matchId = pageParams.matchId;
     const isStart = !!pageParams.isStart;
     this.setState(
@@ -213,7 +214,7 @@ class StadiumPage extends Component<{}, IState> {
       if (!res?.length) {
         Taro.showToast({
           icon: 'none',
-          title: '选择的日期暂无组队场次，请重新选择其它日期。',
+          title: '暂无组队场次，请重新选择其它日期。',
         });
         return false;
       }
@@ -230,11 +231,9 @@ class StadiumPage extends Component<{}, IState> {
     const { value } = e.detail;
     if (value === this.state.spaceDate) return;
     const result = await this.getSpace(this.state.stadiumId, value);
-    if (result) {
-      this.setState({
-        spaceDate: value,
-      });
-    }
+    this.setState({
+      spaceDate: result ? value : currentDay,
+    });
   }
 
   getMatchList(spaceId, index) {
@@ -798,7 +797,8 @@ class StadiumPage extends Component<{}, IState> {
               onClick={() => this.handleSubmit()}
               className={selectList.length ? 'btn' : 'btn disabled'}
             >
-              {currentMatch.selectPeople === currentMatch.totalPeople
+              {currentMatch.totalPeople &&
+              currentMatch.selectPeople === currentMatch.totalPeople
                 ? '已满员'
                 : `${isStart ? '追加' : '立即'}报名`}
             </View>
