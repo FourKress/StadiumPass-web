@@ -6,6 +6,7 @@ import Taro from '@tarojs/taro';
 
 import './index.scss';
 import dayjs from 'dayjs';
+import requestData from '@/utils/requestData';
 
 interface IForm {
   sequence?: number;
@@ -22,8 +23,9 @@ interface IForm {
 
 interface IState {
   form: IForm;
-  modelList: Array<any>;
   sequenceList: Array<any>;
+  weekList: Array<any>;
+  repeatModelList: Array<any>;
 }
 
 const dateNow = dayjs().format('YYYY-MM-DD');
@@ -42,19 +44,37 @@ class SequenceEditPage extends Component<{}, IState> {
         runStartTime: '',
         duration: '2',
       },
-      modelList: [
-        {
-          label: 'test2',
-          id: 2,
-        },
-      ],
       sequenceList: [
         {
           label: 'test',
           id: 1,
         },
       ],
+      weekList: [],
+      repeatModelList: [],
     };
+  }
+
+  getWeekList() {
+    requestData({
+      method: 'GET',
+      api: '/space/weekEnum',
+    }).then((res: any) => {
+      this.setState({
+        weekList: res,
+      });
+    });
+  }
+
+  getRepeatModelList() {
+    requestData({
+      method: 'GET',
+      api: '/space/repeatModelEnum',
+    }).then((res: any) => {
+      this.setState({
+        repeatModelList: res,
+      });
+    });
   }
 
   handleChange(value, key) {
@@ -106,7 +126,7 @@ class SequenceEditPage extends Component<{}, IState> {
   }
 
   render() {
-    const { sequenceList, modelList, form } = this.state;
+    const { sequenceList, repeatModelList, form } = this.state;
 
     return (
       <View className="sequence-edit-page">
@@ -140,15 +160,19 @@ class SequenceEditPage extends Component<{}, IState> {
             </View>
             <Picker
               mode="selector"
-              range={modelList}
+              range={repeatModelList}
               rangeKey="label"
-              onChange={(event) => this.handleSelectChange(event, 'model')}
+              onChange={(event) =>
+                this.handleSelectChange(event, 'repeatModel')
+              }
             >
               <AtList>
                 <AtListItem
                   title="重复模式"
                   arrow="down"
-                  extraText={modelList.find((d) => d.id === form.model)?.label}
+                  extraText={
+                    repeatModelList.find((d) => d.id === form.model)?.label
+                  }
                 />
               </AtList>
             </Picker>

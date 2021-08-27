@@ -107,6 +107,22 @@ page {
     background-color: #F2F2F2;
     padding-bottom: 32px;
 
+    .space-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fff;
+      padding-right: 24px;
+      border-bottom: 1px solid #FFD9D9;;
+      box-sizing: border-box;
+
+      .at-input {
+        flex: 1;
+        padding-right: 8px;
+      }
+    }
+
     .add {
       width: 100%;
       height: 96px;
@@ -250,6 +266,20 @@ page {
         &:last-child {
           color: #fff;
           background-color: #ff9502;
+        }
+      }
+
+      &.space-btn {
+        flex: 1;
+        background-color: #fff;
+        color: #FF0000;
+        border: 1px solid #FFD9D9;
+        margin: 0 16px;
+
+        &:last-child {
+          color: #fff;
+          background-color: #ff9502;
+          border: 1px solid #ff9502;
         }
       }
 

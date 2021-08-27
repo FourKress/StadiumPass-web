@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View } from '@tarojs/components';
+import { Picker, Text, View, CoverView } from '@tarojs/components';
 import {
   AtForm,
   AtInput,
@@ -7,20 +7,25 @@ import {
   AtTabBar,
   AtSwitch,
   AtIcon,
+  AtList,
+  AtListItem,
 } from 'taro-ui';
 import Taro from '@tarojs/taro';
 // import requestData from '@/utils/requestData';
 
 import './index.scss';
+import requestData from '@/utils/requestData';
 
 interface IState {
   list: Array<any>;
   current: number;
   stadiumId: string;
   stadiumInfo: any;
+  spaceIndex: number;
   spaceInfo: any;
   spaceList: Array<any>;
   showSpaceDetails: boolean;
+  unitList: Array<any>;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -32,17 +37,64 @@ class StadiumDetailsPage extends Component<{}, IState> {
       stadiumInfo: {},
       spaceList: [],
       spaceInfo: {},
+      spaceIndex: 0,
       showSpaceDetails: false,
       stadiumId: '',
+      unitList: [],
     };
   }
 
   componentDidShow() {
     // @ts-ignore
-    const pageParams = Taro.getCurrentInstance().router.params;
+    // const pageParams = Taro.getCurrentInstance().router.params;
+    const pageParams = {
+      id: '61290891415932420c46b5ab',
+    };
+    console.log(pageParams);
     const stadiumId = (pageParams.id + '').toString();
+    this.getUnitList();
     this.setState({
       stadiumId,
+    });
+    this.getStadiumInfo(stadiumId);
+  }
+
+  getUnitList() {
+    requestData({
+      method: 'GET',
+      api: '/space/unitEnum',
+    }).then((res: any) => {
+      this.setState({
+        unitList: res,
+      });
+    });
+  }
+
+  getStadiumInfo(stadiumId) {
+    requestData({
+      method: 'GET',
+      api: '/stadium/info',
+      params: {
+        id: stadiumId,
+      },
+    }).then((res) => {
+      this.setState({
+        stadiumInfo: res,
+      });
+    });
+  }
+
+  getSpaceList(stadiumId) {
+    requestData({
+      method: 'GET',
+      api: '/stadium/info',
+      params: {
+        id: stadiumId,
+      },
+    }).then((res) => {
+      this.setState({
+        stadiumInfo: res,
+      });
     });
   }
 
@@ -68,7 +120,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
   handleChange(value, key) {
     const stadiumInfo = this.state.stadiumInfo;
     stadiumInfo[key] = value;
-    console.log(stadiumInfo, value, key);
     this.setState({
       stadiumInfo: {
         ...stadiumInfo,
@@ -76,20 +127,21 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  addSpace() {
+  addSpace(spaceInfo, spaceIndex) {
     this.setState({
+      spaceIndex,
       showSpaceDetails: true,
+      spaceInfo,
     });
   }
 
-  handleSpaceEdit(space) {
-    console.log(space);
+  handleSpaceEdit(space, index) {
+    this.addSpace(space, index);
   }
 
   handleSpaceChange(value, key) {
     const spaceInfo = this.state.spaceInfo;
     spaceInfo[key] = value;
-    console.log(spaceInfo, value, key);
     this.setState({
       spaceInfo: {
         ...spaceInfo,
@@ -97,10 +149,82 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  render() {
-    const { current, stadiumInfo, spaceList, spaceInfo, showSpaceDetails } =
-      this.state;
+  handleSelectChange(event) {
+    const index = event.detail.value;
+    const value = this.state.unitList[index].value;
+    this.handleSpaceChange(value, 'unit');
+  }
 
+  saveStadium() {
+    const { stadiumInfo, spaceList } = this.state;
+    console.log(stadiumInfo);
+    console.log(spaceList);
+    stadiumInfo.spaces = spaceList;
+    stadiumInfo.monthlyCardPrice = Number(stadiumInfo.monthlyCardPrice);
+    requestData({
+      method: 'POST',
+      api: '/stadium/add',
+      params: stadiumInfo,
+    }).then((res) => {
+      console.log(res);
+      Taro.showToast({
+        icon: 'none',
+        title: '场馆保存成功',
+      });
+    });
+  }
+
+  saveSpace() {
+    const { spaceInfo, spaceList, spaceIndex } = this.state;
+    const { name, unit } = spaceInfo;
+    if (!name || !unit) {
+      Taro.showToast({
+        icon: 'none',
+        title: '请完善场地信息',
+      });
+      return;
+    }
+    if (spaceIndex === spaceList.length) {
+      spaceList.push(spaceInfo);
+    } else {
+      spaceList[spaceIndex] = spaceInfo;
+    }
+    this.handleSpaceChangeResult(spaceList);
+  }
+
+  handleSpaceChangeResult(spaceList) {
+    this.setState({
+      spaceList: [...spaceList],
+      spaceInfo: {},
+      showSpaceDetails: false,
+    });
+  }
+
+  removeSpace() {
+    const { spaceInfo, spaceList, spaceIndex } = this.state;
+    if (spaceInfo?.id) {
+      console.log(21);
+    } else {
+      if (spaceIndex === spaceList.length) {
+        this.handleSpaceChangeResult(spaceList);
+      } else {
+        spaceList.splice(spaceIndex, 1);
+        this.handleSpaceChangeResult(spaceList);
+      }
+    }
+  }
+
+  render() {
+    const {
+      current,
+      stadiumInfo,
+      spaceList,
+      spaceInfo,
+      showSpaceDetails,
+      unitList,
+    } = this.state;
+
+    console.log(spaceList);
     return (
       <View className="stadium-details-page">
         <AtTabBar
@@ -108,7 +232,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
           onClick={(index) => this.handleTabClick(index)}
           current={current}
         />
-        {current === 0 && (
+        {current === 0 && !showSpaceDetails && (
           <View className="list">
             <View className="scroll-warp">
               {[1, 2, 3, 4, 5, 6].map((item) => {
@@ -138,32 +262,45 @@ class StadiumDetailsPage extends Component<{}, IState> {
             </View>
           </View>
         )}
-        {current === 1 && (
+        {current === 1 && !showSpaceDetails && (
           <View className="list stadium">
             <View className="scroll-warp">
               <AtForm className="form">
                 <View className="title">
                   <View className="name">场地设置</View>
                 </View>
-                {spaceList.length > 0 ? (
-                  spaceList.map((item) => {
+                {spaceList.length > 0 &&
+                  spaceList.map((item, index) => {
                     return (
-                      <AtInput
-                        name="duration"
-                        title={item.name}
-                        type="text"
-                        editable={false}
-                        value={item.unit}
-                        onChange={() => this.handleSpaceEdit(item)}
-                      />
+                      <View
+                        className="space-row"
+                        onClick={() => this.handleSpaceEdit(item, index)}
+                      >
+                        <AtInput
+                          name="duration"
+                          title={item.name}
+                          type="text"
+                          editable={false}
+                          value={
+                            unitList.find((d) => d.value === item.unit).label
+                          }
+                          onChange={() => {}}
+                        />
+                        <AtIcon
+                          value="chevron-right"
+                          size="18"
+                          color="#000"
+                        ></AtIcon>
+                      </View>
                     );
-                  })
-                ) : (
-                  <View className="add" onClick={() => this.addSpace()}>
-                    <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
-                    <View>新增场地</View>
-                  </View>
-                )}
+                  })}
+                <View
+                  className="add"
+                  onClick={() => this.addSpace({}, spaceList.length)}
+                >
+                  <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
+                  <View>新增场地</View>
+                </View>
 
                 <View className="title">
                   <View className="name">月卡设置</View>
@@ -244,34 +381,59 @@ class StadiumDetailsPage extends Component<{}, IState> {
         )}
         {current === 1 && (
           <View className="btn-list">
-            <View className="save btn">保存</View>
+            <View className="save btn" onClick={() => this.saveStadium()}>
+              保存
+            </View>
           </View>
         )}
 
         {showSpaceDetails && (
-          <View className="space-details">
-            <AtForm className="form">
-              <AtInput
-                name="spaceName"
-                title="场地名称"
-                type="text"
-                placeholder="请输入场地名称"
-                value={spaceInfo.name}
-                onChange={(value) => this.handleSpaceChange(value, 'name')}
-              />
-              <AtInput
-                name="spaceUnit"
-                title="对局规格"
-                type="text"
-                placeholder="请输入对局规格"
-                value={spaceInfo.unit}
-                onChange={(value) => this.handleSpaceChange(value, 'unit')}
-              />
-            </AtForm>
-            <View className="space-add">
-              <View className="btn">删除场地</View>
+          <CoverView>
+            <View className="space-details">
+              <AtForm className="form">
+                <AtInput
+                  name="spaceName"
+                  title="场地名称"
+                  type="text"
+                  placeholder="请输入场地名称"
+                  value={spaceInfo.name}
+                  onChange={(value) => this.handleSpaceChange(value, 'name')}
+                />
+                <Picker
+                  mode="selector"
+                  range={unitList}
+                  rangeKey="label"
+                  onChange={(event) => this.handleSelectChange(event)}
+                >
+                  <AtList>
+                    <AtListItem
+                      title="对局规格"
+                      arrow="down"
+                      extraText={
+                        unitList.find((d) => d.value === spaceInfo.unit)?.label
+                      }
+                    />
+                  </AtList>
+                </Picker>
+              </AtForm>
+              <View className="btn-list">
+                {(spaceInfo.name || spaceInfo.unit) && (
+                  <View
+                    className="btn space-btn"
+                    onClick={() => this.removeSpace()}
+                  >
+                    删除场地
+                  </View>
+                )}
+                <View
+                  className="btn space-btn"
+                  onClick={() => this.saveSpace()}
+                >
+                  保存场地
+                </View>
+              </View>
             </View>
-          </View>
+          </CoverView>
         )}
       </View>
     );
