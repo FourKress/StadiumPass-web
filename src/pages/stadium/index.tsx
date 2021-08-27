@@ -191,7 +191,7 @@ class StadiumPage extends Component<{}, IState> {
   getWatchStatus(stadiumId) {
     requestData({
       method: 'POST',
-      api: '/userRelationStadium/watchFlag',
+      api: '/userRStadium/watchFlag',
       params: {
         stadiumId,
       },
@@ -402,9 +402,12 @@ class StadiumPage extends Component<{}, IState> {
       return;
     }
     const { stadiumInfo, isWatch } = this.state;
+    if (!stadiumInfo?.id) {
+      return;
+    }
     requestData({
       method: 'POST',
-      api: '/userRelationStadium/watch',
+      api: '/userRStadium/watch',
       params: {
         stadiumId: stadiumInfo.id,
         isWatch: !isWatch,

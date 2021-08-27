@@ -15,7 +15,7 @@ class App extends Component {
     const params = Taro.getCurrentInstance().router?.params;
     console.log('启动参数params', params);
 
-    const isBoss = Taro.getStorageSync('userInfo').isBoss || true;
+    const isBoss = Taro.getStorageSync('userInfo').isBoss || false;
     if (!isBoss) {
       Taro.reLaunch({
         url: '/pages/stadium/index',
