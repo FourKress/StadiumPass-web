@@ -2,8 +2,8 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'pages/stadium-details/index',
     'pages/bossMe/index',
+    'pages/stadium-details/index',
     'pages/sequence-edit/index',
     'pages/revenue/index',
     'pages/fail-stadium/index',

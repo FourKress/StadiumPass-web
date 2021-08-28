@@ -46,21 +46,23 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   componentDidShow() {
     // @ts-ignore
-    // const pageParams = Taro.getCurrentInstance().router.params;
-    const pageParams = {
-      id: '61290891415932420c46b5ab',
-    };
+    const pageParams = Taro.getCurrentInstance().router.params;
     console.log(pageParams);
     const stadiumId = (pageParams.id + '').toString();
-    this.getUnitList();
-    this.setState({
-      stadiumId,
-    });
-    this.getStadiumInfo(stadiumId);
+    this.setState(
+      {
+        stadiumId,
+      },
+      async () => {
+        this.getStadiumInfo();
+        await this.getUnitList();
+        this.getSpaceList();
+      }
+    );
   }
 
-  getUnitList() {
-    requestData({
+  async getUnitList() {
+    await requestData({
       method: 'GET',
       api: '/space/unitEnum',
     }).then((res: any) => {
@@ -70,12 +72,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  getStadiumInfo(stadiumId) {
+  getStadiumInfo() {
     requestData({
       method: 'GET',
       api: '/stadium/info',
       params: {
-        id: stadiumId,
+        id: this.state.stadiumId,
       },
     }).then((res) => {
       this.setState({
@@ -84,16 +86,16 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  getSpaceList(stadiumId) {
+  getSpaceList() {
     requestData({
       method: 'GET',
-      api: '/stadium/info',
+      api: '/space/dropDownList',
       params: {
-        id: stadiumId,
+        stadiumId: this.state.stadiumId,
       },
-    }).then((res) => {
+    }).then((res: any) => {
       this.setState({
-        stadiumInfo: res,
+        spaceList: res,
       });
     });
   }
@@ -161,9 +163,10 @@ class StadiumDetailsPage extends Component<{}, IState> {
     console.log(spaceList);
     stadiumInfo.spaces = spaceList;
     stadiumInfo.monthlyCardPrice = Number(stadiumInfo.monthlyCardPrice);
+    const url = stadiumInfo?.id ? '/stadium/modify' : '/stadium/add';
     requestData({
       method: 'POST',
-      api: '/stadium/add',
+      api: url,
       params: stadiumInfo,
     }).then((res) => {
       console.log(res);
@@ -282,7 +285,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                           type="text"
                           editable={false}
                           value={
-                            unitList.find((d) => d.value === item.unit).label
+                            unitList.find((d) => d.value === item.unit)?.label
                           }
                           onChange={() => {}}
                         />

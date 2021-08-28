@@ -41,14 +41,16 @@ class BossMePage extends Component<InjectStoreProps, IState> {
   componentDidShow() {
     this.inject.tabBarStore.setSelected(2);
     const userInfo = Taro.getStorageSync('userInfo') || '';
-    requestData({
-      method: 'GET',
-      api: '/stadium/stadiumList',
-    }).then((res: any) => {
-      this.setState({
-        stadiumList: res,
+    if (userInfo.isBoss) {
+      requestData({
+        method: 'GET',
+        api: '/stadium/stadiumList',
+      }).then((res: any) => {
+        this.setState({
+          stadiumList: res,
+        });
       });
-    });
+    }
     this.setState({
       userInfo,
     });

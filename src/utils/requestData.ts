@@ -30,7 +30,7 @@ export default function requestData<T = void>(data: ReqData) {
         method,
         header: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${Taro.getStorageSync('token')}`,
+          Authorization: Taro.getStorageSync('token'),
         },
         data: requestParams,
       };
