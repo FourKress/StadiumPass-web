@@ -47,7 +47,7 @@ const DATA_LIST = Array(7)
 
 @inject('tabBarStore')
 @observer
-class SequencePage extends Component<InjectStoreProps, IState> {
+class MatchPage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -105,7 +105,7 @@ class SequencePage extends Component<InjectStoreProps, IState> {
   jumpDetails(item) {
     console.log(item);
     Taro.navigateTo({
-      url: '../sequence-details/index',
+      url: '../match-details/index',
     });
   }
 
@@ -113,7 +113,7 @@ class SequencePage extends Component<InjectStoreProps, IState> {
     const { selectList, tabPosition, selectDate } = this.state;
 
     return (
-      <View className="sequence-page">
+      <View className="match-page">
         <View className="top-bar">
           <Picker
             mode="selector"
@@ -183,4 +183,4 @@ class SequencePage extends Component<InjectStoreProps, IState> {
   }
 }
 
-export default SequencePage;
+export default MatchPage;

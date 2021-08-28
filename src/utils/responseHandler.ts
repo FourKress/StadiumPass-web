@@ -48,7 +48,10 @@ export default function responseHandler() {
               },
             });
           }
-          Taro.showToast({ icon: 'none', title: '网络异常，请检查网络' });
+          Taro.showToast({
+            icon: 'none',
+            title: response.data.message || '网络异常，请检查网络',
+          });
           return reject({
             code: response.statusCode,
             data: response.data,

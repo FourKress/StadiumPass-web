@@ -11,13 +11,12 @@ import {
   AtListItem,
 } from 'taro-ui';
 import Taro from '@tarojs/taro';
-// import requestData from '@/utils/requestData';
 
 import './index.scss';
 import requestData from '@/utils/requestData';
 
 interface IState {
-  list: Array<any>;
+  matchList: Array<any>;
   current: number;
   stadiumId: string;
   stadiumInfo: any;
@@ -32,8 +31,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      current: 1,
-      list: [],
+      current: 0,
+      matchList: [],
       stadiumInfo: {},
       spaceList: [],
       spaceInfo: {},
@@ -47,15 +46,15 @@ class StadiumDetailsPage extends Component<{}, IState> {
   componentDidShow() {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
-    console.log(pageParams);
     const stadiumId = (pageParams.id + '').toString();
     this.setState(
       {
         stadiumId,
       },
       async () => {
-        this.getStadiumInfo();
+        this.getMatchList();
         await this.getUnitList();
+        this.getStadiumInfo();
         this.getSpaceList();
       }
     );
@@ -68,6 +67,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }).then((res: any) => {
       this.setState({
         unitList: res,
+      });
+    });
+  }
+
+  getMatchList() {
+    requestData({
+      method: 'GET',
+      api: '/match/list',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        matchList: res,
       });
     });
   }
@@ -108,8 +121,9 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   jumpDetails(item) {
     console.log(item);
+    const { stadiumInfo } = this.state;
     Taro.navigateTo({
-      url: '../sequence-details/index',
+      url: `../match-edit/index?stadiumId=${stadiumInfo.id}&id=${item?.id}`,
     });
   }
 
@@ -159,8 +173,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   saveStadium() {
     const { stadiumInfo, spaceList } = this.state;
-    console.log(stadiumInfo);
-    console.log(spaceList);
     stadiumInfo.spaces = spaceList;
     stadiumInfo.monthlyCardPrice = Number(stadiumInfo.monthlyCardPrice);
     const url = stadiumInfo?.id ? '/stadium/modify' : '/stadium/add';
@@ -168,8 +180,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       method: 'POST',
       api: url,
       params: stadiumInfo,
-    }).then((res) => {
-      console.log(res);
+    }).then(() => {
       Taro.showToast({
         icon: 'none',
         title: '场馆保存成功',
@@ -178,7 +189,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   saveSpace() {
-    const { spaceInfo, spaceList, spaceIndex } = this.state;
+    const { spaceInfo, spaceList, spaceIndex, stadiumInfo } = this.state;
     const { name, unit } = spaceInfo;
     if (!name || !unit) {
       Taro.showToast({
@@ -187,6 +198,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       });
       return;
     }
+    spaceInfo.stadiumId = stadiumInfo.id;
     if (spaceIndex === spaceList.length) {
       spaceList.push(spaceInfo);
     } else {
@@ -206,7 +218,16 @@ class StadiumDetailsPage extends Component<{}, IState> {
   removeSpace() {
     const { spaceInfo, spaceList, spaceIndex } = this.state;
     if (spaceInfo?.id) {
-      console.log(21);
+      requestData({
+        method: 'GET',
+        api: '/space/remove',
+        params: {
+          id: spaceInfo.id,
+        },
+      }).then(async () => {
+        await this.getSpaceList();
+        this.handleSpaceChangeResult(this.state.spaceList);
+      });
     } else {
       if (spaceIndex === spaceList.length) {
         this.handleSpaceChangeResult(spaceList);
@@ -225,9 +246,9 @@ class StadiumDetailsPage extends Component<{}, IState> {
       spaceInfo,
       showSpaceDetails,
       unitList,
+      matchList,
     } = this.state;
 
-    console.log(spaceList);
     return (
       <View className="stadium-details-page">
         <AtTabBar
@@ -238,26 +259,30 @@ class StadiumDetailsPage extends Component<{}, IState> {
         {current === 0 && !showSpaceDetails && (
           <View className="list">
             <View className="scroll-warp">
-              {[1, 2, 3, 4, 5, 6].map((item) => {
+              {matchList.map((item) => {
                 return (
                   <View className="item" onClick={() => this.jumpDetails(item)}>
                     <View className="top">
-                      <View className="left">重复场次</View>
+                      <View className="left">
+                        {item.repeatModel === 1 ? '单次场次' : '重复场次'}
+                      </View>
                       <View className="right">
                         <View className="money">
-                          <Text>￥30</Text>
-                          <Text className="discount">5折</Text>
-                          <Text>/人；</Text>
+                          <Text>￥{item.rebatePrice}</Text>
+                          <Text className="discount">{item.rebate}折</Text>
+                          <Text>/人</Text>
                         </View>
-                        <Text className="err">不支持月卡</Text>
                       </View>
                     </View>
                     <View className="item-body">
-                      <View>场地：撒娇的尽可能</View>
-                      <View>场地：撒娇的尽可能</View>
-                      <View>场地：撒娇的尽可能</View>
-                      <View>场地：撒娇的尽可能</View>
-                      <View>场地：撒娇的尽可能</View>
+                      <View>场地：{item.spaceName}</View>
+                      <View>
+                        时间：{item.repeatName} / {item.startAt}-{item.endAt}
+                      </View>
+                      <View>时长：{item.duration}小数</View>
+                      <View>
+                        人数：最少{item.minPeople} / 最多{item.totalPeople}
+                      </View>
                     </View>
                   </View>
                 );
@@ -379,7 +404,9 @@ class StadiumDetailsPage extends Component<{}, IState> {
             <View className="btn" onClick={() => this.jumpFailStadium()}>
               已失效场次
             </View>
-            <View className="btn">新建场次</View>
+            <View className="btn" onClick={() => this.jumpDetails({})}>
+              新建场次
+            </View>
           </View>
         )}
         {current === 1 && (

@@ -9,7 +9,7 @@ interface IState {
   list: Array<any>;
 }
 
-class SequenceDetailsPage extends Component<{}, IState> {
+class MatchDetailsPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,7 +21,7 @@ class SequenceDetailsPage extends Component<{}, IState> {
     const { list } = this.state;
 
     return (
-      <View className="sequence-details-page">
+      <View className="match-details-page">
         <View className="list">
           <View className="scroll-wrap">
             {list.map(() => {
@@ -48,4 +48,4 @@ class SequenceDetailsPage extends Component<{}, IState> {
   }
 }
 
-export default SequenceDetailsPage;
+export default MatchDetailsPage;
