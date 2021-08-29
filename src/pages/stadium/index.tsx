@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Image, Picker } from '@tarojs/components';
-import { AtTabs, AtIcon, AtTabsPane } from 'taro-ui';
+import { AtTabs, AtIcon, AtTabsPane, AtTextarea } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
@@ -31,6 +31,7 @@ interface IState {
   spaceDate: string;
   isStart: boolean;
   openIndex: number;
+  unitList: any;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -57,6 +58,7 @@ class StadiumPage extends Component<{}, IState> {
       spaceDate: currentDay,
       isStart: false,
       openIndex: 0,
+      unitList: [],
     };
   }
 
@@ -88,13 +90,12 @@ class StadiumPage extends Component<{}, IState> {
     });
     return {
       title: '测试分享,自定义Title',
-      imageUrl:
-        'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg',
+      imageUrl: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg',
       path: '/pages/stadium/index',
     };
   }
 
-  componentDidShow() {
+  async componentDidShow() {
     this.setMeBtnPosition();
     // @ts-ignore
     Taro.showShareMenu({
@@ -104,28 +105,24 @@ class StadiumPage extends Component<{}, IState> {
     });
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
-    console.log(pageParams);
     // const id = pageParams.stadiumId + '';
-    const id = '611fd5493278a82ba8e8e855';
+    const id = '61291d354547579617aba474';
     const matchId = pageParams.matchId;
     const isStart = !!pageParams.isStart;
-    this.setState(
-      {
-        stadiumId: id,
-        isStart,
-      },
-      () => {
-        if (!id) return;
-        this.getStadiumInfo(id);
-        if (!isStart) {
-          this.getSpace(id, dayjs().format('YYYY-MM-DD')).then(() => {});
-        } else {
-          this.getOrderMatch(matchId);
-        }
-        const userId = Taro.getStorageSync('userInfo').id || '';
-        this.loginInit(userId);
-      }
-    );
+    this.setState({
+      stadiumId: id,
+      isStart,
+    });
+    if (!id) return;
+    this.getStadiumInfo(id);
+    await this.getUnitList();
+    if (!isStart) {
+      this.getSpace(id, currentDay).then(() => {});
+    } else {
+      this.getOrderMatch(matchId);
+    }
+    const userId = Taro.getStorageSync('userInfo').id || '';
+    this.loginInit(userId);
   }
 
   getActivityId() {
@@ -181,7 +178,6 @@ class StadiumPage extends Component<{}, IState> {
         id,
       },
     }).then((res: any) => {
-      console.log(res);
       this.setState({
         stadiumInfo: res,
       });
@@ -202,13 +198,13 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  getSpace(stadiumId, date) {
+  getSpace(stadiumId, runDate) {
     return requestData({
       method: 'POST',
       api: '/space/list',
       params: {
         stadiumId,
-        validateDate: date,
+        runDate,
       },
     }).then((res: any) => {
       if (!res?.length) {
@@ -227,6 +223,17 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
+  async getUnitList() {
+    await requestData({
+      method: 'GET',
+      api: '/space/unitEnum',
+    }).then((res: any) => {
+      this.setState({
+        unitList: res,
+      });
+    });
+  }
+
   async onSpaceDateChange(e) {
     const { value } = e.detail;
     if (value === this.state.spaceDate) return;
@@ -238,10 +245,11 @@ class StadiumPage extends Component<{}, IState> {
 
   getMatchList(spaceId, index) {
     requestData({
-      method: 'GET',
+      method: 'POST',
       api: '/match/info',
       params: {
         spaceId,
+        runDate: currentDay,
       },
     }).then(async (res: any) => {
       const notDone = res.findIndex((d) => !d.isDone && !d.isCancel);
@@ -290,12 +298,10 @@ class StadiumPage extends Component<{}, IState> {
       if (res.length >= currentMatch.totalPeople) {
         list = res;
       } else {
-        const personList = new Array(currentMatch.totalPeople)
-          .fill({})
-          .map((item, index) => {
-            if (index <= res.length - 1) return res[index];
-            return item;
-          });
+        const personList = new Array(currentMatch.totalPeople).fill({}).map((item, index) => {
+          if (index <= res.length - 1) return res[index];
+          return item;
+        });
         list = personList;
       }
       this.setState({
@@ -367,8 +373,7 @@ class StadiumPage extends Component<{}, IState> {
     if (currentMatch.selectPeople === currentMatch.totalPeople) return;
     if (!this.checkLogin()) return;
     const { spaceId, id } = currentMatch;
-    const payAmount =
-      selectList.length * currentMatch.price * (currentMatch.rebate / 10);
+    const payAmount = selectList.length * currentMatch.price * (currentMatch.rebate / 10);
     return requestData({
       method: 'POST',
       api: '/order/add',
@@ -486,6 +491,7 @@ class StadiumPage extends Component<{}, IState> {
       selectList,
       spaceDate,
       isStart,
+      unitList,
     } = this.state;
 
     const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
@@ -494,11 +500,7 @@ class StadiumPage extends Component<{}, IState> {
       <View className="stadium-page">
         <View className="page-header">
           <Image className="bg" src={stadiumInfo.stadiumUrl}></Image>
-          <View
-            className="me"
-            style={meBtbPosition}
-            onClick={() => this.jumpCenter()}
-          >
+          <View className="me" style={meBtbPosition} onClick={() => this.jumpCenter()}>
             <Image className="icon" src=""></Image>
             <Text>我的</Text>
           </View>
@@ -536,18 +538,14 @@ class StadiumPage extends Component<{}, IState> {
                         return (
                           <View
                             onClick={() => this.getMatchList(item.id, index)}
-                            className={
-                              spaceActive === index ? 'item active' : 'item'
-                            }
+                            className={spaceActive === index ? 'item active' : 'item'}
                           >
                             <View className="type">{item.name}</View>
-                            <View className="unit">{item.unit}</View>
+                            <View className="unit">{unitList.find((d) => d.value === item.unit)?.label}</View>
                             {item.full ? (
                               <View className="tips2">满</View>
                             ) : (
-                              item.rebate !== 1 && (
-                                <View className="tips1">折</View>
-                              )
+                              item.rebate && <View className="tips1">折</View>
                             )}
                           </View>
                         );
@@ -564,15 +562,9 @@ class StadiumPage extends Component<{}, IState> {
                     <View className="date">
                       <View className="info">
                         <View className="day">{isNow ? '今天' : ''}</View>
-                        <View>
-                          {spaceDate.replace(/-/g, '.').substring(5, 10)}
-                        </View>
+                        <View>{spaceDate.replace(/-/g, '.').substring(5, 10)}</View>
                       </View>
-                      <AtIcon
-                        value="chevron-down"
-                        size="24"
-                        color="#101010"
-                      ></AtIcon>
+                      <AtIcon value="chevron-down" size="24" color="#101010"></AtIcon>
                     </View>
                   </Picker>
                 </View>
@@ -583,58 +575,35 @@ class StadiumPage extends Component<{}, IState> {
                   matchList.map((match, index) => {
                     return (
                       <View className="panel">
-                        <View
-                          className="p-top"
-                          onClick={() => this.handlePeoPleOpen(index)}
-                        >
-                          <View
-                            className={
-                              match.isDone || match.isCancel
-                                ? 'info disabled'
-                                : 'info'
-                            }
-                          >
+                        <View className="p-top" onClick={() => this.handlePeoPleOpen(index)}>
+                          <View className={match.isDone || match.isCancel ? 'info disabled' : 'info'}>
                             <View>
                               <Text className="text">
-                                {match.startAt.split(' ')[1]} -{' '}
-                                {match.endAt.split(' ')[1]}
+                                {match.startAt} - {match.endAt}
                               </Text>{' '}
-                              /{' '}
-                              <Text className="text">{match.duration}小时</Text>{' '}
-                              /{' '}
+                              / <Text className="text">{match.duration}小时</Text> /{' '}
                               <Text className="text">{match.selectPeople}</Text>
                               <Text className="text">/</Text>
-                              <Text className="text">
-                                {match.totalPeople}人
-                              </Text>
+                              <Text className="text">{match.totalPeople}人</Text>
                             </View>
                             {match.selectPeople === match.totalPeople ? (
                               <View className="tips2">满</View>
                             ) : (
-                              match.rebate !== 1 && (
-                                <View className="tips1">折</View>
-                              )
+                              match.rebate !== 1 && <View className="tips1">折</View>
                             )}
                           </View>
                           <AtIcon
                             className={openList[index] ? '' : 'open'}
                             value="chevron-down"
                             size="24"
-                            color={
-                              match.isDone || match.isCancel
-                                ? '#ccc'
-                                : '#101010'
-                            }
+                            color={match.isDone || match.isCancel ? '#ccc' : '#101010'}
                           ></AtIcon>
                         </View>
-                        <View
-                          className={openList[index] ? 'list' : 'list hidden'}
-                        >
+                        <View className={openList[index] ? 'list' : 'list hidden'}>
                           {personList?.length > 0 &&
                             personList.map((item, index) => {
                               const flag = index + 1 === currentMatch.minPeople;
-                              const isPrev =
-                                index + 2 === currentMatch.minPeople;
+                              const isPrev = index + 2 === currentMatch.minPeople;
                               const isOdd = currentMatch.minPeople % 2;
                               let className = 'item';
                               if (flag) {
@@ -646,12 +615,7 @@ class StadiumPage extends Component<{}, IState> {
                                 className += ' hover';
                               }
                               return (
-                                <View
-                                  className={className}
-                                  onClick={() =>
-                                    this.handleSelectPerson(item, index)
-                                  }
-                                >
+                                <View className={className} onClick={() => this.handleSelectPerson(item, index)}>
                                   <View className="img">
                                     {item.avatarUrl ? (
                                       <Image src={item.avatarUrl}></Image>
@@ -660,34 +624,20 @@ class StadiumPage extends Component<{}, IState> {
                                     )}
                                   </View>
                                   {item.nickName ? (
-                                    <View className="name">
-                                      {item.nickName}
-                                    </View>
+                                    <View className="name">{item.nickName}</View>
                                   ) : (
                                     !selectList.includes(index) && (
                                       <View className="name default">
-                                        {match.isDone
-                                          ? '已结束'
-                                          : match.isCancel
-                                          ? '组队失败'
-                                          : '虚位以待'}
+                                        {match.isDone ? '已结束' : match.isCancel ? '组队失败' : '虚位以待'}
                                       </View>
                                     )
                                   )}
                                   {selectList.includes(index) && (
                                     <View className="icon">
-                                      <AtIcon
-                                        value="check"
-                                        size="24"
-                                        color="#0092FF"
-                                      ></AtIcon>
+                                      <AtIcon value="check" size="24" color="#0092FF"></AtIcon>
                                     </View>
                                   )}
-                                  {flag && (
-                                    <View className="tips">
-                                      满{currentMatch.minPeople}人即可开赛
-                                    </View>
-                                  )}
+                                  {flag && <View className="tips">满{currentMatch.minPeople}人即可开赛</View>}
                                 </View>
                               );
                             })}
@@ -704,20 +654,10 @@ class StadiumPage extends Component<{}, IState> {
                   <View className="label">电话</View>
                   <View className="info">
                     <Text
-                      onClick={() =>
-                        this.handleCallPhone(stadiumInfo.firstPhoneNum)
-                      }
+                      onClick={() => this.handleCallPhone(stadiumInfo.phoneNum)}
                       style="color: #0092FF; padding-right: 16px"
                     >
-                      {stadiumInfo.firstPhoneNum}
-                    </Text>
-                    <Text
-                      onClick={() =>
-                        this.handleCallPhone(stadiumInfo.secondPhoneNum)
-                      }
-                      style="color: #0092FF"
-                    >
-                      {stadiumInfo.secondPhoneNum}
+                      {stadiumInfo.phoneNum}
                     </Text>
                   </View>
                 </View>
@@ -732,23 +672,20 @@ class StadiumPage extends Component<{}, IState> {
                   <View className="icon"></View>
                   <View className="label">场地</View>
                   <View className="info">
-                    <View className="text">
-                      足球 - 5v5 x3；8v8 x2；11v11 x1。
-                    </View>
+                    <View className="text">{stadiumInfo.remarks}</View>
                   </View>
                 </View>
-                <View className="row flex-start" style="margin-top: 16px">
+                <View className="row flex-start" style="margin-top: 16px; align-items: flex-start;">
                   <View className="icon"></View>
                   <View className="label">说明</View>
                   <View className="info">
-                    <View>注意事项：</View>
-                    <View>
-                      1、报名人数不足最低开赛标准时，即组队失败。订单将自动退款,款项将在1个工作日内按原路全额退回。
-                    </View>
-                    <View>
-                      2、关于用户主动取消订单的退款规则距开场小于1小时,无法退款;距开场大于1小时,小于2小时,退款80%;距开场大于2小时,可全额退款。
-                    </View>
-                    <View>3、场地月卡可随时无责取消订单,但不支持退款。</View>
+                    <AtTextarea
+                      disabled
+                      count={false}
+                      maxLength={200}
+                      value={stadiumInfo.description}
+                      onChange={() => {}}
+                    />
                   </View>
                 </View>
               </View>
@@ -767,15 +704,9 @@ class StadiumPage extends Component<{}, IState> {
                     ，共：
                   </View>
                   <View className="money">
-                    <View className="new">
-                      {selectList.length *
-                        currentMatch.price *
-                        (currentMatch.rebate / 10)}
-                    </View>
+                    <View className="new">{selectList.length * currentMatch.price * (currentMatch.rebate / 10)}</View>
                     <View className="old">
-                      <Text className="price">
-                        {selectList.length * currentMatch.price}
-                      </Text>
+                      <Text className="price">{selectList.length * currentMatch.price}</Text>
                       <View className="tips1">{currentMatch.rebate}折</View>
                     </View>
                   </View>
@@ -785,33 +716,22 @@ class StadiumPage extends Component<{}, IState> {
                   <View className="text">
                     当前报名人数：
                     {currentMatch?.selectPeople && (
-                      <Text style="font-weight： bold;">
-                        {selectList.length + currentMatch?.selectPeople}
-                      </Text>
+                      <Text style="font-weight： bold;">{selectList.length + currentMatch?.selectPeople}</Text>
                     )}
                   </View>
-                  <View className="tips">
-                    报满{currentMatch?.minPeople}人即可组队成功
-                  </View>
+                  <View className="tips">报满{currentMatch?.minPeople}人即可组队成功</View>
                 </View>
               )}
             </View>
-            <View
-              onClick={() => this.handleSubmit()}
-              className={selectList.length ? 'btn' : 'btn disabled'}
-            >
-              {currentMatch.totalPeople &&
-              currentMatch.selectPeople === currentMatch.totalPeople
+            <View onClick={() => this.handleSubmit()} className={selectList.length ? 'btn' : 'btn disabled'}>
+              {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                 ? '已满员'
                 : `${isStart ? '追加' : '立即'}报名`}
             </View>
           </View>
         )}
 
-        <AuthorizeUserBtn
-          authorize={authorize}
-          onChange={(value) => this.handleAuthorize(value)}
-        ></AuthorizeUserBtn>
+        <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
       </View>
     );
   }

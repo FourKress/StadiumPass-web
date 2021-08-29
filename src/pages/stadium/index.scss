@@ -289,7 +289,8 @@ page {
               font-weight: bold;
             }
 
-            .tips1, .tips2 {
+            .tips1,
+            .tips2 {
               margin-left: 16px;
             }
           }
@@ -344,10 +345,10 @@ page {
               }
             }
 
-            &.even-line, &.pre-line {
+            &.even-line,
+            &.pre-line {
               margin-bottom: 88rpx;
               position: relative;
-
             }
 
             &.even-line {
@@ -359,7 +360,8 @@ page {
               }
             }
 
-            &.odd-line, &.even-line {
+            &.odd-line,
+            &.even-line {
               &:after {
                 content: ' ';
                 width: 204%;
@@ -450,6 +452,16 @@ page {
           }
           &:last-child {
             padding-top: 28px;
+          }
+
+          .at-textarea {
+            border: none;
+            border-radius: unset;
+            padding: 0;
+
+            textarea {
+              height: 500px;
+            }
           }
         }
 

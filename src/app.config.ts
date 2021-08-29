@@ -2,6 +2,7 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
+    'pages/stadium/index',
     'pages/bossMe/index',
     'pages/stadium-details/index',
     'pages/match-edit/index',
@@ -11,14 +12,13 @@ const config: Config = {
     'pages/match-details/index',
     'pages/revenue-details/index',
     'pages/statistics/index',
-    // 'pages/stadium/index',
-    // 'pages/orderPay/index',
-    // 'pages/me/index',
-    // 'pages/monthlyCard/index',
-    // 'pages/myWatch/index',
-    // 'pages/order/index',
-    // 'pages/login/index',
-    // 'pages/share/index',
+    'pages/orderPay/index',
+    'pages/me/index',
+    'pages/monthlyCard/index',
+    'pages/myWatch/index',
+    'pages/order/index',
+    'pages/login/index',
+    'pages/share/index',
   ],
   plugins: {
     ocrPlugin: {
