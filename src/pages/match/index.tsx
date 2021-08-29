@@ -9,6 +9,7 @@ import './index.scss';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
 import dayjs from 'dayjs';
+import requestData from '@/utils/requestData';
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
@@ -16,9 +17,10 @@ interface InjectStoreProps {
 
 interface IState {
   tabPosition: object;
-  selectList: Array<any>;
-  stadiumId: string;
+  stadiumList: Array<any>;
+  stadiumInfo: any;
   selectDate: any;
+  matchList: Array<any>;
 }
 
 const weekMap = {
@@ -45,6 +47,8 @@ const DATA_LIST = Array(7)
     return d;
   });
 
+const dateNow = dayjs().format('YYYY-MM-DD');
+
 @inject('tabBarStore')
 @observer
 class MatchPage extends Component<InjectStoreProps, IState> {
@@ -52,9 +56,10 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     super(props);
     this.state = {
       tabPosition: {},
-      selectList: [],
-      stadiumId: '',
-      selectDate: {},
+      stadiumList: [],
+      stadiumInfo: {},
+      selectDate: DATA_LIST[0],
+      matchList: [],
     };
   }
 
@@ -65,6 +70,10 @@ class MatchPage extends Component<InjectStoreProps, IState> {
   componentDidShow() {
     this.inject.tabBarStore.setSelected(1);
     this.setMeBtnPosition();
+    const userInfo = Taro.getStorageSync('userInfo') || '';
+    if (userInfo.isBoss) {
+      this.getStadiumList();
+    }
   }
 
   setMeBtnPosition() {
@@ -86,20 +95,53 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  getStadiumList() {
+    requestData({
+      method: 'GET',
+      api: '/stadium/stadiumList',
+    }).then((res: any) => {
+      const stadiumInfo = res[0];
+      this.getMatchList(stadiumInfo.id, dateNow);
+      this.setState({
+        stadiumList: res,
+        stadiumInfo: stadiumInfo,
+      });
+    });
+  }
+
+  getMatchList(stadiumId, runDate) {
+    requestData({
+      method: 'POST',
+      api: '/match/runList',
+      params: {
+        stadiumId,
+        runDate,
+      },
+    }).then((res: any) => {
+      this.setState({
+        matchList: res,
+      });
+    });
+  }
+
   handleSelect(e) {
     const index = e.detail.value;
-    const value = this.state.selectList[index]?.id;
+    const stadium = this.state.stadiumList[index];
     this.setState({
-      stadiumId: value,
+      stadiumInfo: stadium,
+      selectDate: DATA_LIST[0],
     });
+    this.getMatchList(stadium.id, dateNow);
   }
 
   handleSelectDate(index) {
     const target = DATA_LIST[index];
-    console.log(target);
+    const { year, month, day } = target;
     this.setState({
       selectDate: target,
     });
+    const { stadiumInfo } = this.state;
+    this.getMatchList(stadiumInfo.id, `${year}-${month}-${day}`);
   }
 
   jumpDetails(item) {
@@ -110,19 +152,14 @@ class MatchPage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const { selectList, tabPosition, selectDate } = this.state;
-
+    const { stadiumList, tabPosition, selectDate, stadiumInfo, matchList } = this.state;
+    console.log(DATA_LIST, selectDate);
     return (
       <View className="match-page">
         <View className="top-bar">
-          <Picker
-            mode="selector"
-            rangeKey="label"
-            range={selectList}
-            onChange={(e) => this.handleSelect(e)}
-          >
+          <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
             <View className="bar" style={tabPosition}>
-              <Text>力帆足球俱乐部</Text>
+              <Text>{stadiumInfo.name}</Text>
               <AtIcon value="chevron-down" size="20" color="#000"></AtIcon>
             </View>
           </Picker>
@@ -132,9 +169,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
             {DATA_LIST.map((date, index) => {
               return (
                 <View
-                  className={
-                    selectDate?.day === date.day ? 'item active' : 'item'
-                  }
+                  className={selectDate?.day === date.day ? 'item active' : 'item'}
                   onClick={() => this.handleSelectDate(index)}
                 >
                   <View className="week">{date.week}</View>
@@ -149,29 +184,29 @@ class MatchPage extends Component<InjectStoreProps, IState> {
 
         <View className="list">
           <View className="scroll-warp">
-            {[1, 2, 3, 4, 5, 6].map((item) => {
+            {matchList.map((item) => {
               return (
                 <View className="item" onClick={() => this.jumpDetails(item)}>
                   <View className="top">
-                    <View className="left">重复场次</View>
+                    <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
                     <View className="right">
-                      <Text>已报名：2人</Text>
+                      <Text>已报名：{item.selectPeople}人</Text>
                       <View className="share">
-                        <AtIcon
-                          value="share"
-                          size="14"
-                          color="#0080FF"
-                        ></AtIcon>
+                        <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
                         <Text>分享</Text>
                       </View>
                     </View>
                   </View>
                   <View className="item-body">
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
+                    <View>场地：{item.space?.name}</View>
+                    <View>
+                      时间：{item.repeatName} / {item.startAt}-{item.endAt}
+                    </View>
+                    <View>时长：{item.duration}小时</View>
+                    <View>
+                      人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                    </View>
+                    <View>价格：￥{item.rebatePrice}每人</View>
                   </View>
                 </View>
               );

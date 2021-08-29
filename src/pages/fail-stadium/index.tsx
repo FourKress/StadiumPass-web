@@ -1,48 +1,81 @@
 import React, { Component } from 'react';
 import { Text, View } from '@tarojs/components';
-// import requestData from '@/utils/requestData';
+import requestData from '@/utils/requestData';
 
 import './index.scss';
+import Taro from '@tarojs/taro';
 
 interface IState {
-  list: Array<any>;
+  matchList: Array<any>;
+  stadiumId: string;
 }
 
 class FailStadiumPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      list: [1, 2, 3, 4, 5, 6],
+      stadiumId: '',
+      matchList: [],
     };
   }
 
+  componentDidShow() {
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const stadiumId = (pageParams.stadiumId + '').toString();
+    this.setState(
+      {
+        stadiumId,
+      },
+      () => {
+        this.getMatchList();
+      }
+    );
+  }
+
+  getMatchList() {
+    requestData({
+      method: 'GET',
+      api: '/match/failList',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        matchList: res,
+      });
+    });
+  }
+
   render() {
-    const { list } = this.state;
+    const { matchList } = this.state;
 
     return (
       <View className="fail-stadium-page">
         <View className="list">
           <View className="scroll-warp">
-            {list.map(() => {
+            {matchList.map((item) => {
               return (
                 <View className="item">
                   <View className="top">
-                    <View className="left">重复场次</View>
+                    <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
                     <View className="right">
                       <View className="money">
-                        <Text>￥30</Text>
-                        <Text className="discount">5折</Text>
-                        <Text>/人；</Text>
+                        <Text>￥{item.rebatePrice}</Text>
+                        <Text className="discount">{item.rebate}折</Text>
+                        <Text>/人</Text>
                       </View>
-                      <Text className="err">不支持月卡</Text>
                     </View>
                   </View>
                   <View className="item-body">
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
-                    <View>场地：撒娇的尽可能</View>
+                    <View>场地：{item.space?.name}</View>
+                    <View>
+                      时间：{item.repeatName} / {item.startAt}-{item.endAt}
+                    </View>
+                    <View>时长：{item.duration}小时</View>
+                    <View>
+                      人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                    </View>
                   </View>
                 </View>
               );

@@ -45,16 +45,11 @@ page {
         width: 100%;
         height: 100px;
         font-size: 32px;
-        color: #93A7B6;
-        border-bottom: 1px solid #E9E9E9;
+        color: #93a7b6;
+        border-bottom: 1px solid #e9e9e9;
 
         .left {
           font-weight: bold;
-        }
-
-        .err {
-          color: #93A7B6;
-          text-decoration: line-through;
         }
 
         .right {
@@ -66,14 +61,15 @@ page {
             align-items: center;
 
             .discount {
-              width: 48px;
+              min-width: 48px;
+              padding: 0 10px;
               height: 32px;
               line-height: 32px;
               text-align: center;
               font-size: 24px;
               border-radius: 8px;
-              background-color: #FDCA3C;
-              color: #FF9502;
+              background-color: #fdca3c;
+              color: #ff9502;
               margin: 0 10px;
             }
           }
@@ -82,7 +78,7 @@ page {
 
       .item-body {
         font-size: 28px;
-        color: #93A7B6;
+        color: #93a7b6;
         padding-top: 24px;
       }
     }

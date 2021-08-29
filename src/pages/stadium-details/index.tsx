@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
 import { Picker, Text, View, CoverView } from '@tarojs/components';
-import {
-  AtForm,
-  AtInput,
-  AtTextarea,
-  AtTabBar,
-  AtSwitch,
-  AtIcon,
-  AtList,
-  AtListItem,
-} from 'taro-ui';
+import { AtForm, AtInput, AtTextarea, AtTabBar, AtSwitch, AtIcon, AtList, AtListItem } from 'taro-ui';
 import Taro from '@tarojs/taro';
 
 import './index.scss';
@@ -51,13 +42,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
       {
         stadiumId,
       },
-      async () => {
-        this.getMatchList();
-        await this.getUnitList();
-        this.getStadiumInfo();
-        this.getSpaceList();
+      () => {
+        this.matchInit();
       }
     );
+  }
+
+  matchInit() {
+    this.getMatchList();
+  }
+
+  async stadiumInit() {
+    await this.getUnitList();
+    this.getStadiumInfo();
+    this.getSpaceList();
   }
 
   async getUnitList() {
@@ -113,23 +111,28 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  handleTabClick(index) {
+  async handleTabClick(index) {
     this.setState({
       current: index,
     });
+    if (index === 0) {
+      this.matchInit();
+    } else {
+      await this.stadiumInit();
+    }
   }
 
   jumpDetails(item) {
-    console.log(item);
-    const { stadiumInfo } = this.state;
+    const { stadiumId } = this.state;
     Taro.navigateTo({
-      url: `../match-edit/index?stadiumId=${stadiumInfo.id}&id=${item?.id}`,
+      url: `../match-edit/index?stadiumId=${stadiumId}&matchId=${item?.id || ''}`,
     });
   }
 
   jumpFailStadium() {
+    const { stadiumId } = this.state;
     Taro.navigateTo({
-      url: '../fail-stadium/index',
+      url: `../fail-stadium/index?stadiumId=${stadiumId}`,
     });
   }
 
@@ -239,15 +242,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   render() {
-    const {
-      current,
-      stadiumInfo,
-      spaceList,
-      spaceInfo,
-      showSpaceDetails,
-      unitList,
-      matchList,
-    } = this.state;
+    const { current, stadiumInfo, spaceList, spaceInfo, showSpaceDetails, unitList, matchList } = this.state;
 
     return (
       <View className="stadium-details-page">
@@ -263,9 +258,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 return (
                   <View className="item" onClick={() => this.jumpDetails(item)}>
                     <View className="top">
-                      <View className="left">
-                        {item.repeatModel === 1 ? '单次场次' : '重复场次'}
-                      </View>
+                      <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
                       <View className="right">
                         <View className="money">
                           <Text>￥{item.rebatePrice}</Text>
@@ -275,13 +268,13 @@ class StadiumDetailsPage extends Component<{}, IState> {
                       </View>
                     </View>
                     <View className="item-body">
-                      <View>场地：{item.spaceName}</View>
+                      <View>场地：{item.space?.name}</View>
                       <View>
                         时间：{item.repeatName} / {item.startAt}-{item.endAt}
                       </View>
-                      <View>时长：{item.duration}小数</View>
+                      <View>时长：{item.duration}小时</View>
                       <View>
-                        人数：最少{item.minPeople} / 最多{item.totalPeople}
+                        人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
                       </View>
                     </View>
                   </View>
@@ -300,32 +293,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 {spaceList.length > 0 &&
                   spaceList.map((item, index) => {
                     return (
-                      <View
-                        className="space-row"
-                        onClick={() => this.handleSpaceEdit(item, index)}
-                      >
+                      <View className="space-row" onClick={() => this.handleSpaceEdit(item, index)}>
                         <AtInput
                           name="duration"
                           title={item.name}
                           type="text"
                           editable={false}
-                          value={
-                            unitList.find((d) => d.value === item.unit)?.label
-                          }
+                          value={unitList.find((d) => d.value === item.unit)?.label}
                           onChange={() => {}}
                         />
-                        <AtIcon
-                          value="chevron-right"
-                          size="18"
-                          color="#000"
-                        ></AtIcon>
+                        <AtIcon value="chevron-right" size="18" color="#000"></AtIcon>
                       </View>
                     );
                   })}
-                <View
-                  className="add"
-                  onClick={() => this.addSpace({}, spaceList.length)}
-                >
+                <View className="add" onClick={() => this.addSpace({}, spaceList.length)}>
                   <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
                   <View>新增场地</View>
                 </View>
@@ -337,9 +318,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   title="支持月卡"
                   color="#00E36A"
                   checked={stadiumInfo.monthlyCardStatus}
-                  onChange={(value) =>
-                    this.handleChange(value, 'monthlyCardStatus')
-                  }
+                  onChange={(value) => this.handleChange(value, 'monthlyCardStatus')}
                 />
                 <AtInput
                   name="monthlyCardPrice"
@@ -347,9 +326,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   type="text"
                   placeholder="请输入月卡购买金额"
                   value={stadiumInfo.monthlyCardPrice}
-                  onChange={(value) =>
-                    this.handleChange(value, 'monthlyCardPrice')
-                  }
+                  onChange={(value) => this.handleChange(value, 'monthlyCardPrice')}
                 />
                 <View className="title">
                   <View className="name">场馆介绍</View>
@@ -439,26 +416,18 @@ class StadiumDetailsPage extends Component<{}, IState> {
                     <AtListItem
                       title="对局规格"
                       arrow="down"
-                      extraText={
-                        unitList.find((d) => d.value === spaceInfo.unit)?.label
-                      }
+                      extraText={unitList.find((d) => d.value === spaceInfo.unit)?.label}
                     />
                   </AtList>
                 </Picker>
               </AtForm>
               <View className="btn-list">
                 {(spaceInfo.name || spaceInfo.unit) && (
-                  <View
-                    className="btn space-btn"
-                    onClick={() => this.removeSpace()}
-                  >
+                  <View className="btn space-btn" onClick={() => this.removeSpace()}>
                     删除场地
                   </View>
                 )}
-                <View
-                  className="btn space-btn"
-                  onClick={() => this.saveSpace()}
-                >
+                <View className="btn space-btn" onClick={() => this.saveSpace()}>
                   保存场地
                 </View>
               </View>

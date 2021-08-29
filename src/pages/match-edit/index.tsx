@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Picker } from '@tarojs/components';
-import { AtForm, AtInput, AtList, AtListItem } from 'taro-ui';
+import { AtForm, AtInput, AtList, AtListItem, AtCheckbox } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import './index.scss';
 import requestData from '@/utils/requestData';
@@ -18,12 +18,14 @@ interface IForm {
   totalPeople: string | '';
   price: string;
   rebatePrice: string;
+  repeatWeek: any;
   rebate?: number;
+  id?: string;
 }
 
 interface IState {
   stadiumId: string;
-  spaceId: string;
+  matchId: string;
   form: IForm;
   spaceList: Array<any>;
   weekList: Array<any>;
@@ -37,7 +39,7 @@ class MatchEditPage extends Component<{}, IState> {
     super(props);
     this.state = {
       stadiumId: '',
-      spaceId: '',
+      matchId: '',
       form: {
         stadiumId: '',
         spaceId: '',
@@ -48,6 +50,7 @@ class MatchEditPage extends Component<{}, IState> {
         startAt: '',
         duration: '',
         repeatModel: '',
+        repeatWeek: '',
         rebatePrice: '',
         price: '',
       },
@@ -61,23 +64,52 @@ class MatchEditPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const stadiumId = (pageParams.stadiumId + '').toString();
-    const spaceId = ((pageParams.spaceId || '') + '').toString();
+    const matchId = pageParams?.matchId ? (pageParams.matchId + '').toString() : '';
     this.setState(
       {
         stadiumId,
-        spaceId,
+        matchId,
         form: {
           ...this.state.form,
-          spaceId,
           stadiumId,
         },
       },
       async () => {
         this.getSpaceList();
+        if (matchId) {
+          this.getMatchDetails();
+        }
       }
     );
     this.getWeekList();
     this.getRepeatModelList();
+  }
+
+  getMatchDetails() {
+    requestData({
+      method: 'GET',
+      api: '/match/details',
+      params: {
+        id: this.state.matchId,
+      },
+    }).then((res: any) => {
+      const { repeatWeek } = res;
+      const { form } = this.state;
+      const tempForm = {};
+      Object.keys(form).map((k) => {
+        tempForm[k] = res[k];
+      });
+
+      this.setState({
+        form: {
+          ...form,
+          ...tempForm,
+          repeatWeek: repeatWeek.split(',').map((d) => Number(d)),
+          rebate: res.rebate,
+          id: res.id,
+        },
+      });
+    });
   }
 
   getSpaceList() {
@@ -123,11 +155,10 @@ class MatchEditPage extends Component<{}, IState> {
       if (!this.checkPrice(form.rebatePrice, form.price)) {
         form[key] = '';
       } else {
-        form.rebate = parseFloat(
-          ((Number(form.rebatePrice) / Number(form.price)) * 10).toFixed(2)
-        );
+        form.rebate = parseFloat(((Number(form.rebatePrice) / Number(form.price)) * 10).toFixed(2));
       }
     }
+
     this.setState({
       form: {
         ...form,
@@ -141,15 +172,23 @@ class MatchEditPage extends Component<{}, IState> {
     let value;
     if (key === 'spaceId') {
       value = this.state.spaceList[index].id;
-    } else if (key === 'runDate') {
-      value = this.state.weekList[index].value.toString();
     } else {
       value = this.state[`${key}List`][index].value;
       if (key === 'repeatModel') {
-        form.runDate = '';
+        form.runDate = value === 1 ? '' : dateNow;
       }
     }
     form[key] = value;
+    this.setState({
+      form: {
+        ...form,
+      },
+    });
+  }
+
+  handleCheckboxChange(value) {
+    const form = this.state.form;
+    form.repeatWeek = value;
     this.setState({
       form: {
         ...form,
@@ -166,9 +205,7 @@ class MatchEditPage extends Component<{}, IState> {
       if (!diff) {
         form[key] = '';
       } else {
-        form.duration = parseFloat(
-          (diff / (1000 * 60 * 60)).toFixed(2)
-        ).toString();
+        form.duration = parseFloat((diff / (1000 * 60 * 60)).toFixed(2)).toString();
       }
     }
     this.setState({
@@ -203,19 +240,20 @@ class MatchEditPage extends Component<{}, IState> {
     return true;
   }
 
+  checkPeople(totalPrice, minPeople) {
+    if (Number(totalPrice) < Number(minPeople)) {
+      Taro.showToast({
+        title: '满场人数必须大于等于最小开场人数',
+        icon: 'none',
+      });
+      return false;
+    }
+    return true;
+  }
+
   handleSave() {
-    const { form, spaceId } = this.state;
-    const {
-      repeatModel,
-      rebate,
-      totalPeople,
-      minPeople,
-      price,
-      rebatePrice,
-      duration,
-      startAt,
-      endAt,
-    } = form;
+    const { form, matchId } = this.state;
+    const { repeatModel, rebate, totalPeople, minPeople, price, rebatePrice, duration, startAt, endAt } = form;
     if (Object.values(form).some((d) => !d)) {
       Taro.showToast({
         title: '请填写完整的场次信息',
@@ -223,31 +261,38 @@ class MatchEditPage extends Component<{}, IState> {
       });
       return;
     }
-    if (!this.checkPrice(rebatePrice, price)) {
-      return;
-    }
     if (!this.checkDuration(startAt, endAt)) {
       return;
     }
-    console.log(this.state.form);
+    if (!this.checkPeople(totalPeople, minPeople)) {
+      return;
+    }
+    if (!this.checkPrice(rebatePrice, price)) {
+      return;
+    }
+
+    const params = {
+      ...form,
+      repeatModel: Number(repeatModel),
+      rebate: Number(rebate),
+      totalPeople: Number(totalPeople),
+      minPeople: Number(minPeople),
+      price: Number(price),
+      rebatePrice: Number(rebatePrice),
+      duration: Number(duration),
+    };
 
     requestData({
       method: 'POST',
-      api: spaceId ? '/match/add' : '/match/add',
-      params: {
-        ...form,
-        repeatModel: Number(repeatModel),
-        rebate: Number(rebate),
-        totalPeople: Number(totalPeople),
-        minPeople: Number(minPeople),
-        price: Number(price),
-        rebatePrice: Number(rebatePrice),
-        duration: Number(duration),
-      },
+      api: matchId ? '/match/modify' : '/match/add',
+      params,
     }).then(() => {
       Taro.showToast({
         icon: 'none',
         title: '场次保存成功',
+      });
+      Taro.navigateBack({
+        delta: -1,
       });
     });
   }
@@ -265,102 +310,58 @@ class MatchEditPage extends Component<{}, IState> {
               onChange={(event) => this.handleSelectChange(event, 'spaceId')}
             >
               <AtList>
-                <AtListItem
-                  title="场地"
-                  arrow="down"
-                  extraText={spaceList.find((d) => d.id === form.spaceId)?.name}
-                />
+                <AtListItem title="场地" arrow="down" extraText={spaceList.find((d) => d.id === form.spaceId)?.name} />
               </AtList>
             </Picker>
             <View className="title">
               <View className="name">时间设置</View>
               <View className="tips">1、不重复：临时场次，只生效1次。</View>
-              <View className="tips">
-                2、每周重复：按周重复。例如可设置每周六、日重复的周末场。
-              </View>
-              <View className="tips">
-                3、每天重复：按天重复。例如可设置为每天重复的固定场。
-              </View>
+              <View className="tips">2、每周重复：按周重复。例如可设置每周六、日重复的周末场。</View>
+              <View className="tips">3、每天重复：按天重复。例如可设置为每天重复的固定场。</View>
             </View>
             <Picker
               mode="selector"
               range={repeatModelList}
               rangeKey="label"
-              onChange={(event) =>
-                this.handleSelectChange(event, 'repeatModel')
-              }
+              onChange={(event) => this.handleSelectChange(event, 'repeatModel')}
             >
               <AtList>
                 <AtListItem
                   title="重复模式"
                   arrow="down"
-                  extraText={
-                    repeatModelList.find((d) => d.value === form.repeatModel)
-                      ?.label
-                  }
+                  extraText={repeatModelList.find((d) => d.value === form.repeatModel)?.label}
                 />
               </AtList>
             </Picker>
 
             {Number(form.repeatModel) === 1 && (
-              <Picker
-                value={form.runDate}
-                mode="date"
-                onChange={(e) => this.handleDateChange(e, 'runDate')}
-              >
+              <Picker value={form.runDate} mode="date" onChange={(e) => this.handleDateChange(e, 'runDate')}>
                 <AtList>
-                  <AtListItem
-                    title="选择日期"
-                    arrow="down"
-                    extraText={form.runDate}
-                  />
+                  <AtListItem title="选择日期" arrow="down" extraText={form.runDate} />
                 </AtList>
               </Picker>
             )}
             {Number(form.repeatModel) === 2 && (
-              <Picker
-                mode="selector"
-                range={weekList}
-                rangeKey="label"
-                onChange={(event) => this.handleSelectChange(event, 'runDate')}
-              >
-                <AtList>
-                  <AtListItem
-                    title="选择日期"
-                    arrow="down"
-                    extraText={
-                      weekList.find((d) => d.value === Number(form.runDate))
-                        ?.label
-                    }
-                  />
-                </AtList>
-              </Picker>
+              <View>
+                <View className="row-title">
+                  <View>选择日期</View>
+                </View>
+                <AtCheckbox
+                  options={weekList}
+                  selectedList={form.repeatWeek || []}
+                  onChange={(value) => this.handleCheckboxChange(value)}
+                />
+              </View>
             )}
 
-            <Picker
-              value={form.startAt}
-              mode="time"
-              onChange={(e) => this.handleDateChange(e, 'startAt')}
-            >
+            <Picker value={form.startAt} mode="time" onChange={(e) => this.handleDateChange(e, 'startAt')}>
               <AtList>
-                <AtListItem
-                  title="选择开始时间"
-                  arrow="down"
-                  extraText={form.startAt}
-                />
+                <AtListItem title="选择开始时间" arrow="down" extraText={form.startAt} />
               </AtList>
             </Picker>
-            <Picker
-              value={form.endAt}
-              mode="time"
-              onChange={(e) => this.handleDateChange(e, 'endAt')}
-            >
+            <Picker value={form.endAt} mode="time" onChange={(e) => this.handleDateChange(e, 'endAt')}>
               <AtList>
-                <AtListItem
-                  title="选择结束时间"
-                  arrow="down"
-                  extraText={form.endAt}
-                />
+                <AtListItem title="选择结束时间" arrow="down" extraText={form.endAt} />
               </AtList>
             </Picker>
             <AtInput
@@ -393,12 +394,8 @@ class MatchEditPage extends Component<{}, IState> {
             />
             <View className="title">
               <View className="name">价格设置</View>
-              <View className="tips">
-                1、设置原价和折扣价后，系统将自动计算折扣。
-              </View>
-              <View className="tips">
-                2、折扣价必须小于等于原价（相等则视为无折扣）。
-              </View>
+              <View className="tips">1、设置原价和折扣价后，系统将自动计算折扣。</View>
+              <View className="tips">2、折扣价必须小于等于原价（相等则视为无折扣）。</View>
             </View>
             <AtInput
               name="price"

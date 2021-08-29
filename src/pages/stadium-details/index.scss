@@ -2,7 +2,7 @@
 @import '../../assets/styles/mixins';
 
 page {
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
 }
 
 .stadium-details-page {
@@ -15,12 +15,12 @@ page {
   }
 
   .at-tab-bar__item--active .at-badge {
-    &:after {
+    &::after {
       display: inline-block;
       content: '';
       width: 100%;
       height: 4px;
-      background-color: #0080FF;
+      background-color: #0080ff;
       transform: translateY(18px);
     }
   }
@@ -46,7 +46,6 @@ page {
     .item {
       background-color: #fff;
       border-radius: 16px;
-      padding: 0 32px 32px 32px;
       width: 100%;
       height: 340px;
       box-sizing: border-box;
@@ -60,15 +59,12 @@ page {
         height: 100px;
         font-size: 32px;
         color: #101010;
-        border-bottom: 1px solid #E9E9E9;
+        border-bottom: 1px solid #e9e9e9;
+        padding: 0 32px;
+        box-sizing: border-box;
 
         .left {
           font-weight: bold;
-        }
-
-        .err {
-          color: #93A7B6;
-          text-decoration: line-through;
         }
 
         .right {
@@ -80,14 +76,15 @@ page {
             align-items: center;
 
             .discount {
-              width: 48px;
+              min-width: 48px;
+              padding: 0 10px;
               height: 32px;
               line-height: 32px;
               text-align: center;
               font-size: 24px;
               border-radius: 8px;
-              background-color: #FDCA3C;
-              color: #FF9502;
+              background-color: #fdca3c;
+              color: #ff9502;
               margin: 0 10px;
             }
           }
@@ -95,16 +92,18 @@ page {
       }
 
       .item-body {
+        width: 100%;
+        box-sizing: border-box;
         font-size: 28px;
-        color: #93A7B6;
-        padding-top: 24px;
+        color: #93a7b6;
+        padding: 24px 0 32px 32px;
       }
     }
   }
 
   .form {
     width: 100vw;
-    background-color: #F2F2F2;
+    background-color: #f2f2f2;
     padding-bottom: 32px;
 
     .space-row {
@@ -114,7 +113,7 @@ page {
       justify-content: space-between;
       background-color: #fff;
       padding-right: 24px;
-      border-bottom: 1px solid #FFD9D9;;
+      border-bottom: 1px solid #ffd9d9;
       box-sizing: border-box;
 
       .at-input {
@@ -131,7 +130,7 @@ page {
       align-items: center;
       justify-content: center;
       font-size: 28px;
-      color: #0080FF;
+      color: #0080ff;
     }
 
     .at-switch {
@@ -142,7 +141,7 @@ page {
     .at-list__item {
       padding: 24px 32px;
 
-      .item-extra__info{
+      .item-extra__info {
         padding-right: 40px;
       }
     }
@@ -216,7 +215,6 @@ page {
       align-items: center;
       justify-content: space-between;
       font-size: 36px;
-      text-align: center;
 
       .btn {
         width: 100%;
@@ -224,8 +222,8 @@ page {
         line-height: 86px;
         border-radius: 86px;
         background-color: #fff;
-        color: #FF0000;
-        border: 1px solid #FFD9D9;
+        color: #ff0000;
+        border: 1px solid #ffd9d9;
       }
     }
   }
@@ -246,7 +244,6 @@ page {
     align-items: center;
     justify-content: space-between;
     font-size: 36px;
-    text-align: center;
 
     .btn {
       width: 320px;
@@ -254,8 +251,8 @@ page {
       line-height: 86px;
       border-radius: 86px;
       background-color: #fff;
-      color: #0080FF;
-      border: 1px solid #0080FF;
+      color: #0080ff;
+      border: 1px solid #0080ff;
 
       &.save {
         width: 100%;
@@ -272,8 +269,8 @@ page {
       &.space-btn {
         flex: 1;
         background-color: #fff;
-        color: #FF0000;
-        border: 1px solid #FFD9D9;
+        color: #ff0000;
+        border: 1px solid #ffd9d9;
         margin: 0 16px;
 
         &:last-child {
@@ -285,9 +282,8 @@ page {
 
       &:last-child {
         color: #fff;
-        background-color: #0080FF;
+        background-color: #0080ff;
       }
-
     }
   }
 }
