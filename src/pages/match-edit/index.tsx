@@ -50,7 +50,7 @@ class MatchEditPage extends Component<{}, IState> {
         startAt: '',
         duration: '',
         repeatModel: '',
-        repeatWeek: '',
+        repeatWeek: [],
         rebatePrice: '',
         price: '',
       },
@@ -104,7 +104,7 @@ class MatchEditPage extends Component<{}, IState> {
         form: {
           ...form,
           ...tempForm,
-          repeatWeek: repeatWeek.split(',').map((d) => Number(d)),
+          repeatWeek: repeatWeek.map((d) => Number(d)),
           rebate: res.rebate,
           id: res.id,
         },
@@ -253,18 +253,8 @@ class MatchEditPage extends Component<{}, IState> {
 
   handleSave() {
     const { form, matchId } = this.state;
-    const {
-      repeatModel,
-      rebate,
-      totalPeople,
-      minPeople,
-      price,
-      rebatePrice,
-      duration,
-      startAt,
-      endAt,
-      repeatWeek,
-    } = form;
+    const { repeatModel, rebate, totalPeople, minPeople, price, rebatePrice, duration, startAt, endAt, repeatWeek } =
+      form;
     const key = Object.keys(form).find((d) => !form[d] && d !== 'repeatWeek');
     if ((repeatModel === '2' && !repeatWeek) || key) {
       Taro.showToast({
@@ -286,7 +276,7 @@ class MatchEditPage extends Component<{}, IState> {
     const params = {
       ...form,
       repeatModel: Number(repeatModel),
-      repeatWeek: repeatWeek || undefined,
+      repeatWeek: repeatWeek || [],
       rebate: Number(rebate),
       totalPeople: Number(totalPeople),
       minPeople: Number(minPeople),

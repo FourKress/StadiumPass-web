@@ -146,7 +146,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
 
   jumpDetails(item) {
     Taro.navigateTo({
-      url: `../match-details/index?matchId=${item.id}`,
+      url: `../match-details/index?matchId=${item.id}&stadiumId=${item.stadiumId}`,
     });
   }
 
@@ -189,11 +189,17 @@ class MatchPage extends Component<InjectStoreProps, IState> {
                   <View className="top">
                     <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
                     <View className="right">
-                      <Text>已报名：{item.selectPeople}人</Text>
-                      <View className="share">
-                        <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
-                        <Text>分享</Text>
-                      </View>
+                      {item.status ? (
+                        <Text>已报名：{item.selectPeople}人</Text>
+                      ) : (
+                        <Text style="color: #ff0000">本场已取消</Text>
+                      )}
+                      {item.status && (
+                        <View className="share">
+                          <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
+                          <Text>分享</Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                   <View className="item-body">

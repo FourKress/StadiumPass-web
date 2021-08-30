@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { AtIcon, AtDrawer, AtInput } from 'taro-ui';
-// import requestData from '@/utils/requestData';
+import requestData from '@/utils/requestData';
 
 import './index.scss';
 import dayjs from 'dayjs';
@@ -48,10 +48,22 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
 
   componentDidShow() {
     this.inject.tabBarStore.setSelected(0);
+    this.getMonthAndAayStatistics(1);
+  }
+
+  getMonthAndAayStatistics(type) {
+    requestData({
+      method: 'GET',
+      api: '/order/monthAndAayStatistics',
+      params: {
+        type,
+      },
+    }).then((res) => {
+      console.log(res);
+    });
   }
 
   showTotal() {
-    console.log(1);
     Taro.navigateTo({
       url: '../statistics/index',
     });
@@ -146,10 +158,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                   <View className="list">
                     {[1, 2].map(() => {
                       return (
-                        <View
-                          className="item"
-                          onClick={() => this.jumpDetails()}
-                        >
+                        <View className="item" onClick={() => this.jumpDetails()}>
                           <View className="left">
                             <Text>18:00 — 20:00</Text>
                             <Text className="index">2号场</Text>
@@ -162,11 +171,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                               </View>
                               <View className="tips">32123啥的</View>
                             </View>
-                            <AtIcon
-                              value="chevron-right"
-                              size="20"
-                              color="#93A7B6"
-                            ></AtIcon>
+                            <AtIcon value="chevron-right" size="20" color="#93A7B6"></AtIcon>
                           </View>
                         </View>
                       );
@@ -212,30 +217,15 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
           </View>
         </View>
 
-        <AtDrawer
-          show={showDrawer}
-          onClose={() => this.handleCloseDrawer()}
-          mask
-          width="260px"
-          right
-        >
+        <AtDrawer show={showDrawer} onClose={() => this.handleCloseDrawer()} mask width="260px" right>
           <View className="drawer-panel">
             <View className="drawer-top">
               <Text>自定义查询</Text>
-              <AtIcon
-                onClick={() => this.handleCloseDrawer()}
-                value="close"
-                size="16"
-              />
+              <AtIcon onClick={() => this.handleCloseDrawer()} value="close" size="16" />
             </View>
             <View className="form-panel">
               <View className="drawer-item">
-                <Picker
-                  mode="selector"
-                  rangeKey="label"
-                  range={selectList}
-                  onChange={(e) => this.handleSelect(e)}
-                >
+                <Picker mode="selector" rangeKey="label" range={selectList} onChange={(e) => this.handleSelect(e)}>
                   <View className="title">请选择球场</View>
                   <AtInput
                     name="stadiumId"
@@ -246,18 +236,9 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                 </Picker>
               </View>
               <View className="drawer-item">
-                <Picker
-                  value={stadiumDate}
-                  mode="date"
-                  onChange={(e) => this.handleDateChange(e)}
-                >
+                <Picker value={stadiumDate} mode="date" onChange={(e) => this.handleDateChange(e)}>
                   <View className="title">请选择时间</View>
-                  <AtInput
-                    name="stadiumDate"
-                    onChange={() => {}}
-                    value={stadiumDate}
-                    editable={false}
-                  ></AtInput>
+                  <AtInput name="stadiumDate" onChange={() => {}} value={stadiumDate} editable={false}></AtInput>
                 </Picker>
               </View>
             </View>
