@@ -253,10 +253,22 @@ class MatchEditPage extends Component<{}, IState> {
 
   handleSave() {
     const { form, matchId } = this.state;
-    const { repeatModel, rebate, totalPeople, minPeople, price, rebatePrice, duration, startAt, endAt } = form;
-    if (Object.values(form).some((d) => !d)) {
+    const {
+      repeatModel,
+      rebate,
+      totalPeople,
+      minPeople,
+      price,
+      rebatePrice,
+      duration,
+      startAt,
+      endAt,
+      repeatWeek,
+    } = form;
+    const key = Object.keys(form).find((d) => !form[d] && d !== 'repeatWeek');
+    if ((repeatModel === '2' && !repeatWeek) || key) {
       Taro.showToast({
-        title: '请填写完整的场次信息',
+        title: `请填写完整的场次信息, ${key} 不能为空`,
         icon: 'none',
       });
       return;
@@ -274,6 +286,7 @@ class MatchEditPage extends Component<{}, IState> {
     const params = {
       ...form,
       repeatModel: Number(repeatModel),
+      repeatWeek: repeatWeek || undefined,
       rebate: Number(rebate),
       totalPeople: Number(totalPeople),
       minPeople: Number(minPeople),

@@ -145,9 +145,8 @@ class MatchPage extends Component<InjectStoreProps, IState> {
   }
 
   jumpDetails(item) {
-    console.log(item);
     Taro.navigateTo({
-      url: '../match-details/index',
+      url: `../match-details/index?matchId=${item.id}`,
     });
   }
 

@@ -50,25 +50,20 @@ class MonthlyCardPage extends Component<{}, IState> {
           {cardList.length ? (
             cardList.map((item) => {
               return (
-                <View
-                  className="item"
-                  onClick={() => this.jumpStadium(item.stadiumId)}
-                >
+                <View className="item" onClick={() => this.jumpStadium(item.stadiumId)}>
                   <View className="left">
                     <Image src="" className="icon"></Image>
                   </View>
                   <View className="right">
                     <View className="row">
                       <View className="label">价格</View>：￥
-                      {item.monthlyCardPrice}/月
+                      {item?.stadium?.monthlyCardPrice}/月
                     </View>
                     <View className="row">
-                      <View className="label">开通场馆</View>：
-                      {item.stadiumName}
+                      <View className="label">开通场馆</View>：{item?.stadium?.name}
                     </View>
                     <View className="row">
-                      <View className="label">有效期</View>：
-                      {item.validPeriodStart}-{item.validPeriodEnd}
+                      <View className="label">有效期</View>：{item.validPeriodStart}-{item.validPeriodEnd}
                     </View>
                   </View>
                 </View>

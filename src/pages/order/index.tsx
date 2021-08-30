@@ -121,16 +121,10 @@ class OrderPage extends Component<{}, IState> {
           {orderList.length ? (
             orderList.map((item) => {
               return (
-                <View
-                  className="item"
-                  onClick={() => this.handleOrderJump(item)}
-                >
+                <View className="item" onClick={() => this.handleOrderJump(item)}>
                   <View className="top">
                     <Text className="name">{item.stadiumName}</Text>
-                    <Text
-                      style={{ color: colorMap[item.status] }}
-                      className="status"
-                    >
+                    <Text style={{ color: colorMap[item.status] }} className="status">
                       {[1, 7].includes(item.status) && <Text>组队成功 </Text>}
                       {[3, 4].includes(item.status) && <Text>组队失败 </Text>}
                       {item.statusName}
@@ -138,17 +132,14 @@ class OrderPage extends Component<{}, IState> {
                   </View>
                   <View className="info">
                     <View className="row">
-                      {item.validateDate} / {item.runAt} / {item.duration}小时
+                      {item.runDate} / {item.runAt} / {item.duration}小时
                     </View>
                     <View className="row">
-                      足球 / {item.unit} / {item.spaceName} / {item.personCount}
-                      人
+                      足球 / {item.unit} / {item.spaceName} / {item.personCount}人
                     </View>
                   </View>
                   <View className="footer">
-                    <Text className="date">
-                      {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}
-                    </Text>
+                    <Text className="date">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
                     <Text className="money">总价：￥{item.totalPrice}</Text>
                   </View>
                 </View>

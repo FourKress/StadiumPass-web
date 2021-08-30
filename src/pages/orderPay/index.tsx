@@ -34,7 +34,6 @@ class OrderPayPage extends Component<{}, IState> {
     }
     // @ts-ignore
     const orderId = Taro.getCurrentInstance().router.params.orderId + '';
-    console.log(orderId);
     this.getOrderInfo(orderId);
     this.setState({
       orderId,
@@ -49,13 +48,10 @@ class OrderPayPage extends Component<{}, IState> {
         id: orderId,
       },
     }).then((res: any) => {
-      console.log(res);
-      const hasMonthlyCardAmount = res.isMonthlyCard
-        ? res.totalPrice - res.price
-        : res.monthlyCardPrice;
+      const hasMonthlyCardAmount = res.isMonthlyCard ? res.totalPrice - res.price : res.monthlyCardPrice;
       this.setState({
         hasMonthlyCardAmount,
-        payAmount: hasMonthlyCardAmount || res.totalPrice,
+        payAmount: res.isMonthlyCard ? hasMonthlyCardAmount : res.totalPrice,
       });
       this.setState(
         {
@@ -97,8 +93,7 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   render() {
-    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount } =
-      this.state;
+    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount } = this.state;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
 
     const M = countdownArr[0].split('');
@@ -133,8 +128,7 @@ class OrderPayPage extends Component<{}, IState> {
             <View className="row">
               <Text className="label">时间</Text>
               <Text className="text">
-                {orderInfo.validateDate} / {orderInfo.runAt} /{' '}
-                {orderInfo.duration}小时
+                {orderInfo.runDate?.replace(/-/g, '.').substring(5, 10)} / {orderInfo.runAt} / {orderInfo.duration}小时
               </Text>
             </View>
             <View className="row">
@@ -158,35 +152,24 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="icon"></Text>
               <Text className="label">微信支付</Text>
               <Text className="money">￥{orderInfo.totalPrice}</Text>
-              <Text
-                className="icon"
-                onClick={() => this.selectPayMethod(orderInfo.totalPrice)}
-              ></Text>
+              <Text className="icon" onClick={() => this.selectPayMethod(orderInfo.totalPrice)}></Text>
             </View>
             <View className="row">
               <Text className="icon"></Text>
               <Text className="label">
                 <Text>场地月卡</Text>
-                {orderInfo.isMonthlyCard && (
-                  <Text className="text">(每场仅可免费1个名额)</Text>
-                )}
+                {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
               </Text>
               <Text className="money">
                 <Text>￥{hasMonthlyCardAmount}</Text>
-                {!orderInfo.isMonthlyCard && (
-                  <Text className="text">(开通并使用月卡)</Text>
-                )}
+                {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
               </Text>
 
-              <Text
-                className="icon"
-                onClick={() => this.selectPayMethod(hasMonthlyCardAmount)}
-              ></Text>
+              <Text className="icon" onClick={() => this.selectPayMethod(hasMonthlyCardAmount)}></Text>
             </View>
             {orderInfo.isMonthlyCard ? (
               <View className="tips">
-                月卡有效期：{dayjs().format('YYYY-MM-DD')}-
-                {dayjs().add(1, 'month').format('YYYY-MM-DD')}
+                月卡有效期：{dayjs().format('YYYY-MM-DD')}-{dayjs().add(1, 'month').format('YYYY-MM-DD')}
               </View>
             ) : (
               <View className="tips">
@@ -200,9 +183,7 @@ class OrderPayPage extends Component<{}, IState> {
         <View className="details">
           <View>
             <View>注意事项：</View>
-            <View>
-              1、报名人数不足最低开赛标准时，即组队失败。订单将自动退款,款项将在1个工作日内按原路全额退回。
-            </View>
+            <View>1、报名人数不足最低开赛标准时，即组队失败。订单将自动退款,款项将在1个工作日内按原路全额退回。</View>
             <View>
               2、关于用户主动取消订单的退款规则距开场小于1小时,无法退款;距开场大于1小时,小于2小时,退款80%;距开场大于2小时,可全额退款。
             </View>

@@ -40,26 +40,7 @@ const currentDay = dayjs().format('YYYY-MM-DD');
 class StadiumPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
-    this.state = {
-      tabValue: 0,
-      openList: [],
-      meBtbPosition: {},
-      stadiumInfo: {},
-      isWatch: false,
-      spaceList: [],
-      matchList: [],
-      userId: '',
-      authorize: false,
-      stadiumId: '',
-      spaceActive: 0,
-      currentMatch: {},
-      personList: [],
-      selectList: [],
-      spaceDate: currentDay,
-      isStart: false,
-      openIndex: 0,
-      unitList: [],
-    };
+    this.state = { ...this.initData(), meBtbPosition: {} };
   }
 
   async onShareAppMessage() {
@@ -95,6 +76,28 @@ class StadiumPage extends Component<{}, IState> {
     };
   }
 
+  initData() {
+    return {
+      tabValue: 0,
+      openList: [],
+      stadiumInfo: {},
+      isWatch: false,
+      spaceList: [],
+      matchList: [],
+      userId: '',
+      authorize: false,
+      stadiumId: '',
+      spaceActive: 0,
+      currentMatch: {},
+      selectList: [],
+      spaceDate: currentDay,
+      isStart: false,
+      openIndex: 0,
+      unitList: [],
+      personList: [],
+    };
+  }
+
   async componentDidShow() {
     this.setMeBtnPosition();
     // @ts-ignore
@@ -110,6 +113,7 @@ class StadiumPage extends Component<{}, IState> {
     const matchId = pageParams.matchId;
     const isStart = !!pageParams.isStart;
     this.setState({
+      ...this.initData(),
       stadiumId: id,
       isStart,
     });
@@ -214,7 +218,7 @@ class StadiumPage extends Component<{}, IState> {
         });
         return false;
       }
-      this.getMatchList(res[0]?.id, 0);
+      this.getMatchList(res[0]?.id, runDate, 0);
       this.setState({
         spaceList: res,
         selectList: [],
@@ -243,13 +247,13 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  getMatchList(spaceId, index) {
+  getMatchList(spaceId, runDate, index) {
     requestData({
       method: 'POST',
       api: '/match/info',
       params: {
         spaceId,
-        runDate: currentDay,
+        runDate,
       },
     }).then(async (res: any) => {
       const notDone = res.findIndex((d) => !d.isDone && !d.isCancel);
@@ -385,7 +389,6 @@ class StadiumPage extends Component<{}, IState> {
         personCount: selectList.length,
       },
     }).then((res: any) => {
-      console.log(res);
       this.jumpOrderPay(res);
     });
   }
@@ -537,7 +540,7 @@ class StadiumPage extends Component<{}, IState> {
                       spaceList.map((item, index) => {
                         return (
                           <View
-                            onClick={() => this.getMatchList(item.id, index)}
+                            onClick={() => this.getMatchList(item.id, spaceDate, index)}
                             className={spaceActive === index ? 'item active' : 'item'}
                           >
                             <View className="type">{item.name}</View>
