@@ -15,6 +15,7 @@ interface InjectStoreProps {
 }
 
 interface IState {
+  summary: any;
   showDrawer: boolean;
   selectList: Array<any>;
   stadiumId: string;
@@ -29,6 +30,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
+      summary: {},
       showDrawer: false,
       selectList: [
         {
@@ -48,18 +50,17 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
 
   componentDidShow() {
     this.inject.tabBarStore.setSelected(0);
-    this.getMonthAndAayStatistics(1);
+    this.getMonthAndAayStatistics();
   }
 
-  getMonthAndAayStatistics(type) {
+  getMonthAndAayStatistics() {
     requestData({
       method: 'GET',
       api: '/order/monthAndAayStatistics',
-      params: {
-        type,
-      },
     }).then((res) => {
-      console.log(res);
+      this.setState({
+        summary: res,
+      });
     });
   }
 
@@ -111,7 +112,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const { showDrawer, selectList, stadiumId, stadiumDate } = this.state;
+    const { summary, showDrawer, selectList, stadiumId, stadiumDate } = this.state;
 
     return (
       <View className="indexPage">
@@ -119,7 +120,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
           <View className="top">
             <View className="left">
               <View className="title">今日总收入</View>
-              <View className="total">13212.00</View>
+              <View className="total">{summary.dayCount}</View>
             </View>
             <View className="right" onClick={() => this.showTotal()}>
               <Text>统计</Text>
@@ -129,7 +130,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
           <View className="banner">
             <View className="item">
               <View className="title">本月总收入</View>
-              <View className="text">4324.00</View>
+              <View className="text">{summary.monthCount}</View>
             </View>
             <View className="item">
               <View className="title">钱包余额</View>
