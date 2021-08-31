@@ -372,7 +372,12 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   handleSubmit() {
-    const { currentMatch, stadiumId, selectList } = this.state;
+    const {
+      currentMatch,
+      stadiumId,
+      selectList,
+      stadiumInfo: { bossId },
+    } = this.state;
     if (selectList.length <= 0) return;
     if (currentMatch.selectPeople === currentMatch.totalPeople) return;
     if (!this.checkLogin()) return;
@@ -385,6 +390,7 @@ class StadiumPage extends Component<{}, IState> {
         matchId: id,
         spaceId,
         stadiumId,
+        bossId,
         payAmount,
         personCount: selectList.length,
       },
