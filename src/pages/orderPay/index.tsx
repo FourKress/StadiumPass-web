@@ -53,12 +53,14 @@ class OrderPayPage extends Component<{}, IState> {
         hasMonthlyCardAmount,
         payAmount: res.isMonthlyCard ? hasMonthlyCardAmount : res.totalPrice,
       });
+      const { countdown } = res;
       this.setState(
         {
           orderInfo: res,
-          countdown: res.countdown,
+          countdown,
         },
         () => {
+          if (!countdown || countdown <= 0) return;
           timer = setInterval(() => {
             this.setState({
               countdown: this.state.countdown - 1000,
