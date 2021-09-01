@@ -270,12 +270,12 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  getOrderMatch(matchId) {
+  getOrderMatch(id) {
     requestData({
-      method: 'POST',
-      api: '/match/orderMatchInfo',
+      method: 'GET',
+      api: '/match/details',
       params: {
-        matchId,
+        id,
       },
     }).then(async (res: any) => {
       const openList = [true];

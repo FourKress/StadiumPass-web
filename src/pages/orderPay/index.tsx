@@ -62,8 +62,12 @@ class OrderPayPage extends Component<{}, IState> {
         () => {
           if (!countdown || countdown <= 0) return;
           timer = setInterval(() => {
+            const { countdown } = this.state;
+            if (countdown <= 0) {
+              clearInterval(timer);
+            }
             this.setState({
-              countdown: this.state.countdown - 1000,
+              countdown: countdown - 1000,
             });
           }, 1000);
         }
