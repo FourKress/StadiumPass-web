@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text, Image } from '@tarojs/components';
-// import Taro from '@tarojs/taro';
-// import requestData from '@/utils/requestData';
+import Taro from '@tarojs/taro';
+import requestData from '@/utils/requestData';
 
 import './index.scss';
 
 interface IState {
   payList: Array<any>;
+  stadiumId: string;
+  stadiumInfo: any;
+  matchInfo: any;
+  matchId: string;
 }
 
 class RevenueDetailsPage extends Component<{}, IState> {
@@ -14,13 +18,56 @@ class RevenueDetailsPage extends Component<{}, IState> {
     super(props);
     this.state = {
       payList: [1, 2, 3],
+      stadiumId: '',
+      matchId: '',
+      stadiumInfo: {},
+      matchInfo: {},
     };
   }
 
-  componentDidShow() {}
+  componentDidShow() {
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const matchId = (pageParams.matchId + '').toString();
+    const stadiumId = (pageParams.stadiumId + '').toString();
+    this.setState({
+      stadiumId,
+      matchId,
+    });
+    this.getStadiumInfo(stadiumId);
+    this.getMatchInfo(matchId);
+  }
+
+  getStadiumInfo(stadiumId) {
+    requestData({
+      method: 'GET',
+      api: '/stadium/info',
+      params: {
+        id: stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        stadiumInfo: res,
+      });
+    });
+  }
+
+  getMatchInfo(match) {
+    requestData({
+      method: 'GET',
+      api: '/match/details',
+      params: {
+        id: match,
+      },
+    }).then((res: any) => {
+      this.setState({
+        matchInfo: res,
+      });
+    });
+  }
 
   render() {
-    const { payList } = this.state;
+    const { payList, stadiumInfo, matchInfo } = this.state;
 
     return (
       <View className="revenue-details-page">
@@ -89,11 +136,13 @@ class RevenueDetailsPage extends Component<{}, IState> {
           <View className="stadium-list">
             <View className="item">
               <Text className="left">本地时间</Text>
-              <Text className="right">2021-11-11 12:12:12</Text>
+              <Text className="right">
+                {matchInfo.runDate} {matchInfo.startAt}—{matchInfo.endAt}
+              </Text>
             </View>
             <View className="item">
               <Text className="left">本地场次</Text>
-              <Text className="right">阿萨德大厦阿萨德</Text>
+              <Text className="right">{stadiumInfo.name}</Text>
             </View>
           </View>
         </View>

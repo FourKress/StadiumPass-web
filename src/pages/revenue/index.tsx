@@ -17,9 +17,10 @@ interface InjectStoreProps {
 interface IState {
   summary: any;
   showDrawer: boolean;
-  selectList: Array<any>;
+  stadiumList: Array<any>;
   stadiumId: string;
-  stadiumDate: string;
+  runDate: string;
+  revenueInfo: any;
 }
 
 const dateNow = dayjs().format('YYYY-MM-DD');
@@ -32,14 +33,10 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     this.state = {
       summary: {},
       showDrawer: false,
-      selectList: [
-        {
-          label: '测试1',
-          id: '123',
-        },
-      ],
+      stadiumList: [],
       stadiumId: '',
-      stadiumDate: dateNow,
+      runDate: dateNow,
+      revenueInfo: {},
     };
   }
 
@@ -48,9 +45,15 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     return this.props as InjectStoreProps;
   }
 
-  componentDidShow() {
+  async componentDidShow() {
     this.inject.tabBarStore.setSelected(0);
     this.getMonthAndAayStatistics();
+    await this.getStadiumList();
+    const { stadiumId } = this.state;
+    this.getRevenueInfo({
+      runDate: dateNow,
+      stadiumId,
+    });
   }
 
   getMonthAndAayStatistics() {
@@ -60,6 +63,30 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     }).then((res) => {
       this.setState({
         summary: res,
+      });
+    });
+  }
+
+  async getStadiumList() {
+    await requestData({
+      method: 'GET',
+      api: '/stadium/stadiumList',
+    }).then((res: any) => {
+      this.setState({
+        stadiumList: res,
+        stadiumId: res[0].id,
+      });
+    });
+  }
+
+  getRevenueInfo(params) {
+    requestData({
+      method: 'POST',
+      api: '/order/revenueInfo',
+      params,
+    }).then((res: any) => {
+      this.setState({
+        revenueInfo: res,
       });
     });
   }
@@ -83,12 +110,12 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   handleDateChange(e) {
     const { value } = e.detail;
     this.setState({
-      stadiumDate: value,
+      runDate: value,
     });
   }
   handleSelect(e) {
     const index = e.detail.value;
-    const value = this.state.selectList[index]?.id;
+    const value = this.state.stadiumList[index]?.id;
     this.setState({
       stadiumId: value,
     });
@@ -96,23 +123,29 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
 
   reset() {
     this.setState({
-      stadiumDate: dateNow,
+      runDate: dateNow,
       stadiumId: '',
     });
   }
 
-  searchSubmit() {
+  async searchSubmit() {
+    const { stadiumId, runDate } = this.state;
+    await this.getRevenueInfo({
+      stadiumId,
+      runDate,
+    });
     this.handleCloseDrawer();
   }
 
-  jumpDetails() {
+  jumpDetails(item) {
+    const { id, stadiumId } = item;
     Taro.navigateTo({
-      url: '../revenue-details/index',
+      url: `../revenue-details/index?stadiumId=${stadiumId}&matchId=${id}`,
     });
   }
 
   render() {
-    const { summary, showDrawer, selectList, stadiumId, stadiumDate } = this.state;
+    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo } = this.state;
 
     return (
       <View className="indexPage">
@@ -149,72 +182,82 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
           </View>
 
           <View className="list-panel">
-            {[1, 2, 3].map(() => {
-              return (
-                <View className="info">
-                  <View className="title">
-                    <Text>2021-11-11</Text>
-                    <Text>圣诞节时空裂缝</Text>
-                  </View>
+            <View className="info">
+              <View className="title">
+                <Text>{revenueInfo.runDate}</Text>
+                <Text>{revenueInfo.stadiumName}</Text>
+              </View>
+
+              {revenueInfo?.matchCoverOrderList?.map((item) => {
+                return (
                   <View className="list">
-                    {[1, 2].map(() => {
-                      return (
-                        <View className="item" onClick={() => this.jumpDetails()}>
-                          <View className="left">
-                            <Text>18:00 — 20:00</Text>
-                            <Text className="index">2号场</Text>
-                          </View>
-                          <View className="right">
-                            <View className="price">
-                              <View className="success">
-                                <Text className="sign">-&nbsp;￥</Text>
-                                <Text className="money">25.00</Text>
-                              </View>
-                              <View className="tips">32123啥的</View>
-                            </View>
-                            <AtIcon value="chevron-right" size="20" color="#93A7B6"></AtIcon>
-                          </View>
-                        </View>
-                      );
-                    })}
-                    {/*<View className="item">*/}
-                    {/*  <View className="left">*/}
-                    {/*    <Text>18:00 — 20:00</Text>*/}
-                    {/*    <Text className="index">2号场</Text>*/}
-                    {/*  </View>*/}
-                    {/*  <View className="right">*/}
-                    {/*    <View className="price">*/}
-                    {/*      <View className="fail">组队失败</View>*/}
-                    {/*      <View className="tips">32123啥的</View>*/}
-                    {/*    </View>*/}
-                    {/*    <AtIcon*/}
-                    {/*      value="chevron-right"*/}
-                    {/*      size="20"*/}
-                    {/*      color="#93A7B6"*/}
-                    {/*    ></AtIcon>*/}
-                    {/*  </View>*/}
-                    {/*</View>*/}
-                  </View>
-                  <View className="service-fee">
-                    <View className="left">技术服务费</View>
-                    <View className="right">
-                      <View>
-                        <Text className="sign">-&nbsp;￥</Text>
-                        <Text className="money">25.00</Text>
+                    <View className="item" onClick={() => this.jumpDetails(item)}>
+                      <View className="left">
+                        <Text>
+                          {item.startAt} — {item.endAt}
+                        </Text>
+                        <Text className="index">{item.space.name}</Text>
                       </View>
-                      <View className="percentage">-5%</View>
+                      <View className="right">
+                        {item.selectPeople < item.minPeople ? (
+                          <View className="price">
+                            <View className="fail">组队失败</View>
+                            <View className="tips">差{item.minPeople - item.selectPeople}人</View>
+                          </View>
+                        ) : (
+                          <View className="price">
+                            <View className="success">
+                              <Text className="sign">
+                                <Text style="font-size: 18px;">+</Text>
+                                <Text style="font-size: 14px;">￥</Text>
+                              </Text>
+                              <Text className="money">{item.sumPayAmount}</Text>
+                            </View>
+                            <View className="tips">
+                              {item.ordinaryCount > 0 && (
+                                <Text>
+                                  {item.rebatePrice} X {item.ordinaryCount} +
+                                </Text>
+                              )}
+                              {item.monthlyCardCount > 0 && <Text>{item.monthlyCardCount}月卡</Text>}
+                            </View>
+                          </View>
+                        )}
+
+                        <AtIcon value="chevron-right" size="20" color="#93A7B6"></AtIcon>
+                      </View>
                     </View>
                   </View>
-                  <View className="footer">
-                    <Text>今日总收入：</Text>
-                    <View className="total">
-                      <View className="sign">+&nbsp;￥</View>
-                      <View className="money">3123.00</View>
+                );
+              })}
+
+              {revenueInfo?.matchCoverOrderList?.length > 0 && (
+                <View className="service-fee">
+                  <View className="left">技术服务费</View>
+                  <View className="right">
+                    <View>
+                      <Text className="sign">
+                        <Text style="font-size: 18px;">+</Text>
+                        <Text style="font-size: 14px;">￥</Text>
+                      </Text>
+                      <Text className="money">0.00</Text>
                     </View>
+                    <View className="percentage">-0%</View>
                   </View>
                 </View>
-              );
-            })}
+              )}
+
+              <View className="footer">
+                <Text>今日总收入：</Text>
+                <View className="total">
+                  <View className="sign">
+                    <Text style="font-size: 18px;">+</Text>
+                    <Text style="font-size: 14px;">￥</Text>
+                  </View>
+                  <View className="money">{revenueInfo.stadiumSumAmount}</View>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
 
@@ -226,20 +269,20 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             </View>
             <View className="form-panel">
               <View className="drawer-item">
-                <Picker mode="selector" rangeKey="label" range={selectList} onChange={(e) => this.handleSelect(e)}>
+                <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
                   <View className="title">请选择球场</View>
                   <AtInput
                     name="stadiumId"
                     onChange={() => {}}
-                    value={selectList.find((d) => d.id === stadiumId)?.label}
+                    value={stadiumList.find((d) => d.id === stadiumId)?.name}
                     editable={false}
                   ></AtInput>
                 </Picker>
               </View>
               <View className="drawer-item">
-                <Picker value={stadiumDate} mode="date" onChange={(e) => this.handleDateChange(e)}>
+                <Picker value={runDate} mode="date" onChange={(e) => this.handleDateChange(e)}>
                   <View className="title">请选择时间</View>
-                  <AtInput name="stadiumDate" onChange={() => {}} value={stadiumDate} editable={false}></AtInput>
+                  <AtInput name="runDate" onChange={() => {}} value={runDate} editable={false}></AtInput>
                 </Picker>
               </View>
             </View>

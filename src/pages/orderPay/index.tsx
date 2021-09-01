@@ -12,6 +12,7 @@ interface IState {
   countdown: number;
   payAmount: number;
   hasMonthlyCardAmount: number;
+  payMethod: string;
 }
 
 let timer: any = null;
@@ -25,6 +26,7 @@ class OrderPayPage extends Component<{}, IState> {
       countdown: 0,
       payAmount: 0,
       hasMonthlyCardAmount: 0,
+      payMethod: '',
     };
   }
 
@@ -75,19 +77,21 @@ class OrderPayPage extends Component<{}, IState> {
     });
   }
 
-  selectPayMethod(payAmount) {
+  selectPayMethod(payAmount, payMethod) {
     this.setState({
       payAmount,
+      payMethod,
     });
   }
 
   handleOrderPay() {
+    const { orderId, payMethod } = this.state;
     requestData({
       method: 'POST',
       api: '/order/pay',
       params: {
-        id: this.state.orderId,
-        openId: Taro.getStorageSync('openId'),
+        id: orderId,
+        payMethod,
       },
     }).then((res: any) => {
       if (res) {
@@ -158,7 +162,7 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="icon"></Text>
               <Text className="label">微信支付</Text>
               <Text className="money">￥{orderInfo.totalPrice}</Text>
-              <Text className="icon" onClick={() => this.selectPayMethod(orderInfo.totalPrice)}></Text>
+              <Text className="icon" onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}></Text>
             </View>
             <View className="row">
               <Text className="icon"></Text>
@@ -171,7 +175,7 @@ class OrderPayPage extends Component<{}, IState> {
                 {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
               </Text>
 
-              <Text className="icon" onClick={() => this.selectPayMethod(hasMonthlyCardAmount)}></Text>
+              <Text className="icon" onClick={() => this.selectPayMethod(hasMonthlyCardAmount, 'monthlyCard')}></Text>
             </View>
             {orderInfo.isMonthlyCard ? (
               <View className="tips">
