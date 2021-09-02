@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, Picker, Image } from '@tarojs/components';
 import { AtIcon } from 'taro-ui';
 import Taro from '@tarojs/taro';
-
-// import requestData from '@/utils/requestData';
+import requestData from '@/utils/requestData';
 
 import dayjs from 'dayjs';
 
@@ -18,6 +17,7 @@ interface IState {
   tabPosition: object;
   statisticsDate: string;
   tabActive: number;
+  summary: any;
   // ec: object;
   topList: Array<any>;
 }
@@ -55,17 +55,51 @@ class StatisticsPage extends Component<{}, IState> {
     super(props);
     this.state = {
       tabPosition: {},
+      summary: {},
       tabActive: 0,
       statisticsDate: dayjs().format('YYYY-MM'),
       // ec: {
       //   onInit: initChart,
       // },
-      topList: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 12],
+      topList: [],
     };
   }
 
   componentDidShow() {
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const stadiumId = (pageParams.stadiumId + '').toString();
     this.setMeBtnPosition();
+    this.getMonthAndAayStatistics();
+    this.getSignUpTop(stadiumId);
+  }
+
+  getMonthAndAayStatistics(month = '') {
+    requestData({
+      method: 'GET',
+      api: '/order/monthAndAayStatistics',
+      params: {
+        month,
+      },
+    }).then((res) => {
+      this.setState({
+        summary: res,
+      });
+    });
+  }
+
+  getSignUpTop(stadiumId) {
+    requestData({
+      method: 'GET',
+      api: '/order/signUpTop',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        topList: res,
+      });
+    });
   }
 
   setMeBtnPosition() {
@@ -76,7 +110,6 @@ class StatisticsPage extends Component<{}, IState> {
         stateHeight = res.statusBarHeight;
       },
     });
-
     const menuButton = Taro.getMenuButtonBoundingClientRect();
     const top = menuButton.top - stateHeight; //  获取top值
     const { height } = menuButton;
@@ -99,6 +132,7 @@ class StatisticsPage extends Component<{}, IState> {
     this.setState({
       statisticsDate: value,
     });
+    this.getMonthAndAayStatistics(value);
   }
 
   goBack() {
@@ -122,7 +156,7 @@ class StatisticsPage extends Component<{}, IState> {
   // }
 
   render() {
-    const { tabPosition, statisticsDate, tabActive, topList } = this.state;
+    const { tabPosition, statisticsDate, tabActive, topList, summary } = this.state;
     const tabs = ['收入统计', '支出统计'];
 
     return (
@@ -151,22 +185,15 @@ class StatisticsPage extends Component<{}, IState> {
           </View>
           <View className="info">
             <View className="date">
-              <Picker
-                value={statisticsDate}
-                mode="date"
-                fields="month"
-                onChange={(e) => this.handleDateChange(e)}
-              >
+              <Picker value={statisticsDate} mode="date" fields="month" onChange={(e) => this.handleDateChange(e)}>
                 <View className="time">
-                  <Text className="text">{statisticsDate.substring(0, 4)}</Text>
-                  年
-                  <Text className="text">{statisticsDate.substring(5, 7)}</Text>
-                  月
+                  <Text className="text">{statisticsDate.substring(0, 4)}</Text>年
+                  <Text className="text">{statisticsDate.substring(5, 7)}</Text>月
                 </View>
                 <AtIcon value="chevron-down" size="24" color="#fff"></AtIcon>
               </Picker>
             </View>
-            <View className="money">4444.00</View>
+            <View className="money">{summary.monthCount}</View>
           </View>
         </View>
         <View className="main">
@@ -175,17 +202,16 @@ class StatisticsPage extends Component<{}, IState> {
           <View className="title">报名Top10</View>
           <View className="list">
             {topList.map((item, index) => {
-              console.log(item);
               return (
                 <View className="item">
                   <View className="index">{index + 1}</View>
                   <View className="user">
-                    <Image src=""></Image>
-                    <Text className="name">大手大脚凯撒奖待对对对</Text>
+                    <Image src={item?.user?.avatarUrl}></Image>
+                    <Text className="name">{item?.user?.nickName}</Text>
                   </View>
                   <View className="info">
-                    <View className="money">444.00</View>
-                    <View className="count">40次</View>
+                    <View className="money">{item.totalPayAmount}</View>
+                    <View className="count">{item.count}次</View>
                   </View>
                 </View>
               );

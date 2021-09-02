@@ -92,8 +92,9 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   }
 
   showTotal() {
+    const { stadiumId } = this.state;
     Taro.navigateTo({
-      url: '../statistics/index',
+      url: `../statistics/index?stadiumId=${stadiumId}`,
     });
   }
   handleShowDrawer() {
