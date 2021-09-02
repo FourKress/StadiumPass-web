@@ -6,7 +6,7 @@ import requestData from '@/utils/requestData';
 import './index.scss';
 
 interface IState {
-  payList: Array<any>;
+  payList: any;
   stadiumId: string;
   stadiumInfo: any;
   matchInfo: any;
@@ -17,7 +17,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      payList: [1, 2, 3],
+      payList: {},
       stadiumId: '',
       matchId: '',
       stadiumInfo: {},
@@ -36,6 +36,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
     });
     this.getStadiumInfo(stadiumId);
     this.getMatchInfo(matchId);
+    this.getOrderList(matchId);
   }
 
   getStadiumInfo(stadiumId) {
@@ -66,6 +67,20 @@ class RevenueDetailsPage extends Component<{}, IState> {
     });
   }
 
+  getOrderList(matchId) {
+    requestData({
+      method: 'GET',
+      api: '/order/findOrderByMatchId',
+      params: {
+        matchId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        payList: res,
+      });
+    });
+  }
+
   render() {
     const { payList, stadiumInfo, matchInfo } = this.state;
 
@@ -81,7 +96,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
           <View className="title">收入对比</View>
           <View className="signUp-list">
             <View className="sub-title">已付款</View>
-            {payList.map((item, index) => {
+            {payList?.success?.map((item, index) => {
               console.log(item);
               return (
                 <View className="item">
@@ -98,7 +113,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
               );
             })}
             <View className="sub-title">未付款</View>
-            {payList.map((item, index) => {
+            {payList?.cancel?.map((item, index) => {
               console.log(item);
               return (
                 <View className="item fail">
@@ -115,7 +130,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
               );
             })}
             <View className="sub-title fail">本人退款</View>
-            {payList.map((item, index) => {
+            {payList?.refund?.map((item, index) => {
               console.log(item);
               return (
                 <View className="item fail">
