@@ -1,14 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Image, Button } from '@tarojs/components';
-import {
-  AtIcon,
-  AtModal,
-  AtModalHeader,
-  AtModalContent,
-  AtModalAction,
-  AtBadge,
-  AtInput,
-} from 'taro-ui';
+import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction, AtBadge, AtInput } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 import * as LoginService from '../../services/loginService';
@@ -30,6 +22,7 @@ interface IState {
   orderCount: IOrderCount;
   showPhoneModal: boolean;
   phoneNum: any;
+  meHeaderPosition: any;
 }
 
 class MePage extends Component<{}, IState> {
@@ -46,10 +39,12 @@ class MePage extends Component<{}, IState> {
         allCount: 0,
       },
       phoneNum: '',
+      meHeaderPosition: {},
     };
   }
 
   componentDidShow() {
+    this.setMeBtnPosition();
     const userInfo = Taro.getStorageSync('userInfo') || '';
     this.setState(
       {
@@ -62,6 +57,29 @@ class MePage extends Component<{}, IState> {
         this.getOrderCount();
       }
     );
+  }
+
+  setMeBtnPosition() {
+    let stateHeight = 0; //  接收状态栏高度
+    Taro.getSystemInfo({
+      success(res) {
+        stateHeight = res.statusBarHeight;
+      },
+    });
+
+    const menuButton = Taro.getMenuButtonBoundingClientRect();
+    const top = menuButton.top - stateHeight; //  获取top值
+    const { width, left, height } = menuButton;
+    console.log(stateHeight, top);
+    this.setState({
+      meHeaderPosition: {
+        left: left - 16 - 88,
+        top: stateHeight,
+        height,
+        width,
+        borderRadius: height,
+      },
+    });
   }
 
   getOrderCount() {
@@ -210,41 +228,44 @@ class MePage extends Component<{}, IState> {
     });
   }
 
+  goBack() {
+    Taro.navigateTo({
+      url: `../stadium/index?stadiumId=61291d354547579617aba474`,
+    });
+  }
+
   render() {
-    const {
-      userInfo,
-      isOpened,
-      orderCount,
-      authorize,
-      showPhoneModal,
-      phoneNum,
-    } = this.state;
+    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum, meHeaderPosition } = this.state;
 
     return (
       <View className="mePage">
+        <View className="page-header" style={`padding-top: ${meHeaderPosition.top}px`}>
+          <View className={'header-panel'}>
+            <AtIcon
+              className="back-icon"
+              value="chevron-left"
+              size="24"
+              color="#fff"
+              onClick={() => this.goBack()}
+            ></AtIcon>
+            <View className="page-title">
+              <Text>个人中心</Text>
+            </View>
+          </View>
+        </View>
         <View className="head">
           {userInfo ? (
             <View className="loginBox">
               <View className="box">
                 <Image className="avatar" src={userInfo.avatarUrl}></Image>
-                <AtIcon
-                  className="member"
-                  value="user"
-                  size="20"
-                  color="#fff"
-                ></AtIcon>
+                <AtIcon className="member" value="user" size="20" color="#fff"></AtIcon>
               </View>
               <View className="text">{userInfo.nickName}</View>
               <Text>本月组队：{userInfo.teamUpCount}次</Text>
             </View>
           ) : (
             <View className="loginBox">
-              <AtIcon
-                onClick={() => this.handleLogin()}
-                value="user"
-                size="60"
-                color="#fff"
-              ></AtIcon>
+              <AtIcon onClick={() => this.handleLogin()} value="user" size="60" color="#fff"></AtIcon>
               <View className="text">
                 <View onClick={() => this.handleLogin()}>点击登录</View>
               </View>
@@ -292,16 +313,8 @@ class MePage extends Component<{}, IState> {
                 <View className="icon"></View>
                 <Text className="label">场馆月卡</Text>
                 <View className="info">
-                  {userInfo.monthlyCardCount > 0 && (
-                    <Text className="name">
-                      已开通：{userInfo.monthlyCardCount}张
-                    </Text>
-                  )}
-                  <AtIcon
-                    value="chevron-right"
-                    size="24"
-                    color="#333D44"
-                  ></AtIcon>
+                  {userInfo.monthlyCardCount > 0 && <Text className="name">已开通：{userInfo.monthlyCardCount}张</Text>}
+                  <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
                 </View>
               </View>
             </View>
@@ -311,26 +324,15 @@ class MePage extends Component<{}, IState> {
                 <Text className="label">我的关注</Text>
                 <View className="info">
                   <Text className="name"></Text>
-                  <AtIcon
-                    value="chevron-right"
-                    size="24"
-                    color="#333D44"
-                  ></AtIcon>
+                  <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
                 </View>
               </View>
-              <View
-                className="item"
-                onClick={() => this.handlePhoneModal(true)}
-              >
+              <View className="item" onClick={() => this.handlePhoneModal(true)}>
                 <View className="icon"></View>
                 <Text className="label">联系电话</Text>
                 <View className="info">
                   <Text className="name">{userInfo.phoneNum}</Text>
-                  <AtIcon
-                    value="chevron-right"
-                    size="24"
-                    color="#333D44"
-                  ></AtIcon>
+                  <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
                 </View>
               </View>
             </View>
@@ -353,12 +355,7 @@ class MePage extends Component<{}, IState> {
               </View>
             ) : (
               <View>
-                <AtIcon
-                  className="row"
-                  value="close-circle"
-                  size="24"
-                  color="#FF2000"
-                ></AtIcon>
+                <AtIcon className="row" value="close-circle" size="24" color="#FF2000"></AtIcon>
                 <View className="row">对不起，您还未认证场主！</View>
                 <View className="row">如要认证场主，请联系：15523250903</View>
               </View>
@@ -392,10 +389,7 @@ class MePage extends Component<{}, IState> {
           </AtModalAction>
         </AtModal>
 
-        <AuthorizeUserBtn
-          authorize={authorize}
-          onChange={(value) => this.handleAuthorize(value)}
-        ></AuthorizeUserBtn>
+        <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
       </View>
     );
   }

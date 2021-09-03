@@ -167,7 +167,7 @@ class StatisticsPage extends Component<{}, IState> {
               onClick={() => this.goBack()}
               className="back-icon"
               value="chevron-left"
-              size="20"
+              size="24"
               color="#fff"
             ></AtIcon>
             <View className="tab">

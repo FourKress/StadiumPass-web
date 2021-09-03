@@ -8,12 +8,36 @@ page {
 
 .mePage {
   height: 100vh;
-  background: #F4F4F4;
+  background: #f4f4f4;
+
+  .page-header {
+    width: 100vw;
+    box-sizing: border-box;
+    background-color: #1a1e22;
+
+    .header-panel {
+      position: relative;
+
+      .page-title {
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        color: #fff;
+      }
+
+      .back-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+  }
 
   .head {
     width: 100%;
     height: 200px;
-    background-color: #1A1E22;
+    background-color: #1a1e22;
     padding: 40px 32px;
     box-sizing: border-box;
 
@@ -123,7 +147,7 @@ page {
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            color: #A4AAAE;
+            color: #a4aaae;
           }
         }
       }

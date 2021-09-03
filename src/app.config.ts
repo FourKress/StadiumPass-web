@@ -2,8 +2,9 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'pages/revenue/index',
     'pages/stadium/index',
+    'pages/me/index',
+    'pages/revenue/index',
     'pages/bossMe/index',
     'pages/match/index',
     'pages/stadium-details/index',
@@ -13,7 +14,6 @@ const config: Config = {
     'pages/revenue-details/index',
     'pages/statistics/index',
     'pages/orderPay/index',
-    'pages/me/index',
     'pages/monthlyCard/index',
     'pages/myWatch/index',
     'pages/order/index',

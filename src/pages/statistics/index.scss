@@ -7,7 +7,7 @@ page {
 }
 
 .statistics-page {
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
   min-height: 100vh;
   box-sizing: border-box;
   position: relative;
@@ -33,7 +33,7 @@ page {
       .back-icon {
         position: absolute;
         top: 50%;
-        left: 32px;
+        left: 16px;
         transform: translateY(-50%);
       }
 
@@ -134,7 +134,7 @@ page {
     width: 100vw;
     box-sizing: border-box;
     padding: 0 32px;
-    background-color: #F2F2F2;
+    background-color: #f2f2f2;
     padding-bottom: env(safe-area-inset-bottom);
 
     .title {
@@ -161,14 +161,14 @@ page {
         height: 120px;
         display: flex;
         align-items: center;
-        border-bottom: 1px solid #E7E7E7;
+        border-bottom: 1px solid #e7e7e7;
 
         &:last-child {
           border-bottom: none;
         }
 
         .index {
-          color: #93A7B6;
+          color: #93a7b6;
           transform: translate(8px, -30px);
         }
 
@@ -209,7 +209,7 @@ page {
 
           .count {
             font-size: 24px;
-            color: #93A7B6;
+            color: #93a7b6;
           }
         }
       }
