@@ -71,7 +71,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     this.inject.tabBarStore.setSelected(1);
     this.setMeBtnPosition();
     const userInfo = Taro.getStorageSync('userInfo') || '';
-    if (userInfo.isBoss) {
+    if (userInfo?.bossId) {
       this.getStadiumList();
     }
   }
@@ -152,7 +152,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
 
   render() {
     const { stadiumList, tabPosition, selectDate, stadiumInfo, matchList } = this.state;
-    console.log(DATA_LIST, selectDate);
+
     return (
       <View className="match-page">
         <View className="top-bar">

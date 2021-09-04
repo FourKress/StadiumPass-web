@@ -17,7 +17,6 @@ const config: Config = {
     'pages/monthlyCard/index',
     'pages/myWatch/index',
     'pages/order/index',
-    'pages/login/index',
     'pages/share/index',
   ],
   plugins: {

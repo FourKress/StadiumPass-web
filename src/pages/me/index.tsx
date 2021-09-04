@@ -23,6 +23,7 @@ interface IState {
   showPhoneModal: boolean;
   phoneNum: any;
   meHeaderPosition: any;
+  systemPhoneNum: string;
 }
 
 class MePage extends Component<{}, IState> {
@@ -39,6 +40,7 @@ class MePage extends Component<{}, IState> {
         allCount: 0,
       },
       phoneNum: '',
+      systemPhoneNum: '15523250903',
       meHeaderPosition: {},
     };
   }
@@ -184,13 +186,15 @@ class MePage extends Component<{}, IState> {
 
   handleConfirm() {
     this.changeIdentity(false);
-    const userInfo = Taro.getStorageSync('userInfo');
-    Taro.setStorageSync('userInfo', {
-      ...userInfo,
-      isBoss: true,
-    });
-    Taro.reLaunch({
-      url: '/pages/revenue/index',
+    const { userInfo, systemPhoneNum } = this.state;
+    if (userInfo?.bossId) {
+      Taro.reLaunch({
+        url: '/pages/revenue/index',
+      });
+      return;
+    }
+    Taro.makePhoneCall({
+      phoneNumber: systemPhoneNum,
     });
   }
 
@@ -235,12 +239,13 @@ class MePage extends Component<{}, IState> {
   }
 
   render() {
-    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum, meHeaderPosition } = this.state;
+    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum, meHeaderPosition, systemPhoneNum } =
+      this.state;
 
     return (
       <View className="mePage">
         <View className="page-header" style={`padding-top: ${meHeaderPosition.top}px`}>
-          <View className={'header-panel'}>
+          <View className="header-panel">
             <AtIcon
               className="back-icon"
               value="chevron-left"
@@ -349,7 +354,7 @@ class MePage extends Component<{}, IState> {
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
-            {userInfo.isBoss ? (
+            {userInfo?.bossId ? (
               <View>
                 <View className="row">是否切换为场主模式？</View>
               </View>
@@ -357,7 +362,7 @@ class MePage extends Component<{}, IState> {
               <View>
                 <AtIcon className="row" value="close-circle" size="24" color="#FF2000"></AtIcon>
                 <View className="row">对不起，您还未认证场主！</View>
-                <View className="row">如要认证场主，请联系：15523250903</View>
+                <View className="row">如要认证场主，请联系：{systemPhoneNum}</View>
               </View>
             )}
           </AtModalContent>

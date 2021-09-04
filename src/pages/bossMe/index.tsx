@@ -46,7 +46,7 @@ class BossMePage extends Component<InjectStoreProps, IState> {
   componentDidShow() {
     this.inject.tabBarStore.setSelected(2);
     const userInfo = Taro.getStorageSync('userInfo') || '';
-    if (userInfo.isBoss) {
+    if (userInfo.bossId) {
       requestData({
         method: 'GET',
         api: '/stadium/stadiumList',
@@ -201,7 +201,7 @@ class BossMePage extends Component<InjectStoreProps, IState> {
             })}
           </View>
 
-          <View className="nav-list" style={'margin-top: 16px;'}>
+          <View className="nav-list" style="margin-top: 16px;">
             <View className="panel">
               <View className="item" onClick={() => this.jumpCustomer()}>
                 <View className="icon"></View>

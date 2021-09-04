@@ -31,7 +31,7 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
   }
 
   render() {
-    const isBoss = Taro.getStorageSync('userInfo').isBoss || true;
+    const isBoss = Taro.getStorageSync('userInfo')?.bossId || true;
     if (!isBoss) {
       return '';
     }
@@ -57,8 +57,7 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
               <CoverView
                 className="bottom-tab-item-text"
                 style={{
-                  color:
-                    selected === index ? tabBar.selectedColor : tabBar.color,
+                  color: selected === index ? tabBar.selectedColor : tabBar.color,
                 }}
               >
                 {item.text}

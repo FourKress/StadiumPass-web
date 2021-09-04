@@ -477,6 +477,7 @@ class StadiumPage extends Component<{}, IState> {
     this.setState(
       {
         userId: userInfo.id,
+        authorize: false,
       },
       () => {
         this.loginInit(userInfo.id);
@@ -508,7 +509,7 @@ class StadiumPage extends Component<{}, IState> {
     return (
       <View className="stadium-page">
         <View className="page-header">
-          <Image className="bg" src={stadiumInfo.stadiumUrl}></Image>
+          <Image className="bg" src={stadiumInfo?.stadiumUrl}></Image>
           <View className="me" style={meBtbPosition} onClick={() => this.jumpCenter()}>
             <Image className="icon" src=""></Image>
             <Text>我的</Text>
@@ -517,10 +518,10 @@ class StadiumPage extends Component<{}, IState> {
         <View className="main">
           <View className="top">
             <View className="left">
-              <View className="name">{stadiumInfo.name}</View>
+              <View className="name">{stadiumInfo?.name}</View>
               <View className="address">
                 <View className="icon"></View>
-                <Text>{stadiumInfo.address}</Text>
+                <Text>{stadiumInfo?.address}</Text>
               </View>
             </View>
             <AtIcon
@@ -663,10 +664,10 @@ class StadiumPage extends Component<{}, IState> {
                   <View className="label">电话</View>
                   <View className="info">
                     <Text
-                      onClick={() => this.handleCallPhone(stadiumInfo.phoneNum)}
+                      onClick={() => this.handleCallPhone(stadiumInfo?.phoneNum)}
                       style="color: #0092FF; padding-right: 16px"
                     >
-                      {stadiumInfo.phoneNum}
+                      {stadiumInfo?.phoneNum}
                     </Text>
                   </View>
                 </View>
@@ -674,14 +675,14 @@ class StadiumPage extends Component<{}, IState> {
                   <View className="icon"></View>
                   <View className="label">位置</View>
                   <View className="info">
-                    <Text>{stadiumInfo.address}</Text>
+                    <Text>{stadiumInfo?.address}</Text>
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px">
                   <View className="icon"></View>
                   <View className="label">场地</View>
                   <View className="info">
-                    <View className="text">{stadiumInfo.remarks}</View>
+                    <View className="text">{stadiumInfo?.remarks}</View>
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px; align-items: flex-start;">
@@ -692,7 +693,7 @@ class StadiumPage extends Component<{}, IState> {
                       disabled
                       count={false}
                       maxLength={200}
-                      value={stadiumInfo.description}
+                      value={stadiumInfo?.description}
                       onChange={() => {}}
                     />
                   </View>
@@ -708,7 +709,7 @@ class StadiumPage extends Component<{}, IState> {
               {selectList.length > 0 ? (
                 <View className="info">
                   <View className="text">
-                    已选席位：
+                    已选人数：
                     <Text style="font-weight： bold;">{selectList.length}</Text>
                     ，共：
                   </View>

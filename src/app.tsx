@@ -6,22 +6,30 @@ import './app.scss';
 
 import TabBarStore from './store/tabbarStore';
 
+import * as LoginService from './services/loginService';
+
 const store = {
   tabBarStore: new TabBarStore(),
 };
 
 class App extends Component {
-  componentWillMount() {
+  async componentWillMount() {
     const params = Taro.getCurrentInstance().router?.params;
     console.log('启动参数params', params);
 
-    const isBoss = Taro.getStorageSync('userInfo').isBoss || false;
-    if (!isBoss) {
+    let userInfo = Taro.getStorageSync('userInfo');
+    if (userInfo) {
+      userInfo = await LoginService.login();
+    }
+
+    const isBoss = userInfo?.bossId || false;
+    if (isBoss) {
       Taro.reLaunch({
-        url: '/pages/stadium/index',
+        url: `/pages/revenue/index`,
       });
     }
   }
+
   componentDidShow() {
     console.log('渲染');
   }
@@ -29,17 +37,9 @@ class App extends Component {
   componentDidMount() {
     // 小程序更新检测
     this.updateManager();
-    // 启动小程序-刷新token
-    const pages = Taro.getCurrentPages();
-    if (pages.length) {
-      const currPage = pages[pages.length - 1];
-      if (currPage.route !== 'pages/index/index') {
-        console.log('处理登陆');
-      }
-    }
   }
   updateManager() {
-    // //自动更新的设置
+    //自动更新的设置
     const updateManager = Taro.getUpdateManager();
     updateManager.onCheckForUpdate(function (res) {
       // 请求完新版本信息的回调
@@ -67,7 +67,6 @@ class App extends Component {
     });
   }
 
-  // this.props.children 就是要渲染的页面
   render() {
     return <Provider {...store}>{this.props.children}</Provider>;
   }

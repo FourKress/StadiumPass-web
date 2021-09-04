@@ -85,7 +85,11 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   handleOrderPay() {
-    const { orderId, payMethod } = this.state;
+    const {
+      orderId,
+      payMethod,
+      orderInfo: { matchId },
+    } = this.state;
     requestData({
       method: 'POST',
       api: '/order/pay',
@@ -96,7 +100,7 @@ class OrderPayPage extends Component<{}, IState> {
     }).then((res: any) => {
       if (res) {
         Taro.reLaunch({
-          url: '../share/index?index=2',
+          url: `../share/index?matchId=${matchId}`,
         });
       }
     });
