@@ -240,10 +240,11 @@ class StadiumPage extends Component<{}, IState> {
 
   async onSpaceDateChange(e) {
     const { value } = e.detail;
-    if (value === this.state.spaceDate) return;
+    const { spaceDate } = this.state;
+    if (value === spaceDate) return;
     const result = await this.getSpace(this.state.stadiumId, value);
     this.setState({
-      spaceDate: result ? value : currentDay,
+      spaceDate: result ? value : spaceDate,
     });
   }
 

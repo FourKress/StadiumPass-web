@@ -217,10 +217,10 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                             <View className="tips">
                               {item.ordinaryCount > 0 && (
                                 <Text>
-                                  ￥{item.rebatePrice} X {item.ordinaryCount} +
+                                  ￥{item.rebatePrice} X {item.ordinaryCount}
                                 </Text>
                               )}
-                              {item.monthlyCardCount > 0 && <Text>{item.monthlyCardCount}月卡</Text>}
+                              {item.monthlyCardCount > 0 && <Text> +{item.monthlyCardCount}月卡</Text>}
                             </View>
                           </View>
                         )}
@@ -232,21 +232,21 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                 );
               })}
 
-              {revenueInfo?.matchCoverOrderList?.length > 0 && (
-                <View className="service-fee">
-                  <View className="left">技术服务费</View>
-                  <View className="right">
-                    <View>
-                      <Text className="sign">
-                        <Text style="font-size: 18px;">+</Text>
-                        <Text style="font-size: 14px;">￥</Text>
-                      </Text>
-                      <Text className="money">0.00</Text>
-                    </View>
-                    <View className="percentage">-0%</View>
-                  </View>
-                </View>
-              )}
+              {/*{revenueInfo?.matchCoverOrderList?.length > 0 && (*/}
+              {/*  <View className="service-fee">*/}
+              {/*    <View className="left">技术服务费</View>*/}
+              {/*    <View className="right">*/}
+              {/*      <View>*/}
+              {/*        <Text className="sign">*/}
+              {/*          <Text style="font-size: 18px;">+</Text>*/}
+              {/*          <Text style="font-size: 14px;">￥</Text>*/}
+              {/*        </Text>*/}
+              {/*        <Text className="money">0.00</Text>*/}
+              {/*      </View>*/}
+              {/*      <View className="percentage">-0%</View>*/}
+              {/*    </View>*/}
+              {/*  </View>*/}
+              {/*)}*/}
 
               <View className="footer">
                 <Text>今日总收入：</Text>

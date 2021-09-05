@@ -2,10 +2,10 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
+    'pages/bossMe/index',
     'pages/stadium/index',
     'pages/me/index',
     'pages/revenue/index',
-    'pages/bossMe/index',
     'pages/match/index',
     'pages/stadium-details/index',
     'pages/match-edit/index',

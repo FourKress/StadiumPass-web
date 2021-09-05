@@ -145,11 +145,13 @@ class MatchDetailsPage extends Component<{}, IState> {
           </View>
         </View>
 
-        {matchInfo.status && (
+        {matchInfo.status && !matchInfo.isDone && (
           <View className="btn-list">
-            <View className="btn" onClick={() => this.handleCancel()}>
-              取消本场次
-            </View>
+            {!matchInfo.isCancel && (
+              <View className="btn" onClick={() => this.handleCancel()}>
+                取消本场次
+              </View>
+            )}
             <View className="btn">分享场次</View>
           </View>
         )}

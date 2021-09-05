@@ -32,33 +32,36 @@ const weekMap = {
   5: '周五',
   6: '周六',
 };
-const DATA_LIST = Array(7)
-  .fill('')
-  .map((d, index) => {
-    const currentDay = dayjs().add(index, 'day');
-    const date = currentDay.format('YYYY.MM.DD');
-    const dateArr = date.split('.');
-    d = {
-      year: dateArr[0],
-      month: dateArr[1],
-      day: dateArr[2],
-      week: weekMap[currentDay.day()],
-    };
-    return d;
-  });
+const DATA_LIST = () => {
+  return Array(7)
+    .fill('')
+    .map((d, index) => {
+      const currentDay = dayjs().add(index, 'day');
+      const date = currentDay.format('YYYY.MM.DD');
+      const dateArr = date.split('.');
+      d = {
+        year: dateArr[0],
+        month: dateArr[1],
+        day: dateArr[2],
+        week: weekMap[currentDay.day()],
+      };
+      return d;
+    });
+};
 
-const dateNow = dayjs().format('YYYY-MM-DD');
+let dateNow;
 
 @inject('tabBarStore')
 @observer
 class MatchPage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
+    dateNow = dayjs().format('YYYY-MM-DD');
     this.state = {
       tabPosition: {},
       stadiumList: [],
       stadiumInfo: {},
-      selectDate: DATA_LIST[0],
+      selectDate: DATA_LIST()[0],
       matchList: [],
     };
   }
@@ -72,6 +75,9 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     this.setMeBtnPosition();
     const userInfo = Taro.getStorageSync('userInfo') || '';
     if (userInfo?.bossId) {
+      this.setState({
+        selectDate: DATA_LIST()[0],
+      });
       this.getStadiumList();
     }
   }
@@ -129,13 +135,13 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     const stadium = this.state.stadiumList[index];
     this.setState({
       stadiumInfo: stadium,
-      selectDate: DATA_LIST[0],
+      selectDate: DATA_LIST()[0],
     });
     this.getMatchList(stadium.id, dateNow);
   }
 
   handleSelectDate(index) {
-    const target = DATA_LIST[index];
+    const target = DATA_LIST()[index];
     const { year, month, day } = target;
     this.setState({
       selectDate: target,
@@ -145,8 +151,10 @@ class MatchPage extends Component<InjectStoreProps, IState> {
   }
 
   jumpDetails(item) {
+    const { id, stadiumId, status } = item;
+    if (!status) return;
     Taro.navigateTo({
-      url: `../match-details/index?matchId=${item.id}&stadiumId=${item.stadiumId}`,
+      url: `../match-details/index?matchId=${id}&stadiumId=${stadiumId}`,
     });
   }
 
@@ -165,7 +173,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
         </View>
         <View className="date-list">
           <View className="scroll-warp">
-            {DATA_LIST.map((date, index) => {
+            {DATA_LIST().map((date, index) => {
               return (
                 <View
                   className={selectDate?.day === date.day ? 'item active' : 'item'}
@@ -195,7 +203,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
                         ) : (
                           <Text style="color: #ff0000">本场已取消</Text>
                         )}
-                        {item.status && (
+                        {item.status && !item.isDone && (
                           <View className="share">
                             <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
                             <Text>分享</Text>

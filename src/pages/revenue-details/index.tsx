@@ -84,8 +84,9 @@ class RevenueDetailsPage extends Component<{}, IState> {
 
   render() {
     const { payInfo, stadiumInfo, matchInfo } = this.state;
-    const success = payInfo?.success?.length >= matchInfo.minPeople;
+    const success = payInfo?.success?.reduce((sum, curr) => sum + curr.personCount, 0) >= matchInfo.minPeople;
     const list = success ? payInfo?.success : payInfo?.systemRefund;
+    const isList = list?.length || payInfo?.cancel?.length || payInfo?.selfRefund?.length;
 
     return (
       <View className="revenue-details-page">
@@ -99,69 +100,81 @@ class RevenueDetailsPage extends Component<{}, IState> {
           <View className="title">
             <View className="left">报名详情</View>
             {!success && (
-              <View className="right">组队失败：差{matchInfo.minPeople - payInfo?.systemRefund?.length}人</View>
-            )}
-          </View>
-          <View className="signUp-list">
-            {list?.length > 0 && (
-              <View className={success ? 'sub-title pay' : 'sub-title fail'}>
-                <View>已{success ? '付' : '退'}款</View>
-                {!success && <View>系统自动退款</View>}
+              <View className="right">
+                组队失败：差
+                {matchInfo.minPeople - payInfo?.systemRefund?.reduce((sum, curr) => sum + curr.personCount, 0)}人
               </View>
             )}
-            {list?.map((item, index) => {
-              return (
-                <View className="item">
-                  <View className="index">{index + 1}</View>
-                  <View className="user">
-                    <Image src={item.user?.avatarUrl}></Image>
-                    <Text className="name">{item.user?.nickName}</Text>
-                  </View>
-                  <View className="info">
-                    <View className="money">{item.payAmount}</View>
-                    {item.newMonthlyCard ? (
-                      <View className="count">新购月卡</View>
-                    ) : item.payMethod === 1 ? (
-                      <View className="count">有效期至：{dayjs(item.monthlyCardValidDate).format('MM-DD HH:MM')}</View>
-                    ) : (
-                      <View className="count">付款时间：{dayjs(item.payAt).format('MM-DD HH:MM')}</View>
-                    )}
-                  </View>
-                </View>
-              );
-            })}
-            {payInfo?.cancel?.length > 0 && <View className="sub-title">未付款</View>}
-            {payInfo?.cancel?.map((item, index) => {
-              return (
-                <View className="item fail">
-                  <View className="index">{index + 1}</View>
-                  <View className="user">
-                    <Image src={item.user?.avatarUrl}></Image>
-                    <Text className="name">{item.user?.nickName}</Text>
-                  </View>
-                  <View className="info">
-                    <View className="count">报名时间：{dayjs(item.createAt).format('MM-DD HH:MM')}</View>
-                  </View>
-                </View>
-              );
-            })}
-            {payInfo?.selfRefund?.length > 0 && <View className="sub-title fail">本人退款</View>}
-            {payInfo?.selfRefund?.map((item, index) => {
-              return (
-                <View className="item fail">
-                  <View className="index">{index + 1}</View>
-                  <View className="user">
-                    <Image src={item.user?.avatarUrl}></Image>
-                    <Text className="name">{item.user?.nickName}</Text>
-                  </View>
-                  <View className="info">
-                    <View className="money">-{item.payAmount}</View>
-                    <View className="count">退款时间：{dayjs(item.updatedAt).format('MM-DD HH:MM')}</View>
-                  </View>
-                </View>
-              );
-            })}
           </View>
+          {isList > 0 ? (
+            <View className="signUp-list">
+              {list?.length > 0 && (
+                <View className={success ? 'sub-title pay' : 'sub-title fail'}>
+                  <View>已{success ? '付' : '退'}款</View>
+                  {!success && <View>系统自动退款</View>}
+                </View>
+              )}
+              {list?.map((item, index) => {
+                return (
+                  <View className="item">
+                    <View className="index">{index + 1}</View>
+                    <View className="user">
+                      <Image src={item.user?.avatarUrl}></Image>
+                      <Text className="name">{item.user?.nickName}</Text>
+                    </View>
+                    <View className="info">
+                      <View className="money">{item.payAmount}</View>
+                      {item.newMonthlyCard ? (
+                        <View className="count">新购月卡</View>
+                      ) : item.payMethod === 2 ? (
+                        <View className="count">
+                          有效期至：{dayjs(item.monthlyCardValidDate).format('MM-DD HH:MM')}
+                        </View>
+                      ) : (
+                        <View className="count">付款时间：{dayjs(item.payAt).format('MM-DD HH:MM')}</View>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+              {payInfo?.cancel?.length > 0 && <View className="sub-title">未付款</View>}
+              {payInfo?.cancel?.map((item, index) => {
+                return (
+                  <View className="item fail">
+                    <View className="index">{index + 1}</View>
+                    <View className="user">
+                      <Image src={item.user?.avatarUrl}></Image>
+                      <Text className="name">{item.user?.nickName}</Text>
+                    </View>
+                    <View className="info">
+                      <View className="count">报名时间：{dayjs(item.createAt).format('MM-DD HH:MM')}</View>
+                    </View>
+                  </View>
+                );
+              })}
+              {payInfo?.selfRefund?.length > 0 && <View className="sub-title fail">本人退款</View>}
+              {payInfo?.selfRefund?.map((item, index) => {
+                return (
+                  <View className="item fail">
+                    <View className="index">{index + 1}</View>
+                    <View className="user">
+                      <Image src={item.user?.avatarUrl}></Image>
+                      <Text className="name">{item.user?.nickName}</Text>
+                    </View>
+                    <View className="info">
+                      <View className="money">-{item.payAmount}</View>
+                      <View className="count">退款时间：{dayjs(item.updatedAt).format('MM-DD HH:MM')}</View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            <View className="not-data" style="margin-top: 8px">
+              无报名数据
+            </View>
+          )}
+
           <View className="title">场次详情</View>
           <View className="stadium-list">
             <View className="item">
