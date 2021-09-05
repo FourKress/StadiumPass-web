@@ -67,7 +67,7 @@ page {
   }
 
   .pay {
-    height: 374px;
+    //height: 374px;
     width: 100%;
     background-color: #fff;
     box-sizing: border-box;
@@ -137,6 +137,12 @@ page {
       line-height: 92px;
       color: #333D44;
       font-size: 24px;
+    }
+
+    .month {
+      height: auto;
+      padding: 16px 0;
+      line-height: 36px;
     }
   }
 

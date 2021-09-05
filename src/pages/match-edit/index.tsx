@@ -338,7 +338,12 @@ class MatchEditPage extends Component<{}, IState> {
             </Picker>
 
             {Number(form.repeatModel) === 1 && (
-              <Picker value={form.runDate} mode="date" onChange={(e) => this.handleDateChange(e, 'runDate')}>
+              <Picker
+                value={form.runDate}
+                start={dateNow}
+                mode="date"
+                onChange={(e) => this.handleDateChange(e, 'runDate')}
+              >
                 <AtList>
                   <AtListItem title="选择日期" arrow="down" extraText={form.runDate} />
                 </AtList>

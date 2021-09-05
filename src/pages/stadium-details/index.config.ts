@@ -1,4 +1,4 @@
 export default {
-  navigationBarTitleText: '球场详情',
+  navigationStyle: 'custom',
   disableScroll: true,
 };

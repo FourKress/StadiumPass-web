@@ -14,6 +14,30 @@ page {
     display: none; /* Chrome Safari */
   }
 
+  .page-header {
+    width: 100vw;
+    box-sizing: border-box;
+    background-color: #fff;
+
+    .header-panel {
+      position: relative;
+
+      .page-title {
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        color: #000;
+      }
+
+      .back-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+  }
+
   .at-tab-bar__item--active .at-badge {
     &::after {
       display: inline-block;
@@ -28,7 +52,7 @@ page {
   .list {
     padding: 32px 32px 0 32px;
     width: 100vw;
-    height: calc(100vh - 196px - env(safe-area-inset-bottom));
+    height: calc(100vh - 276px - env(safe-area-inset-bottom));
     box-sizing: border-box;
     overflow: hidden;
 
@@ -199,6 +223,12 @@ page {
     background-color: #f2f2f2;
     padding-top: 32px;
 
+    .cancel-icon {
+      position: absolute;
+      left: 16px;
+      z-index: 10;
+    }
+
     .space-add {
       position: fixed;
       box-sizing: border-box;
@@ -230,6 +260,7 @@ page {
 
   .btn-list {
     position: fixed;
+    z-index: 9;
     box-sizing: border-box;
     left: 0;
     bottom: 0;

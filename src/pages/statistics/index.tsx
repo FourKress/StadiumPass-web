@@ -200,23 +200,29 @@ class StatisticsPage extends Component<{}, IState> {
           <View className="title">收入对比</View>
           {/*<View className="charts">{this.renderChart()}</View>*/}
           <View className="title">报名Top10</View>
-          <View className="list">
-            {topList.map((item, index) => {
-              return (
-                <View className="item">
-                  <View className="index">{index + 1}</View>
-                  <View className="user">
-                    <Image src={item?.user?.avatarUrl}></Image>
-                    <Text className="name">{item?.user?.nickName}</Text>
+          {topList.length > 0 ? (
+            <View className="list">
+              {topList.map((item, index) => {
+                return (
+                  <View className="item">
+                    <View className="index">{index + 1}</View>
+                    <View className="user">
+                      <Image src={item?.user?.avatarUrl}></Image>
+                      <Text className="name">{item?.user?.nickName}</Text>
+                    </View>
+                    <View className="info">
+                      <View className="money">{item.totalPayAmount}</View>
+                      <View className="count">{item.count}次</View>
+                    </View>
                   </View>
-                  <View className="info">
-                    <View className="money">{item.totalPayAmount}</View>
-                    <View className="count">{item.count}次</View>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
+          ) : (
+            <View className="not-data" style="margin-top: 16px">
+              暂无数据
+            </View>
+          )}
         </View>
       </View>
     );

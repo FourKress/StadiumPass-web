@@ -16,6 +16,7 @@ interface IState {
   spaceList: Array<any>;
   showSpaceDetails: boolean;
   unitList: Array<any>;
+  meHeaderPosition: any;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -31,10 +32,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
       showSpaceDetails: false,
       stadiumId: '',
       unitList: [],
+      meHeaderPosition: {},
     };
   }
 
   componentDidShow() {
+    this.setMeBtnPosition();
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const stadiumId = (pageParams.id + '').toString();
@@ -48,8 +51,24 @@ class StadiumDetailsPage extends Component<{}, IState> {
     );
   }
 
+  setMeBtnPosition() {
+    let stateHeight = 0; //  接收状态栏高度
+    Taro.getSystemInfo({
+      success(res) {
+        stateHeight = res.statusBarHeight;
+      },
+    });
+
+    this.setState({
+      meHeaderPosition: {
+        top: stateHeight,
+      },
+    });
+  }
+
   matchInit() {
     this.getMatchList();
+    this.getSpaceList();
   }
 
   async stadiumInit() {
@@ -123,7 +142,14 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   jumpDetails(item) {
-    const { stadiumId } = this.state;
+    const { stadiumId, spaceList } = this.state;
+    if (!spaceList?.length) {
+      Taro.showToast({
+        icon: 'none',
+        title: '请先在场馆设置中添加场地',
+      });
+      return;
+    }
     Taro.navigateTo({
       url: `../match-edit/index?stadiumId=${stadiumId}&matchId=${item?.id || ''}`,
     });
@@ -191,7 +217,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  saveSpace() {
+  async saveSpace() {
     const { spaceInfo, spaceList, spaceIndex, stadiumInfo } = this.state;
     const { name, unit } = spaceInfo;
     if (!name || !unit) {
@@ -202,12 +228,22 @@ class StadiumDetailsPage extends Component<{}, IState> {
       return;
     }
     spaceInfo.stadiumId = stadiumInfo.id;
+    const space = await this.handleAndOrModifySpace(spaceInfo);
     if (spaceIndex === spaceList.length) {
-      spaceList.push(spaceInfo);
+      spaceList.push(space);
     } else {
-      spaceList[spaceIndex] = spaceInfo;
+      spaceList[spaceIndex] = space;
     }
     this.handleSpaceChangeResult(spaceList);
+  }
+
+  async handleAndOrModifySpace(spaceInfo) {
+    const { id } = spaceInfo;
+    return await requestData({
+      method: 'POST',
+      api: `/space/${id ? 'modify' : 'add'}`,
+      params: spaceInfo,
+    });
   }
 
   handleSpaceChangeResult(spaceList) {
@@ -241,50 +277,98 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }
   }
 
+  goBack() {
+    if (this.state.showSpaceDetails) {
+      this.setState({
+        showSpaceDetails: false,
+      });
+      return;
+    }
+    Taro.navigateBack({
+      delta: -1,
+    });
+  }
+
+  closeSpaceDetails() {
+    this.setState({
+      spaceInfo: {},
+      showSpaceDetails: false,
+    });
+  }
+
   render() {
-    const { current, stadiumInfo, spaceList, spaceInfo, showSpaceDetails, unitList, matchList } = this.state;
+    const { current, stadiumInfo, spaceList, spaceInfo, showSpaceDetails, unitList, matchList, meHeaderPosition } =
+      this.state;
 
     return (
       <View className="stadium-details-page">
+        <View className="page-header" style={`padding-top: ${meHeaderPosition.top}px`}>
+          <View className="header-panel">
+            <AtIcon
+              className="back-icon"
+              value="chevron-left"
+              size="24"
+              color="#000"
+              onClick={() => this.goBack()}
+            ></AtIcon>
+            <View className="page-title">
+              <Text>球场详情</Text>
+            </View>
+          </View>
+        </View>
         <AtTabBar
           tabList={[{ title: '场次设置' }, { title: '场馆设置' }]}
           onClick={(index) => this.handleTabClick(index)}
           current={current}
         />
         {current === 0 && !showSpaceDetails && (
-          <View className="list">
-            <View className="scroll-warp">
-              {matchList.map((item) => {
-                return (
-                  <View className="item" onClick={() => this.jumpDetails(item)}>
-                    <View className="top">
-                      <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
-                      <View className="right">
-                        <View className="money">
-                          <Text>￥{item.rebatePrice}</Text>
-                          <Text className="discount">{item.rebate}折</Text>
-                          <Text>/人</Text>
+          <View>
+            {matchList.length > 0 ? (
+              <View
+                className="list"
+                style={`height: calc(100vh - ${140 + meHeaderPosition.top}px - env(safe-area-inset-bottom))`}
+              >
+                <View className="scroll-warp">
+                  {matchList.map((item) => {
+                    return (
+                      <View className="item" onClick={() => this.jumpDetails(item)}>
+                        <View className="top">
+                          <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
+                          <View className="right">
+                            <View className="money">
+                              <Text>￥{item.rebatePrice}</Text>
+                              <Text className="discount">{item.rebate}折</Text>
+                              <Text>/人</Text>
+                            </View>
+                          </View>
+                        </View>
+                        <View className="item-body">
+                          <View>场地：{item.space?.name}</View>
+                          <View>
+                            时间：{item.repeatName} / {item.startAt}-{item.endAt}
+                          </View>
+                          <View>时长：{item.duration}小时</View>
+                          <View>
+                            人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                          </View>
                         </View>
                       </View>
-                    </View>
-                    <View className="item-body">
-                      <View>场地：{item.space?.name}</View>
-                      <View>
-                        时间：{item.repeatName} / {item.startAt}-{item.endAt}
-                      </View>
-                      <View>时长：{item.duration}小时</View>
-                      <View>
-                        人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
-                      </View>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
+                    );
+                  })}
+                </View>
+              </View>
+            ) : (
+              <View className="not-data" style="margin-top: 32px">
+                暂无数据
+              </View>
+            )}
           </View>
         )}
         {current === 1 && !showSpaceDetails && (
-          <View className="list stadium">
+          <View
+            className="list stadium"
+            style={`height: calc(100vh - ${140 + meHeaderPosition.top}px - env(safe-area-inset-bottom))`}
+          >
             <View className="scroll-warp">
               <AtForm className="form">
                 <View className="title">
@@ -396,9 +480,14 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
         {showSpaceDetails && (
           <CoverView>
-            <View className="space-details">
+            <View className="space-details" style={`padding-top: ${meHeaderPosition.top + 45}px`}>
+              <View className="cancel-icon" style={`top: ${meHeaderPosition.top + 8}px`}>
+                <AtIcon value="chevron-left" size="24" color="#000" onClick={() => this.closeSpaceDetails()}></AtIcon>
+              </View>
+
               <AtForm className="form">
                 <AtInput
+                  style={`top: ${meHeaderPosition.top + 45}px`}
                   name="spaceName"
                   title="场地名称"
                   type="text"

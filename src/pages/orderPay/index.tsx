@@ -50,14 +50,25 @@ class OrderPayPage extends Component<{}, IState> {
         id: orderId,
       },
     }).then((res: any) => {
-      const hasMonthlyCardAmount = res.isMonthlyCard ? res.totalPrice - res.price : res.monthlyCardPrice;
-      this.setState({
-        hasMonthlyCardAmount,
-        payAmount: res.isMonthlyCard ? hasMonthlyCardAmount : res.totalPrice,
-      });
-      const { countdown } = res;
+      const { isMonthlyCard, monthlyCardStatus, monthlyCardPrice, totalPrice, countdown, price } = res;
+      let state;
+      if (monthlyCardStatus) {
+        const diffPrice = totalPrice - price;
+        const hasMonthlyCardAmount = isMonthlyCard ? diffPrice : monthlyCardPrice + diffPrice;
+        state = {
+          hasMonthlyCardAmount,
+          payAmount: hasMonthlyCardAmount,
+          payMethod: 'monthlyCard',
+        };
+      } else {
+        state = {
+          payAmount: totalPrice,
+          payMethod: 'wechat',
+        };
+      }
       this.setState(
         {
+          ...state,
           orderInfo: res,
           countdown,
         },
@@ -168,27 +179,37 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="money">￥{orderInfo.totalPrice}</Text>
               <Text className="icon" onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}></Text>
             </View>
-            <View className="row">
-              <Text className="icon"></Text>
-              <Text className="label">
-                <Text>场地月卡</Text>
-                {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
-              </Text>
-              <Text className="money">
-                <Text>￥{hasMonthlyCardAmount}</Text>
-                {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
-              </Text>
+            {orderInfo.monthlyCardStatus && (
+              <View>
+                <View className="row">
+                  <Text className="icon"></Text>
+                  <Text className="label">
+                    <Text>场地月卡</Text>
+                    {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
+                  </Text>
+                  <Text className="money">
+                    <Text>￥{hasMonthlyCardAmount}</Text>
+                    {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
+                  </Text>
 
-              <Text className="icon" onClick={() => this.selectPayMethod(hasMonthlyCardAmount, 'monthlyCard')}></Text>
-            </View>
-            {orderInfo.isMonthlyCard ? (
-              <View className="tips">
-                月卡有效期：{dayjs().format('YYYY-MM-DD')}-{dayjs().add(1, 'month').format('YYYY-MM-DD')}
-              </View>
-            ) : (
-              <View className="tips">
-                月卡有效期内，不限次数免费订场！仅需¥
-                {orderInfo.monthlyCardPrice}/月！
+                  <Text
+                    className="icon"
+                    onClick={() => this.selectPayMethod(hasMonthlyCardAmount, 'monthlyCard')}
+                  ></Text>
+                </View>
+                {orderInfo.isMonthlyCard ? (
+                  <View className="tips month">
+                    <View>月卡用户单场仅可免除1个名额的费用</View>
+                    <Text>
+                      月卡有效期：{orderInfo.validPeriodStart}-{orderInfo.validPeriodStart}
+                    </Text>
+                  </View>
+                ) : (
+                  <View className="tips">
+                    月卡有效期内，不限次数免费订场！仅需¥
+                    {orderInfo.monthlyCardPrice}/月！
+                  </View>
+                )}
               </View>
             )}
           </View>

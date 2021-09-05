@@ -181,43 +181,49 @@ class MatchPage extends Component<InjectStoreProps, IState> {
           </View>
         </View>
 
-        <View className="list">
-          <View className="scroll-warp">
-            {matchList.map((item) => {
-              return (
-                <View className="item" onClick={() => this.jumpDetails(item)}>
-                  <View className="top">
-                    <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
-                    <View className="right">
-                      {item.status ? (
-                        <Text>已报名：{item.selectPeople}人</Text>
-                      ) : (
-                        <Text style="color: #ff0000">本场已取消</Text>
-                      )}
-                      {item.status && (
-                        <View className="share">
-                          <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
-                          <Text>分享</Text>
-                        </View>
-                      )}
+        {matchList.length > 0 ? (
+          <View className="list">
+            <View className="scroll-warp">
+              {matchList.map((item) => {
+                return (
+                  <View className="item" onClick={() => this.jumpDetails(item)}>
+                    <View className="top">
+                      <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
+                      <View className="right">
+                        {item.status ? (
+                          <Text>已报名：{item.selectPeople}人</Text>
+                        ) : (
+                          <Text style="color: #ff0000">本场已取消</Text>
+                        )}
+                        {item.status && (
+                          <View className="share">
+                            <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
+                            <Text>分享</Text>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                    <View className="item-body">
+                      <View>场地：{item.space?.name}</View>
+                      <View>
+                        时间：{item.repeatName} / {item.startAt}-{item.endAt}
+                      </View>
+                      <View>时长：{item.duration}小时</View>
+                      <View>
+                        人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                      </View>
+                      <View>价格：￥{item.rebatePrice}每人</View>
                     </View>
                   </View>
-                  <View className="item-body">
-                    <View>场地：{item.space?.name}</View>
-                    <View>
-                      时间：{item.repeatName} / {item.startAt}-{item.endAt}
-                    </View>
-                    <View>时长：{item.duration}小时</View>
-                    <View>
-                      人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
-                    </View>
-                    <View>价格：￥{item.rebatePrice}每人</View>
-                  </View>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
           </View>
-        </View>
+        ) : (
+          <View className="not-data" style="margin-top: 32px">
+            暂无数据
+          </View>
+        )}
       </View>
     );
   }

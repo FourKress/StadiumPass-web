@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import './index.scss';
 
 const STAR_DATE = dayjs().format('YYYY.MM.DD');
-const END_DATE = dayjs().add(7, 'day').format('YYYY.MM.DD');
+const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
 
 interface IState {
   tabValue: number;
@@ -109,7 +109,7 @@ class StadiumPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     // const id = pageParams.stadiumId + '';
-    const id = '61291d354547579617aba474';
+    const id = '613337e62a06f63968225cf8';
     const matchId = pageParams.matchId;
     const isStart = !!pageParams.isStart;
     this.setState({

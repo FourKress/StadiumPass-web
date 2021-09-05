@@ -69,17 +69,9 @@ class MePage extends Component<{}, IState> {
       },
     });
 
-    const menuButton = Taro.getMenuButtonBoundingClientRect();
-    const top = menuButton.top - stateHeight; //  获取top值
-    const { width, left, height } = menuButton;
-    console.log(stateHeight, top);
     this.setState({
       meHeaderPosition: {
-        left: left - 16 - 88,
         top: stateHeight,
-        height,
-        width,
-        borderRadius: height,
       },
     });
   }
@@ -233,8 +225,9 @@ class MePage extends Component<{}, IState> {
   }
 
   goBack() {
+    const stadiumId = Taro.getStorageSync('stadiumId');
     Taro.navigateTo({
-      url: `../stadium/index?stadiumId=61291d354547579617aba474`,
+      url: `../stadium/index?stadiumId=${stadiumId}`,
     });
   }
 
