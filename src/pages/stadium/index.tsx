@@ -16,7 +16,6 @@ const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
 interface IState {
   tabValue: number;
   openList: any;
-  meBtbPosition: object;
   stadiumInfo: any;
   isWatch: boolean;
   spaceList: any;
@@ -40,7 +39,7 @@ const currentDay = dayjs().format('YYYY-MM-DD');
 class StadiumPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
-    this.state = { ...this.initData(), meBtbPosition: {} };
+    this.state = { ...this.initData() };
   }
 
   async onShareAppMessage() {
@@ -99,7 +98,6 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   async componentDidShow() {
-    this.setMeBtnPosition();
     // @ts-ignore
     Taro.showShareMenu({
       withShareTicket: true,
@@ -150,28 +148,6 @@ class StadiumPage extends Component<{}, IState> {
         this.getWatchStatus(this.state.stadiumId);
       }
     );
-  }
-
-  setMeBtnPosition() {
-    let stateHeight = 0; //  接收状态栏高度
-    Taro.getSystemInfo({
-      success(res) {
-        stateHeight = res.statusBarHeight;
-      },
-    });
-
-    const menuButton = Taro.getMenuButtonBoundingClientRect();
-    const top = menuButton.top - stateHeight; //  获取top值
-    const { width, left, height } = menuButton;
-    this.setState({
-      meBtbPosition: {
-        left: left - 16 - 88,
-        top: stateHeight + top,
-        height,
-        width,
-        borderRadius: height,
-      },
-    });
   }
 
   getStadiumInfo(id) {
@@ -366,12 +342,6 @@ class StadiumPage extends Component<{}, IState> {
     }
   }
 
-  jumpCenter() {
-    Taro.navigateTo({
-      url: '../me/index',
-    });
-  }
-
   handleSubmit() {
     const {
       currentMatch,
@@ -490,7 +460,6 @@ class StadiumPage extends Component<{}, IState> {
     const {
       tabValue,
       openList,
-      meBtbPosition,
       stadiumInfo,
       isWatch,
       spaceList,
@@ -511,10 +480,6 @@ class StadiumPage extends Component<{}, IState> {
       <View className="stadium-page">
         <View className="page-header">
           <Image className="bg" src={stadiumInfo?.stadiumUrl}></Image>
-          <View className="me" style={meBtbPosition} onClick={() => this.jumpCenter()}>
-            <Image className="icon" src=""></Image>
-            <Text>我的</Text>
-          </View>
         </View>
         <View className="main">
           <View className="top">

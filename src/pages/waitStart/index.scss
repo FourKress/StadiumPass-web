@@ -1,0 +1,53 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+page {
+  background-color: #303043;
+}
+
+.wait-start-page {
+  .page-header {
+    width: 100vw;
+    height: 384px;
+    position: relative;
+
+    .title {
+    }
+
+    .search {
+      width: 320px;
+      background-color: #f7f7f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: #000;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      box-sizing: border-box;
+      z-index: 9;
+      overflow: hidden;
+
+      .at-input__input {
+        text-align: left;
+        padding-right: 10px;
+      }
+
+      .at-input {
+        padding: 0 0 0 30px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        font-size: 12px;
+
+        .search-input {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}

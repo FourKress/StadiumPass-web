@@ -24,9 +24,9 @@ class App extends Component {
 
     const isBoss = userInfo?.bossId || false;
     if (isBoss) {
-      Taro.reLaunch({
-        url: `/pages/revenue/index`,
-      });
+      // Taro.reLaunch({
+      //   url: `/pages/revenue/index`,
+      // });
     }
   }
 
