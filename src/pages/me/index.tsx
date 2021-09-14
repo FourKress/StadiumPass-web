@@ -22,7 +22,6 @@ interface IState {
   orderCount: IOrderCount;
   showPhoneModal: boolean;
   phoneNum: any;
-  meHeaderPosition: any;
   systemPhoneNum: string;
 }
 
@@ -41,12 +40,10 @@ class MePage extends Component<{}, IState> {
       },
       phoneNum: '',
       systemPhoneNum: '15523250903',
-      meHeaderPosition: {},
     };
   }
 
   componentDidShow() {
-    this.setMeBtnPosition();
     const userInfo = Taro.getStorageSync('userInfo') || '';
     this.setState(
       {
@@ -59,21 +56,6 @@ class MePage extends Component<{}, IState> {
         this.getOrderCount();
       }
     );
-  }
-
-  setMeBtnPosition() {
-    let stateHeight = 0; //  接收状态栏高度
-    Taro.getSystemInfo({
-      success(res) {
-        stateHeight = res.statusBarHeight;
-      },
-    });
-
-    this.setState({
-      meHeaderPosition: {
-        top: stateHeight,
-      },
-    });
   }
 
   getOrderCount() {
@@ -224,33 +206,11 @@ class MePage extends Component<{}, IState> {
     });
   }
 
-  goBack() {
-    const stadiumId = Taro.getStorageSync('stadiumId');
-    Taro.navigateTo({
-      url: `../stadium/index?stadiumId=${stadiumId}`,
-    });
-  }
-
   render() {
-    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum, meHeaderPosition, systemPhoneNum } =
-      this.state;
+    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum, systemPhoneNum } = this.state;
 
     return (
       <View className="mePage">
-        <View className="page-header" style={`padding-top: ${meHeaderPosition.top}px`}>
-          <View className="header-panel">
-            <AtIcon
-              className="back-icon"
-              value="chevron-left"
-              size="24"
-              color="#fff"
-              onClick={() => this.goBack()}
-            ></AtIcon>
-            <View className="page-title">
-              <Text>个人中心</Text>
-            </View>
-          </View>
-        </View>
         <View className="head">
           {userInfo ? (
             <View className="loginBox">
