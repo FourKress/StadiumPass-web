@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image } from '@tarojs/components';
+import { View, Text, Image, Swiper, SwiperItem } from '@tarojs/components';
 import { AtIcon, AtInput } from 'taro-ui';
 import Taro from '@tarojs/taro';
 // import requestData from '@/utils/requestData';
@@ -77,34 +77,42 @@ class WaitStartPage extends Component<{}, IState> {
           </View>
         </View>
         <View className="my-match">
-          <View className="panel">
-            <View className="title">我的场次</View>
-            <View className="info">
-              <Image src="" className="logo" />
-              <View className="details">
-                <View className="name">卡拉三等奖分手快乐阿斯达大喀纳</View>
-                <View className="sub">阿斯达四大阿斯达</View>
-              </View>
-            </View>
-            <View className="line"></View>
-            <View className="match-info">
-              <View className="left">
-                <View className="tips">当前成员</View>
-                <View className="count">
-                  <View>
-                    <Text className="bold">11</Text>/22
+          <Swiper className="swiper-wrapper" indicatorColor="#999" indicatorActiveColor="#0080ff" indicatorDots>
+            {[1, 2, 3].map(() => {
+              return (
+                <SwiperItem>
+                  <View className="panel">
+                    <View className="title">我的场次</View>
+                    <View className="info">
+                      <Image src="" className="logo" />
+                      <View className="details">
+                        <View className="name">卡拉三等奖分手快乐阿斯达大喀纳</View>
+                        <View className="sub">阿斯达四大阿斯达</View>
+                      </View>
+                    </View>
+                    <View className="line"></View>
+                    <View className="match-info">
+                      <View className="left">
+                        <View className="tips">当前成员</View>
+                        <View className="count">
+                          <View>
+                            <Text className="bold">11</Text>/22
+                          </View>
+                          <View className="tag wait">已成团</View>
+                        </View>
+                      </View>
+                      <View className="right">
+                        <View className="tips">场次时间</View>
+                        <View>
+                          <Text className="bold">19:00-21:00</Text>/06-01/周二
+                        </View>
+                      </View>
+                    </View>
                   </View>
-                  <View className="tag wait">已成团</View>
-                </View>
-              </View>
-              <View className="right">
-                <View className="tips">场次时间</View>
-                <View>
-                  <Text className="bold">19:00-21:00</Text>/06-01/周二
-                </View>
-              </View>
-            </View>
-          </View>
+                </SwiperItem>
+              );
+            })}
+          </Swiper>
         </View>
 
         <View className="main">
