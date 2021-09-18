@@ -25,24 +25,26 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
 
   switchTab(item, index) {
     this.inject.tabBarStore.setSelected(index);
-    Taro.switchTab({
+    Taro.reLaunch({
       url: `/${item.pagePath}`,
     });
   }
 
   render() {
-    const isBoss = Taro.getStorageSync('userInfo')?.bossId || true;
-    if (!isBoss) {
-      return '';
-    }
     const {
       tabBarStore: { selected },
     } = this.inject;
     const tabBar: any = config?.tabBar || {};
+    const isBoss = Taro.getStorageSync('auth') === 'boss';
+
+    const filterKeys: string[] = isBoss ? ['revenue', 'match'] : ['stadium', 'waitStart'];
+    const tabBarList = tabBar.list.filter(
+      (d) => filterKeys.some((key) => d.pagePath.includes(key)) || d.pagePath.includes('userCenter')
+    );
 
     return (
       <CoverView className="bottom-tab">
-        {tabBar.list.map((item, index) => {
+        {tabBarList.map((item, index) => {
           return (
             <CoverView
               className="bottom-tab-item"

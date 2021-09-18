@@ -6,33 +6,18 @@ import './app.scss';
 
 import TabBarStore from './store/tabbarStore';
 
-import * as LoginService from './services/loginService';
-
 const store = {
   tabBarStore: new TabBarStore(),
 };
 
 class App extends Component {
-  async componentWillMount() {
+  componentWillMount() {
     const params = Taro.getCurrentInstance().router?.params;
     console.log('启动参数params', params);
-
-    let userInfo = Taro.getStorageSync('userInfo');
-    if (userInfo) {
-      userInfo = await LoginService.login();
-    }
-
-    const isBoss = userInfo?.bossId || false;
-    if (isBoss) {
-      // Taro.reLaunch({
-      //   url: `/pages/revenue/index`,
-      // });
-    }
   }
 
   componentDidShow() {
     console.log('渲染');
-    Taro.setStorageSync('stadiumId', '613337e62a06f63968225cf8');
   }
 
   componentDidMount() {
