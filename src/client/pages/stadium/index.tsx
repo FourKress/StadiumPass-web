@@ -372,7 +372,7 @@ class StadiumPage extends Component<{}, IState> {
 
   jumpOrderPay(orderId) {
     Taro.navigateTo({
-      url: `../client/orderPay/index?orderId=${orderId}`,
+      url: `/client/pages/orderPay/index?orderId=${orderId}`,
     });
   }
 

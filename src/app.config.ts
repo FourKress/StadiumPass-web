@@ -19,6 +19,7 @@ const config: Config = {
     'client/pages/share/index',
     'client/pages/stadium/index',
     'client/pages/waitStart/index',
+    'client/pages/community/index',
   ],
   tabBar: {
     custom: true,
@@ -38,7 +39,7 @@ const config: Config = {
         selectedIconPath: 'assets/icons/phone.png',
       },
       {
-        pagePath: 'client/pages/stadium/index',
+        pagePath: 'client/pages/community/index',
         text: '圈子',
         iconPath: 'assets/icons/home.png',
         selectedIconPath: 'assets/icons/home.png',

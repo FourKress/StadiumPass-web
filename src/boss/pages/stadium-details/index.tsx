@@ -297,16 +297,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   render() {
-    const {
-      current,
-      stadiumInfo,
-      spaceList,
-      spaceInfo,
-      showSpaceDetails,
-      unitList,
-      matchList,
-      meHeaderPosition,
-    } = this.state;
+    const { current, stadiumInfo, spaceList, spaceInfo, showSpaceDetails, unitList, matchList, meHeaderPosition } =
+      this.state;
 
     return (
       <View className="stadium-details-page">

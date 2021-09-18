@@ -24,9 +24,17 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
   }
 
   switchTab(item, index) {
+    const { pagePath } = item;
+    if (pagePath.includes('community')) {
+      Taro.showToast({
+        icon: 'none',
+        title: '敬请期待!',
+      });
+      return;
+    }
     this.inject.tabBarStore.setSelected(index);
     Taro.reLaunch({
-      url: `/${item.pagePath}`,
+      url: `/${pagePath}`,
     });
   }
 
@@ -37,7 +45,7 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     const tabBar: any = config?.tabBar || {};
     const isBoss = Taro.getStorageSync('auth') === 'boss';
 
-    const filterKeys: string[] = isBoss ? ['revenue', 'match'] : ['stadium', 'waitStart'];
+    const filterKeys: string[] = isBoss ? ['revenue', 'match'] : ['community', 'waitStart'];
     const tabBarList = tabBar.list.filter(
       (d) => filterKeys.some((key) => d.pagePath.includes(key)) || d.pagePath.includes('userCenter')
     );

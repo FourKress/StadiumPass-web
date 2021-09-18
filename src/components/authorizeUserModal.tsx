@@ -24,9 +24,7 @@ class AuthorizeUserBtn extends Component<IProps> {
         <AtModalHeader>登陆提示</AtModalHeader>
         <AtModalContent>
           <View>
-            <View className="row">
-              当前是您第一次登录，为了给你更好的体验，请授权完善用户信息。
-            </View>
+            <View className="row">当前是您第一次登录，为了给你更好的体验，请授权完善用户信息。</View>
           </View>
         </AtModalContent>
         <AtModalAction>

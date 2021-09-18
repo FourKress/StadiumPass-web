@@ -1,4 +1,4 @@
 export default {
-  navigationBarTitleText: '场馆月卡',
+  navigationBarTitleText: '圈子',
   navigationBarBackgroundColor: '#f4f4f4',
 };

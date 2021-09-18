@@ -94,21 +94,21 @@ class MePage extends Component<{}, IState> {
   jumpOrder(index) {
     if (!this.checkLogin()) return;
     Taro.navigateTo({
-      url: `../client/order/index?index=${index}`,
+      url: `/client/pages/order/index?index=${index}`,
     });
   }
 
   jumpMonthlyCard() {
     if (!this.checkLogin()) return;
     Taro.navigateTo({
-      url: `../client/monthlyCard/index`,
+      url: `/client/pages/monthlyCard/index`,
     });
   }
 
   jumpMyWatch() {
     if (!this.checkLogin()) return;
     Taro.navigateTo({
-      url: `../client/myWatch/index`,
+      url: `/client/pages/myWatch/index`,
     });
   }
 

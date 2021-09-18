@@ -111,7 +111,7 @@ class OrderPayPage extends Component<{}, IState> {
     }).then((res: any) => {
       if (res) {
         Taro.reLaunch({
-          url: `../client/share/index?matchId=${matchId}`,
+          url: `/client/pages/share/index?matchId=${matchId}`,
         });
       }
     });

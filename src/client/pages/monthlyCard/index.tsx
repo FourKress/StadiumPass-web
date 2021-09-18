@@ -36,7 +36,7 @@ class MonthlyCardPage extends Component<{}, IState> {
 
   jumpStadium(stadiumId) {
     Taro.navigateTo({
-      url: `../client/stadium/index?stadiumId=${stadiumId}`,
+      url: `/client/pages/stadium/index?stadiumId=${stadiumId}`,
     });
   }
 
