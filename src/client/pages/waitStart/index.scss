@@ -147,7 +147,7 @@ page {
         }
 
         .left {
-          min-width: 260px;
+          min-width: 258px;
           display: flex;
           flex-direction: column;
 
@@ -214,7 +214,7 @@ page {
         text-align: center;
         border: 1px solid rgba(238, 238, 238, 100);
 
-        &:active {
+        &.active {
           color: rgba(16, 16, 16, 100);
           font-weight: bold;
           border-color: rgba(238, 238, 238, 100);
@@ -246,7 +246,7 @@ page {
           margin: 0 auto;
         }
 
-        &:active {
+        &.active {
           color: rgba(16, 16, 16, 100);
           font-weight: bold;
 

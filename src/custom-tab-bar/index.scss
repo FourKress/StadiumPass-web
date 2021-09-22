@@ -7,6 +7,8 @@
   padding-bottom: env(safe-area-inset-bottom);
   background-color: #fff;
   bottom: 0;
+  z-index: 999;
+
   &-item {
     flex: 1;
     height: 100%;
@@ -15,17 +17,19 @@
     align-items: center;
     justify-content: center;
     background-color: #fff;
+
     &-img {
       margin: 0 auto;
-      width: 32PX;
-      height: 32PX;
+      width: 64px;
+      height: 64px;
       background-color: #ccc;
     }
+
     &-text {
+      height: 24px;
       font-size: 24px;
       font-family: PingFangSC-Light, PingFang SC;
-      font-weight: 300;
-      color: #93A7B6;
+      color: #93a7b6;
     }
   }
 }

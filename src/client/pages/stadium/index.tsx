@@ -31,6 +31,7 @@ interface IState {
   isStart: boolean;
   openIndex: number;
   unitList: any;
+  headerPosition: any;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -39,7 +40,7 @@ const currentDay = dayjs().format('YYYY-MM-DD');
 class StadiumPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
-    this.state = { ...this.initData() };
+    this.state = { ...this.initData(), headerPosition: {} };
   }
 
   async onShareAppMessage() {
@@ -98,16 +99,16 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   async componentDidShow() {
-    // @ts-ignore
-    Taro.showShareMenu({
+    await this.setHeaderPosition();
+    await Taro.showShareMenu({
       withShareTicket: true,
       // @ts-ignore
       menus: ['shareAppMessage', 'shareTimeline'],
     });
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
-    // const id = pageParams.stadiumId + '';
-    const id = '613337e62a06f63968225cf8';
+    const id = pageParams.stadiumId + '';
+    // const id = '613337e62a06f63968225cf8';
     const matchId = pageParams.matchId;
     const isStart = !!pageParams.isStart;
     this.setState({
@@ -125,6 +126,25 @@ class StadiumPage extends Component<{}, IState> {
     }
     const userId = Taro.getStorageSync('userInfo').id || '';
     this.loginInit(userId);
+  }
+
+  async setHeaderPosition() {
+    let stateHeight = 0; //  接收状态栏高度
+    await Taro.getSystemInfo({
+      success(res) {
+        stateHeight = res.statusBarHeight;
+      },
+    });
+
+    const menuButton = Taro.getMenuButtonBoundingClientRect();
+    const top = menuButton.top - stateHeight; //  获取top值
+    const { height } = menuButton;
+
+    this.setState({
+      headerPosition: {
+        top: stateHeight + top + (height - 24) / 2,
+      },
+    });
   }
 
   getActivityId() {
@@ -456,6 +476,12 @@ class StadiumPage extends Component<{}, IState> {
     );
   }
 
+  async goBack() {
+    await Taro.navigateBack({
+      delta: -1,
+    });
+  }
+
   render() {
     const {
       tabValue,
@@ -472,6 +498,7 @@ class StadiumPage extends Component<{}, IState> {
       spaceDate,
       isStart,
       unitList,
+      headerPosition,
     } = this.state;
 
     const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
@@ -480,6 +507,9 @@ class StadiumPage extends Component<{}, IState> {
       <View className="stadium-page">
         <View className="page-header">
           <Image className="bg" src={stadiumInfo?.stadiumUrl}></Image>
+          <View className="back-icon" style={{ top: headerPosition.top }}>
+            <AtIcon onClick={() => this.goBack()} value="chevron-left" size="24" color="#fff"></AtIcon>
+          </View>
         </View>
         <View className="main">
           <View className="top">

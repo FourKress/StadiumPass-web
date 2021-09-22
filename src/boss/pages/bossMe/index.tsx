@@ -66,7 +66,11 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
-  jumpCustomer() {}
+  jumpCustomer() {
+    Taro.navigateTo({
+      url: '/boss/pages/myClient/index',
+    });
+  }
 
   changeIdentity() {
     Taro.setStorageSync('auth', 'client');

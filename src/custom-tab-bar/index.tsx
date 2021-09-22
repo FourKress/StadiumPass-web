@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Taro from '@tarojs/taro';
-import { CoverView, CoverImage } from '@tarojs/components';
+import { View, Image } from '@tarojs/components';
 import './index.scss';
 import config from '@/src/app.config';
 
@@ -23,17 +23,20 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     return this.props as InjectStoreProps;
   }
 
-  switchTab(item, index) {
+  async switchTab(item, index) {
     const { pagePath } = item;
     if (pagePath.includes('community')) {
-      Taro.showToast({
+      await Taro.showToast({
         icon: 'none',
         title: '敬请期待!',
       });
       return;
     }
-    this.inject.tabBarStore.setSelected(index);
-    Taro.reLaunch({
+    const {
+      tabBarStore: { selected },
+    } = this.inject;
+    if (selected === index) return;
+    await Taro.reLaunch({
       url: `/${pagePath}`,
     });
   }
@@ -51,31 +54,28 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     );
 
     return (
-      <CoverView className="bottom-tab">
+      <View className="bottom-tab">
         {tabBarList.map((item, index) => {
           return (
-            <CoverView
+            <View
               className="bottom-tab-item"
               onClick={() => this.switchTab(item, index)}
               data-path={item.pagePath}
               key={item.text}
             >
-              <CoverImage
-                className="bottom-tab-item-img"
-                src={selected === index ? item.selectedIconPath : item.iconPath}
-              />
-              <CoverView
+              <Image className="bottom-tab-item-img" src={selected === index ? item.selectedIconPath : item.iconPath} />
+              <View
                 className="bottom-tab-item-text"
                 style={{
                   color: selected === index ? tabBar.selectedColor : tabBar.color,
                 }}
               >
                 {item.text}
-              </CoverView>
-            </CoverView>
+              </View>
+            </View>
           );
         })}
-      </CoverView>
+      </View>
     );
   }
 }
