@@ -110,7 +110,7 @@ class StadiumPage extends Component<{}, IState> {
     const id = pageParams.stadiumId + '';
     // const id = '613337e62a06f63968225cf8';
     const matchId = pageParams.matchId;
-    const isStart = !!pageParams.isStart;
+    const isStart = pageParams.isStart === 'true';
     this.setState({
       ...this.initData(),
       stadiumId: id,
