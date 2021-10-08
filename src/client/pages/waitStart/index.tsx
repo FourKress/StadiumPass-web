@@ -10,6 +10,8 @@ import './index.scss';
 
 import TabBarStore from '@/store/tabbarStore';
 import { inject, observer } from 'mobx-react';
+import AuthorizeUserBtn from '@/components/authorizeUserModal';
+import * as LoginService from '@/services/loginService';
 
 interface IState {
   headerPosition: any;
@@ -18,6 +20,12 @@ interface IState {
   isRecommend: boolean;
   stadiumList: any[];
   waitStartList: any[];
+  userId: string;
+  authorize: boolean;
+  userLocation: boolean;
+  authFail: boolean;
+  latitude: number | '';
+  longitude: number | '';
 }
 
 interface InjectStoreProps {
@@ -38,6 +46,12 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       isRecommend: false,
       stadiumList: [],
       waitStartList: [],
+      userId: '',
+      authorize: false,
+      userLocation: false,
+      authFail: false,
+      latitude: '',
+      longitude: '',
     };
   }
 
@@ -46,11 +60,48 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     return this.props as InjectStoreProps;
   }
 
+  componentWillMount() {
+    Taro.getSetting().then((res) => {
+      const userLocation = res?.authSetting['scope.userLocation'];
+      console.log(userLocation);
+      Taro.getLocation({
+        type: 'gcj02',
+        success: (res) => {
+          const { latitude, longitude } = res;
+          this.setState(
+            {
+              userLocation: !!userLocation,
+              latitude,
+              longitude,
+            },
+            () => {
+              this.getStadium(1);
+            }
+          );
+        },
+      });
+    });
+  }
+
   componentDidShow() {
     this.inject.tabBarStore.setSelected(1);
     this.setHeaderPosition();
-    this.getWaitStartList();
-    this.getStadium(1);
+    this.setState({
+      isWatch: false,
+      searchValue: '',
+      isRecommend: false,
+      authFail: false,
+    });
+    const userInfo = Taro.getStorageSync('userInfo') || {};
+    if (userInfo?.id) {
+      this.getWaitStartList();
+      this.setState({
+        userId: userInfo.id,
+      });
+    }
+    if (this.state.userLocation) {
+      this.getStadium(1);
+    }
   }
 
   setHeaderPosition() {
@@ -86,11 +137,16 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   getStadium(type) {
+    if (!this.state.userLocation) {
+      return;
+    }
+    const { userId } = this.state;
     requestData({
       method: 'POST',
       api: '/stadium/waitStartList',
       params: {
         type,
+        userId,
       },
     }).then((res: any) => {
       this.setState({
@@ -105,9 +161,38 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  handleSelectType(type) {
-    const { isWatch, isRecommend } = this.state;
+  async handleSelectType(type) {
+    const { isWatch, isRecommend, userId } = this.state;
     if (type === 1) {
+      console.log(isWatch, userId);
+      if (!isWatch && !userId) {
+        await Taro.showModal({
+          title: '提示',
+          content: '您当前未登录，请先登录。',
+          confirmText: '登录',
+          success: async (res) => {
+            if (res.confirm) {
+              const userInfo: any = await LoginService.login();
+              if (!userInfo) {
+                this.setState({
+                  authorize: true,
+                });
+                return;
+              }
+              this.setState(
+                {
+                  userId: userInfo.id,
+                },
+                () => {
+                  this.getWaitStartList();
+                  this.handleSelectType(type);
+                }
+              );
+            }
+          },
+        });
+        return;
+      }
       this.setState({
         isWatch: !isWatch,
       });
@@ -125,8 +210,99 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  async handleAuthorize(status) {
+    if (!status) {
+      this.setState({
+        authorize: status,
+      });
+      return;
+    }
+    const userInfo: any = await LoginService.handleAuthorize();
+    this.setState({
+      userId: userInfo.id,
+      authorize: false,
+    });
+  }
+
+  authorizeLocal() {
+    Taro.authorize({
+      scope: 'scope.userLocation',
+    })
+      .then(async () => {
+        await this.handleAuthorizeLocal(true);
+      })
+      .catch(async ({ errMsg }) => {
+        if (errMsg.includes('authorize:fail') && this.state.authFail) {
+          await Taro.showModal({
+            title: '授权提示',
+            content: '授权获取位置信息，查看您附近的球场',
+            confirmText: '去设置',
+            success: async (res) => {
+              if (res.confirm) {
+                await Taro.openSetting({
+                  success: (res) => {
+                    const userLocation = res.authSetting['scope.userLocation'];
+                    if (!userLocation) {
+                      this.handleAuthorizeLocal(false);
+                      return;
+                    }
+                    this.handleAuthorizeLocal(!!userLocation);
+                  },
+                });
+              } else {
+                await this.handleAuthorizeLocal(false);
+              }
+            },
+          });
+          return;
+        }
+        this.setState({
+          authFail: true,
+        });
+        await this.handleAuthorizeLocal(false);
+      });
+  }
+
+  async handleAuthorizeLocal(status) {
+    if (!status) {
+      await Taro.showToast({
+        title: '授权失败',
+        icon: 'none',
+      });
+      return;
+    }
+    this.getWaitStartList();
+    this.setState({
+      userLocation: true,
+    });
+  }
+
+  calcDistance(lonA, latA, lonB, latB) {
+    const earthR = 6371000;
+    const x =
+      Math.cos((latA * Math.PI) / 180) * Math.cos((latB * Math.PI) / 180) * Math.cos(((lonA - lonB) * Math.PI) / 180);
+    const y = Math.sin((latA * Math.PI) / 180) * Math.sin((latB * Math.PI) / 180);
+    let s = x + y;
+    if (s > 1) s = 1;
+    if (s < -1) s = -1;
+    const alpha = Math.acos(s);
+    const distance = parseFloat((alpha * earthR).toFixed(2));
+    return distance;
+  }
+
   render() {
-    const { headerPosition, searchValue, isWatch, isRecommend, stadiumList, waitStartList } = this.state;
+    const {
+      headerPosition,
+      searchValue,
+      isWatch,
+      isRecommend,
+      stadiumList,
+      waitStartList,
+      authorize,
+      userLocation,
+      latitude,
+      longitude,
+    } = this.state;
 
     return (
       <View className="wait-start-page">
@@ -218,38 +394,49 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
           </View>
 
           <View className="stadium-list">
-            {stadiumList?.length ? (
-              stadiumList.map((item) => {
-                return (
-                  <View className="item" onClick={() => this.jumpStadium(item.id)}>
-                    <View className="logo">
-                      <Image src={item.stadiumUrl} className="img" />
-                      <View className="count">5</View>
-                    </View>
-                    <View className="info">
-                      <View className="name">{item.name}</View>
-                      <View>
-                        <Text className="address">[{item.city}]</Text>
-                        <Text className="num">111m</Text>
+            {userLocation ? (
+              stadiumList?.length ? (
+                stadiumList.map((item) => {
+                  const distance = this.calcDistance(longitude, latitude, item.longitude, item.latitude);
+                  return (
+                    <View className="item" onClick={() => this.jumpStadium(item.id)}>
+                      <View className="logo">
+                        <Image src={item.stadiumUrl} className="img" />
+                        <View className="count">5</View>
+                      </View>
+                      <View className="info">
+                        <View className="name">{item.name}</View>
+                        <View>
+                          <Text className="address">[{item.district}]</Text>
+                          <Text className="num">
+                            {distance >= 1000 ? `${(distance / 1000).toFixed(2)}km` : `${distance}m`}
+                          </Text>
+                        </View>
+                      </View>
+                      <View className="money">
+                        <View className="new">25</View>
+                        <View className="old">
+                          <View className="price">50</View>
+                          <View className="tips">折</View>
+                        </View>
                       </View>
                     </View>
-                    <View className="money">
-                      <View className="new">25</View>
-                      <View className="old">
-                        <View className="price">50</View>
-                        <View className="tips">折</View>
-                      </View>
-                    </View>
-                  </View>
-                );
-              })
+                  );
+                })
+              ) : (
+                <View className="not-data" style="margin-top: 16px">
+                  暂无数据
+                </View>
+              )
             ) : (
-              <View className="not-data" style="margin-top: 16px">
-                暂无数据
+              <View className="not-data authorize-local" style="margin-top: 24px" onClick={() => this.authorizeLocal()}>
+                授权获取位置信息，查看您附近的球场
               </View>
             )}
           </View>
         </View>
+
+        <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
       </View>
     );
   }

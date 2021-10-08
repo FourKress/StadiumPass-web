@@ -430,9 +430,14 @@ page {
 
         &.flex-start {
           align-items: baseline;
-          .icon {
+          .icon-space {
             transform: translateY(8px);
           }
+
+          .icon-detail {
+            transform: translateY(3px);
+          }
+
           &:last-child {
             padding-top: 28px;
           }

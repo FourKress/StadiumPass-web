@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Picker, Text, View, CoverView } from '@tarojs/components';
-import { AtForm, AtInput, AtTextarea, AtTabBar, AtSwitch, AtIcon, AtList, AtListItem } from 'taro-ui';
+import { AtForm, AtInput, AtTextarea, AtTabBar, AtSwitch, AtIcon, AtList, AtListItem, AtImagePicker } from 'taro-ui';
 import Taro from '@tarojs/taro';
 
 import './index.scss';
@@ -17,6 +17,9 @@ interface IState {
   showSpaceDetails: boolean;
   unitList: Array<any>;
   meHeaderPosition: any;
+  latitude: string;
+  longitude: string;
+  files: any[];
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -33,6 +36,9 @@ class StadiumDetailsPage extends Component<{}, IState> {
       stadiumId: '',
       unitList: [],
       meHeaderPosition: {},
+      latitude: '',
+      longitude: '',
+      files: [],
     };
   }
 
@@ -296,9 +302,70 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  handleLocalMap() {
+    const { longitude = undefined, latitude = undefined } = this.state.stadiumInfo;
+    // @ts-ignore
+    wx.chooseLocation({
+      longitude,
+      latitude,
+    }).then(async (res) => {
+      const { longitude: lng, latitude: lat } = res;
+      if (longitude === lng && latitude === lat) return;
+
+      const result = await Taro.request({
+        url: 'https://restapi.amap.com/v3/geocode/regeo?parameters',
+        data: {
+          key: '075561bf69a838475b7ca778cf71e6d9',
+          location: `${lng},${lat}`,
+          extensions: 'all',
+          roadlevel: 0,
+        },
+      });
+
+      const localInfo = result?.data.status === '1' ? result.data.regeocode : {};
+      const {
+        formatted_address: address,
+        addressComponent: { city, province, district },
+      } = localInfo;
+
+      const stadiumInfo = this.state.stadiumInfo;
+      this.setState({
+        stadiumInfo: {
+          ...stadiumInfo,
+          address,
+          city: city && city?.length ? city : '',
+          province,
+          district,
+          longitude: lng,
+          latitude: lat,
+        },
+      });
+    });
+  }
+
+  fileChange(val) {
+    const files = val?.length > 5 ? val.slice(0, 5) : val;
+    this.setState({
+      files,
+    });
+  }
+
+  onImageClick(index, file) {
+    console.log(index, file);
+  }
+
   render() {
-    const { current, stadiumInfo, spaceList, spaceInfo, showSpaceDetails, unitList, matchList, meHeaderPosition } =
-      this.state;
+    const {
+      current,
+      stadiumInfo,
+      spaceList,
+      spaceInfo,
+      showSpaceDetails,
+      unitList,
+      matchList,
+      meHeaderPosition,
+      files,
+    } = this.state;
 
     return (
       <View className="stadium-details-page">
@@ -425,19 +492,14 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 />
                 <AtInput
                   name="rebatePrice"
-                  title="所在地区"
-                  type="text"
-                  placeholder="请选择所在地区"
-                  value={stadiumInfo.rebatePrice}
-                  onChange={(value) => this.handleChange(value, 'rebatePrice')}
-                />
-                <AtInput
-                  name="address"
                   title="详细地址"
                   type="text"
-                  placeholder="请输入详细地址"
+                  placeholder="请选择详细地址"
                   value={stadiumInfo.address}
-                  onChange={(value) => this.handleChange(value, 'address')}
+                  disabled
+                  editable={false}
+                  onChange={() => {}}
+                  onClick={() => this.handleLocalMap()}
                 />
                 <AtInput
                   name="phoneNum"
@@ -447,6 +509,25 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   value={stadiumInfo.phoneNum}
                   onChange={(value) => this.handleChange(value, 'phoneNum')}
                 />
+
+                <View>
+                  <View className="row-title">
+                    <View>上传图片(最多5张)</View>
+                  </View>
+                </View>
+
+                <View>
+                  <AtImagePicker
+                    multiple
+                    count={5}
+                    length={5}
+                    showAddBtn={files.length < 5}
+                    files={files}
+                    onChange={(files) => this.fileChange(files)}
+                    onFail={() => {}}
+                    onImageClick={(index, file) => this.onImageClick(index, file)}
+                  />
+                </View>
                 <View className="row-title">
                   <View>场馆说明</View>
                 </View>

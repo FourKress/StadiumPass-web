@@ -2,7 +2,6 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'client/pages/waitStart/index',
     'pages/load/index',
     'pages/userCenter/index',
     'boss/pages/fail-stadium/index',
@@ -14,13 +13,14 @@ const config: Config = {
     'boss/pages/stadium-details/index',
     'boss/pages/statistics/index',
     'boss/pages/myClient/index',
+    'client/pages/community/index',
     'client/pages/monthlyCard/index',
     'client/pages/myWatch/index',
     'client/pages/order/index',
     'client/pages/orderPay/index',
     'client/pages/share/index',
     'client/pages/stadium/index',
-    'client/pages/community/index',
+    'client/pages/waitStart/index',
   ],
   tabBar: {
     custom: true,
@@ -58,6 +58,11 @@ const config: Config = {
         selectedIconPath: 'assets/icons/me.png',
       },
     ],
+  },
+  permission: {
+    'scope.userLocation': {
+      desc: '授权获取位置信息，获得更好的体验',
+    },
   },
   window: {
     backgroundTextStyle: 'light',

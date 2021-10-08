@@ -16,8 +16,6 @@ export default function responseHandler() {
     }>
   ) =>
     new Promise((resolve: (data: any) => void, reject: (data: ResError) => void) => {
-      // 服务器返回状态
-      /**服务器异常报错 */
       if (response.statusCode !== 200) {
         if (response.statusCode === 401) {
           Taro.clearStorageSync();

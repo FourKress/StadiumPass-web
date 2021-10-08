@@ -675,16 +675,16 @@ class StadiumPage extends Component<{}, IState> {
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px">
-                  <View className="icon"></View>
+                  <View className="icon icon-space"></View>
                   <View className="label">场地</View>
                   <View className="info">
                     <View className="text">{stadiumInfo?.remarks}</View>
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px; align-items: flex-start;">
-                  <View className="icon"></View>
+                  <View className="icon icon-detail"></View>
                   <View className="label">说明</View>
-                  <View className="info">
+                  <View className="info" style="padding-top: 2px">
                     <AtTextarea
                       disabled
                       count={false}
