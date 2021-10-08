@@ -6,7 +6,7 @@ import { SERVER_API_ROOT } from '../config';
  */
 export default function uploadData<T = void>(params) {
   return new Promise<T>((resolve: (data: any) => void, reject: (err) => void) => {
-    const completeApi = SERVER_API_ROOT + '/applet/order/upload';
+    const completeApi = SERVER_API_ROOT + '/stadium/uploadFile';
 
     const requestParams = Object.assign({});
 
@@ -14,7 +14,7 @@ export default function uploadData<T = void>(params) {
       ...params,
       header: {
         'Content-Type': 'multipart/form-data',
-        token: Taro.getStorageSync('token'),
+        Authorization: Taro.getStorageSync('token'),
       },
       formData: requestParams,
       url: completeApi,

@@ -5,6 +5,7 @@ import Taro from '@tarojs/taro';
 
 import './index.scss';
 import requestData from '@/utils/requestData';
+import uploadData from '@/utils/uploadData';
 
 interface IState {
   matchList: Array<any>;
@@ -206,11 +207,15 @@ class StadiumDetailsPage extends Component<{}, IState> {
     this.handleSpaceChange(value, 'unit');
   }
 
-  saveStadium() {
+  async saveStadium() {
     const { stadiumInfo, spaceList } = this.state;
     stadiumInfo.spaces = spaceList;
     stadiumInfo.monthlyCardPrice = Number(stadiumInfo.monthlyCardPrice);
     const url = stadiumInfo?.id ? '/stadium/modify' : '/stadium/add';
+    const updateChecked = await this.uploadFiles();
+    if (!updateChecked) {
+      return;
+    }
     requestData({
       method: 'POST',
       api: url,
@@ -221,6 +226,26 @@ class StadiumDetailsPage extends Component<{}, IState> {
         title: '场馆保存成功',
       });
     });
+  }
+
+  async uploadFiles() {
+    const { files } = this.state;
+    let flag = true;
+    await Promise.all(
+      files.map(async (item, index) => {
+        await uploadData({
+          filePath: item.file.path,
+          name: 'files',
+        }).catch(async () => {
+          flag = false;
+          await Taro.showToast({
+            icon: 'none',
+            title: `第${index + 1}图片上传失败，请重新上传!`,
+          });
+        });
+      })
+    );
+    return flag;
   }
 
   async saveSpace() {
