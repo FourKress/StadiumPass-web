@@ -87,16 +87,16 @@ class OrderPage extends Component<{}, IState> {
     this.getStatusOrderList(value);
   }
 
-  handleOrderJump(order) {
+  async handleOrderJump(order) {
     const { status, id, stadiumId, matchId } = order;
     if ([0, 1, 7].includes(status)) {
       let url = '';
       if (status === 0) {
         url = `../orderPay/index?orderId=${id}`;
       } else if ([1, 7].includes(status)) {
-        url = `../stadium/index?stadiumId=${stadiumId}&isStart=true&matchId=${matchId}`;
+        url = `../stadium/index?stadiumId=${stadiumId}&orderId=${id}&matchId=${matchId}`;
       }
-      Taro.navigateTo({
+      await Taro.navigateTo({
         url,
       });
     }
@@ -126,7 +126,8 @@ class OrderPage extends Component<{}, IState> {
                     <Text className="name">{item.stadiumName}</Text>
                     <Text style={{ color: colorMap[item.status] }} className="status">
                       {[1, 7].includes(item.status) && <Text>组队成功 </Text>}
-                      {[3, 4].includes(item.status) && <Text>组队失败 </Text>}
+                      {[3, 4].includes(item.status) &&
+                        (item.refundType === 1 ? <Text>组队失败 </Text> : <Text>主动取消 </Text>)}
                       {item.statusName}
                     </Text>
                   </View>

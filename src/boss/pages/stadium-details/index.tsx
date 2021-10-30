@@ -1,11 +1,23 @@
 import React, { Component } from 'react';
-import { Picker, Text, View, CoverView } from '@tarojs/components';
-import { AtForm, AtInput, AtTextarea, AtTabBar, AtSwitch, AtIcon, AtList, AtListItem, AtImagePicker } from 'taro-ui';
+import { Picker, Text, View, CoverView, Swiper, SwiperItem, Image } from '@tarojs/components';
+import {
+  AtForm,
+  AtInput,
+  AtTextarea,
+  AtTabBar,
+  AtSwitch,
+  AtIcon,
+  AtList,
+  AtListItem,
+  AtImagePicker,
+  AtCurtain,
+} from 'taro-ui';
 import Taro from '@tarojs/taro';
 
 import './index.scss';
 import requestData from '@/utils/requestData';
 import uploadData from '@/utils/uploadData';
+import { SERVER_PROTOCOL, SERVER_DOMAIN } from '../../../config';
 
 interface IState {
   matchList: Array<any>;
@@ -21,6 +33,8 @@ interface IState {
   latitude: string;
   longitude: string;
   files: any[];
+  previewImage: boolean;
+  previewIndex: number;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -40,6 +54,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
       latitude: '',
       longitude: '',
       files: [],
+      previewImage: false,
+      previewIndex: 0,
     };
   }
 
@@ -116,9 +132,26 @@ class StadiumDetailsPage extends Component<{}, IState> {
       params: {
         id: this.state.stadiumId,
       },
-    }).then((res) => {
+    }).then((res: any) => {
+      console.log(
+        res.stadiumUrls.map((d) => {
+          const { path, fileId } = d;
+          return {
+            path: `${SERVER_PROTOCOL}${SERVER_DOMAIN}${path}`,
+            fileId,
+          };
+        })
+      );
       this.setState({
         stadiumInfo: res,
+        files: res.stadiumUrls.map((d) => {
+          const { path, fileId } = d;
+          return {
+            url: `${SERVER_PROTOCOL}${SERVER_DOMAIN}${path}`,
+            path,
+            fileId,
+          };
+        }),
       });
     });
   }
@@ -208,22 +241,46 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   async saveStadium() {
-    const { stadiumInfo, spaceList } = this.state;
+    const { stadiumInfo, spaceList, files } = this.state;
+    if (!files?.length) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请至少上传一张图片！',
+      });
+      return;
+    }
     stadiumInfo.spaces = spaceList;
     stadiumInfo.monthlyCardPrice = Number(stadiumInfo.monthlyCardPrice);
     const url = stadiumInfo?.id ? '/stadium/modify' : '/stadium/add';
-    const updateChecked = await this.uploadFiles();
-    if (!updateChecked) {
+    const updateResult = await this.uploadFiles();
+    if (!updateResult?.flag) {
       return;
     }
+    const fileList = files
+      .filter((f) => f.fileId)
+      .concat(updateResult.fileList)
+      .map((d) => {
+        const { fileId, path } = d;
+        return {
+          fileId,
+          path,
+        };
+      });
     requestData({
       method: 'POST',
       api: url,
-      params: stadiumInfo,
-    }).then(() => {
+      params: {
+        ...stadiumInfo,
+        stadiumUrls: fileList,
+      },
+    }).then(async () => {
       Taro.showToast({
         icon: 'none',
         title: '场馆保存成功',
+      }).then(async () => {
+        await Taro.navigateBack({
+          delta: -1,
+        });
       });
     });
   }
@@ -231,28 +288,37 @@ class StadiumDetailsPage extends Component<{}, IState> {
   async uploadFiles() {
     const { files } = this.state;
     let flag = true;
+    const fileList: any = [];
+    const uploadFiles = files.filter((d) => !d.fileId);
     await Promise.all(
-      files.map(async (item, index) => {
+      uploadFiles.map(async (item, index) => {
         await uploadData({
           filePath: item.file.path,
           name: 'files',
-        }).catch(async () => {
-          flag = false;
-          await Taro.showToast({
-            icon: 'none',
-            title: `第${index + 1}图片上传失败，请重新上传!`,
+        })
+          .then((res: any) => {
+            fileList.push(res);
+          })
+          .catch(async () => {
+            flag = false;
+            await Taro.showToast({
+              icon: 'none',
+              title: `第${index + 1}图片上传失败，请重新上传!`,
+            });
           });
-        });
       })
     );
-    return flag;
+    return {
+      flag,
+      fileList,
+    };
   }
 
   async saveSpace() {
     const { spaceInfo, spaceList, spaceIndex, stadiumInfo } = this.state;
     const { name, unit } = spaceInfo;
     if (!name || !unit) {
-      Taro.showToast({
+      await Taro.showToast({
         icon: 'none',
         title: '请完善场地信息',
       });
@@ -375,8 +441,11 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  onImageClick(index, file) {
-    console.log(index, file);
+  onImageClick(flag, index) {
+    this.setState({
+      previewImage: flag,
+      previewIndex: index,
+    });
   }
 
   render() {
@@ -390,6 +459,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
       matchList,
       meHeaderPosition,
       files,
+      previewImage,
+      previewIndex,
     } = this.state;
 
     return (
@@ -550,7 +621,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                     files={files}
                     onChange={(files) => this.fileChange(files)}
                     onFail={() => {}}
-                    onImageClick={(index, file) => this.onImageClick(index, file)}
+                    onImageClick={(index) => this.onImageClick(true, index)}
                   />
                 </View>
                 <View className="row-title">
@@ -566,6 +637,32 @@ class StadiumDetailsPage extends Component<{}, IState> {
             </View>
           </View>
         )}
+
+        <AtCurtain
+          isOpened={previewImage}
+          closeBtnPosition="top-right"
+          onClose={() => {
+            this.onImageClick(false, previewIndex);
+          }}
+        >
+          <Swiper
+            indicatorColor="#999"
+            indicatorActiveColor="#0080ff"
+            circular
+            indicatorDots
+            autoplay
+            current={previewIndex}
+          >
+            {files.map((item) => {
+              return (
+                <SwiperItem className="swiper-wrapper">
+                  <Image src={item.url} className="img"></Image>
+                </SwiperItem>
+              );
+            })}
+          </Swiper>
+        </AtCurtain>
+
         {current === 0 && (
           <View className="btn-list">
             <View className="btn" onClick={() => this.jumpFailStadium()}>

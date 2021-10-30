@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image, Picker } from '@tarojs/components';
+import { View, Text, Image, Picker, Swiper, SwiperItem } from '@tarojs/components';
 import { AtTabs, AtIcon, AtTabsPane, AtTextarea } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
@@ -9,6 +9,7 @@ import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import dayjs from 'dayjs';
 
 import './index.scss';
+import { SERVER_DOMAIN, SERVER_PROTOCOL } from '@/src/config';
 
 const STAR_DATE = dayjs().format('YYYY.MM.DD');
 const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
@@ -28,10 +29,12 @@ interface IState {
   personList: any;
   selectList: any;
   spaceDate: string;
-  isStart: boolean;
+  orderId?: string;
   openIndex: number;
   unitList: any;
   headerPosition: any;
+  cancelDialog: boolean;
+  refundAmount: number;
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
@@ -91,10 +94,12 @@ class StadiumPage extends Component<{}, IState> {
       currentMatch: {},
       selectList: [],
       spaceDate: currentDay,
-      isStart: false,
+      orderId: '',
       openIndex: 0,
       unitList: [],
       personList: [],
+      cancelDialog: false,
+      refundAmount: 0,
     };
   }
 
@@ -108,18 +113,17 @@ class StadiumPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const id = pageParams.stadiumId + '';
-    // const id = '613337e62a06f63968225cf8';
     const matchId = pageParams.matchId;
-    const isStart = pageParams.isStart === 'true';
+    const orderId = pageParams?.orderId;
     this.setState({
       ...this.initData(),
       stadiumId: id,
-      isStart,
+      orderId,
     });
     if (!id) return;
     this.getStadiumInfo(id);
     await this.getUnitList();
-    if (!isStart) {
+    if (!orderId) {
       this.getSpace(id, currentDay).then(() => {});
     } else {
       this.getOrderMatch(matchId);
@@ -396,8 +400,8 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  handleCallPhone(phoneNumber) {
-    Taro.makePhoneCall({
+  async handleCallPhone(phoneNumber) {
+    await Taro.makePhoneCall({
       phoneNumber,
     });
   }
@@ -425,9 +429,50 @@ class StadiumPage extends Component<{}, IState> {
     });
   }
 
-  checkLogin() {
+  handleCancel(status) {
+    if (status) {
+      requestData({
+        method: 'GET',
+        api: '/order/getRefundAmount',
+        params: {
+          orderId: this.state.orderId,
+        },
+      }).then((res: any) => {
+        this.setState({
+          refundAmount: res,
+          cancelDialog: status,
+        });
+      });
+    } else {
+      this.setState({
+        cancelDialog: status,
+      });
+    }
+  }
+
+  handleRefund() {
+    requestData({
+      method: 'GET',
+      api: '/order/refund',
+      params: {
+        orderId: this.state.orderId,
+      },
+    }).then(async () => {
+      await Taro.showToast({
+        icon: 'none',
+        title: '发起退款成功，请在订单中查看。',
+      });
+      this.setState({
+        orderId: '',
+      });
+      this.getSpace(this.state.stadiumId, currentDay).then(() => {});
+      this.handleCancel(false);
+    });
+  }
+
+  async checkLogin() {
     if (!this.state.userId) {
-      Taro.showModal({
+      await Taro.showModal({
         title: '提示',
         content: '您当前未登录，请先登录。',
         confirmText: '登录',
@@ -496,17 +541,28 @@ class StadiumPage extends Component<{}, IState> {
       personList,
       selectList,
       spaceDate,
-      isStart,
+      orderId,
       unitList,
       headerPosition,
+      cancelDialog,
+      refundAmount,
     } = this.state;
 
     const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
+    const stadiumUrls = stadiumInfo?.stadiumUrls || [];
 
     return (
       <View className="stadium-page">
         <View className="page-header">
-          <Image className="bg" src={stadiumInfo?.stadiumUrl}></Image>
+          <Swiper className="swiper-wrapper" autoplay>
+            {stadiumUrls.map((img) => {
+              return (
+                <SwiperItem>
+                  <Image className="bg" src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${img?.path}`}></Image>
+                </SwiperItem>
+              );
+            })}
+          </Swiper>
           <View className="back-icon" style={{ top: headerPosition.top }}>
             <AtIcon onClick={() => this.goBack()} value="chevron-left" size="24" color="#fff"></AtIcon>
           </View>
@@ -536,7 +592,7 @@ class StadiumPage extends Component<{}, IState> {
             onClick={(value) => this.handleTabClick(value)}
           >
             <AtTabsPane current={tabValue} index={0}>
-              {!isStart && (
+              {!orderId && (
                 <View className="space-panel">
                   <View className="list">
                     {spaceList.length > 0 &&
@@ -717,6 +773,16 @@ class StadiumPage extends Component<{}, IState> {
                     </View>
                   </View>
                 </View>
+              ) : orderId ? (
+                <View
+                  className="cancel-warp"
+                  onClick={() => {
+                    this.handleCancel(true);
+                  }}
+                >
+                  <View className="cancel-icon"></View>
+                  <View>取消报名</View>
+                </View>
               ) : (
                 <View className="not-login">
                   <View className="text">
@@ -732,7 +798,47 @@ class StadiumPage extends Component<{}, IState> {
             <View onClick={() => this.handleSubmit()} className={selectList.length ? 'btn' : 'btn disabled'}>
               {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                 ? '已满员'
-                : `${isStart ? '追加' : '立即'}报名`}
+                : `${orderId ? '追加' : '立即'}报名`}
+            </View>
+          </View>
+        )}
+
+        {cancelDialog && (
+          <View className="cancel-dialog">
+            <View className="panel">
+              <View className="top"></View>
+              <View className="dialog-body">
+                <View className="content">
+                  <View className="title">您要取消报名吗？</View>
+                  <View className="details">
+                    为防止部分用户报名后恶意取消，导致场次解散，影响队友的组队体验，特制定以下规则:
+                  </View>
+                  <View className="row">1、关于用户主动取消的退款规则：</View>
+                  <View className="row sub">距开场小于1小时，无法退款;</View>
+                  <View className="row sub">距开场大于1小时，小于2小时，退款80%;</View>
+                  <View className="row sub">距开场大于2小时，可全额退款。</View>
+                  <View className="row">2、月卡用户可随时无责取消订单，但不支持退款。</View>
+                </View>
+                <View className="btn-list">
+                  <View
+                    className="btn cancel"
+                    onClick={() => {
+                      this.handleRefund();
+                    }}
+                  >
+                    <View>检查取消</View>
+                    <View className="tips">可退￥{refundAmount}</View>
+                  </View>
+                  <View
+                    className="btn confirm"
+                    onClick={() => {
+                      this.handleCancel(false);
+                    }}
+                  >
+                    <View>不抛弃队友</View>
+                  </View>
+                </View>
+              </View>
             </View>
           </View>
         )}

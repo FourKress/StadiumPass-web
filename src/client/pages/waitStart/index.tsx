@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Image, Swiper, SwiperItem } from '@tarojs/components';
-import { AtIcon, AtInput } from 'taro-ui';
+import { AtCurtain, AtIcon, AtInput } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
@@ -12,6 +12,7 @@ import TabBarStore from '@/store/tabbarStore';
 import { inject, observer } from 'mobx-react';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import * as LoginService from '@/services/loginService';
+import { SERVER_PROTOCOL, SERVER_DOMAIN } from '../../../config';
 
 interface IState {
   headerPosition: any;
@@ -26,6 +27,9 @@ interface IState {
   authFail: boolean;
   latitude: number | '';
   longitude: number | '';
+  previewImage: boolean;
+  files: any[];
+  searchList: any[];
 }
 
 interface InjectStoreProps {
@@ -33,6 +37,12 @@ interface InjectStoreProps {
 }
 
 const weekMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const statusMap = {
+  '0': '待付款',
+  '1': '已成团',
+  '2': '待成团',
+  '3': '进行中',
+};
 
 @inject('tabBarStore')
 @observer
@@ -52,6 +62,9 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       authFail: false,
       latitude: '',
       longitude: '',
+      previewImage: false,
+      files: [],
+      searchList: [],
     };
   }
 
@@ -155,7 +168,28 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  handleSearchChange(value) {
+  handleSearchChange() {
+    const { searchValue } = this.state;
+    if (!searchValue) {
+      this.setState({
+        searchList: [],
+      });
+      return;
+    }
+    requestData({
+      method: 'POST',
+      api: '/stadium/findByName',
+      params: {
+        stadiumName: searchValue,
+      },
+    }).then((res: any) => {
+      this.setState({
+        searchList: res,
+      });
+    });
+  }
+
+  setSearchValue(value) {
     this.setState({
       searchValue: value,
     });
@@ -195,18 +229,26 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       }
       this.setState({
         isWatch: !isWatch,
+        searchList: [],
       });
       this.getStadium(isWatch ? 1 : 2);
     } else if (type === 2) {
       this.setState({
         isRecommend: !isRecommend,
+        searchList: [],
       });
     }
   }
 
-  async jumpStadium(id, matchId?: string) {
+  async jumpStadium(id) {
     await Taro.navigateTo({
-      url: `/client/pages/stadium/index?stadiumId=${id}&isStart=${!!matchId}&matchId=${matchId}`,
+      url: `/client/pages/stadium/index?stadiumId=${id}`,
+    });
+  }
+
+  async jumpOrder(status) {
+    await Taro.navigateTo({
+      url: `/client/pages/order/index?index=${[1, 2].includes(status) ? 1 : status === 0 ? 0 : 2}`,
     });
   }
 
@@ -290,6 +332,13 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     return distance;
   }
 
+  onImageClick(flag, files = []) {
+    this.setState({
+      previewImage: flag,
+      files,
+    });
+  }
+
   render() {
     const {
       headerPosition,
@@ -302,7 +351,12 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       userLocation,
       latitude,
       longitude,
+      previewImage,
+      files,
+      searchList,
     } = this.state;
+
+    const showList = searchList.length ? searchList : stadiumList;
 
     return (
       <View className="wait-start-page">
@@ -319,17 +373,24 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
               placeholderClass="search-input"
               clear
               value={searchValue}
-              onChange={(value) => this.handleSearchChange(value)}
+              onChange={(value) => this.setSearchValue(value)}
+              onBlur={() => this.handleSearchChange()}
             />
           </View>
         </View>
         <View className="my-match">
           {waitStartList?.length ? (
-            <Swiper className="swiper-wrapper" indicatorColor="#999" indicatorActiveColor="#0080ff" indicatorDots>
+            <Swiper
+              className="swiper-wrapper"
+              indicatorColor="#999"
+              indicatorActiveColor="#0080ff"
+              indicatorDots
+              autoplay
+            >
               {waitStartList.map((item) => {
                 return (
                   <SwiperItem>
-                    <View className="panel" onClick={() => this.jumpStadium(item.stadiumId, item.id)}>
+                    <View className="panel" onClick={() => this.jumpOrder(item.isStart)}>
                       <View className="title">我的场次</View>
                       <View className="info">
                         <Image src={item.stadiumUrl} className="logo" />
@@ -347,7 +408,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                               <Text className="bold">{item.selectPeople}</Text>/{item.totalPeople}
                             </View>
                             <View className={item.isStart === 3 ? 'tag run' : 'tag wait'}>
-                              {item.isStart === 1 ? '已成团' : item.isStart === 2 ? '待成团' : '进行中'}
+                              {statusMap[item.isStart]}
                             </View>
                           </View>
                         </View>
@@ -395,16 +456,21 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
 
           <View className="stadium-list">
             {userLocation ? (
-              stadiumList?.length ? (
-                stadiumList.map((item) => {
+              showList?.length ? (
+                showList.map((item) => {
                   const distance = this.calcDistance(longitude, latitude, item.longitude, item.latitude);
                   return (
-                    <View className="item" onClick={() => this.jumpStadium(item.id)}>
-                      <View className="logo">
-                        <Image src={item.stadiumUrl} className="img" />
-                        <View className="count">5</View>
+                    <View className="item">
+                      <View
+                        className="logo"
+                        onClick={() => {
+                          this.onImageClick(true, item.stadiumUrls);
+                        }}
+                      >
+                        <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.stadiumUrls[0].path}`} className="img" />
+                        <View className="count">{item.stadiumUrls.length}</View>
                       </View>
-                      <View className="info">
+                      <View className="info" onClick={() => this.jumpStadium(item.id)}>
                         <View className="name">{item.name}</View>
                         <View>
                           <Text className="address">[{item.district}]</Text>
@@ -413,7 +479,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                           </Text>
                         </View>
                       </View>
-                      <View className="money">
+                      <View className="money" onClick={() => this.jumpStadium(item.id)}>
                         <View className="new">25</View>
                         <View className="old">
                           <View className="price">50</View>
@@ -435,6 +501,24 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
             )}
           </View>
         </View>
+
+        <AtCurtain
+          isOpened={previewImage}
+          closeBtnPosition="top-right"
+          onClose={() => {
+            this.onImageClick(false);
+          }}
+        >
+          <Swiper indicatorColor="#999" indicatorActiveColor="#0080ff" circular indicatorDots autoplay>
+            {files.map((item) => {
+              return (
+                <SwiperItem className="swiper-wrapper">
+                  <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.path}`} className="img"></Image>
+                </SwiperItem>
+              );
+            })}
+          </Swiper>
+        </AtCurtain>
 
         <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
       </View>

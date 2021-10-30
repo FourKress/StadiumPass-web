@@ -5,6 +5,7 @@ import requestData from '@/utils/requestData';
 // import Taro from '@tarojs/taro';
 
 import './index.scss';
+import dayjs from 'dayjs';
 
 const typeList = [
   {
@@ -93,20 +94,19 @@ class MyClientPage extends Component<{}, IState> {
           <View className="list-warp">
             <View className="scroll-warp">
               {clientList.map((item, index) => {
-                console.log(item);
                 return (
                   <View className="item">
                     <View className="index">{index + 1}</View>
                     <View className="img">
-                      <Image src=""></Image>
+                      <Image src={item.avatarUrl}></Image>
                     </View>
                     <View className="info">
-                      <View className="name">水电费舒服舒服</View>
-                      <View className="tag"></View>
+                      <View className="name">{item.nickName}</View>
+                      {item.isMonthlyCard && <View className="tag"></View>}
                     </View>
                     <View className="detail">
-                      <View className="tips">所发生的</View>
-                      <View className="time">最近：24243</View>
+                      <View className="tips">共报名{item.count}次</View>
+                      <View className="time">最近：{dayjs(item.lastTime).format('YYYY-MM-DD')}</View>
                     </View>
                   </View>
                 );
