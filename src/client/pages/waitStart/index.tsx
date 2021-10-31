@@ -13,8 +13,9 @@ import LoginStore from '@/store/loginStore';
 import { inject, observer } from 'mobx-react';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import * as LoginService from '@/services/loginService';
-import { SERVER_PROTOCOL, SERVER_DOMAIN } from '../../../config';
+import { SERVER_PROTOCOL, SERVER_DOMAIN } from '@/src/config';
 import { setGlobalData } from '@/utils/globalData';
+import * as LocalService from '@/services/localService';
 
 interface IState {
   headerPosition: any;
@@ -108,7 +109,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         );
       },
       fail: async () => {
-        await this.handleAuthorizeLocal(false);
+        await LocalService.handleAuthorizeLocal(false, this.handleLocalCallback);
       },
     });
   }
@@ -116,12 +117,11 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   async componentDidShow() {
     this.inject.tabBarStore.setSelected(1);
     setGlobalData('pageCtx', this);
-    this.setHeaderPosition();
+    await this.setHeaderPosition();
     this.setState({
       isWatch: false,
       searchValue: '',
       isRecommend: true,
-      authFail: false,
     });
     const userInfo = Taro.getStorageSync('userInfo') || {};
     if (userInfo?.id) {
@@ -135,9 +135,9 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  setHeaderPosition() {
+  async setHeaderPosition() {
     let stateHeight = 0; //  接收状态栏高度
-    Taro.getSystemInfo({
+    await Taro.getSystemInfo({
       success(res) {
         stateHeight = res.statusBarHeight;
       },
@@ -330,56 +330,14 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     );
   }
 
-  authorizeLocal() {
-    Taro.authorize({
-      scope: 'scope.userLocation',
-    })
-      .then(async () => {
-        await this.handleAuthorizeLocal(true);
-      })
-      .catch(async ({ errMsg }) => {
-        if (errMsg.includes('authorize:fail') && this.state.authFail) {
-          await Taro.showModal({
-            title: '授权提示',
-            content: '授权获取位置信息，查看您附近的球场',
-            confirmText: '去设置',
-            success: async (res) => {
-              if (res.confirm) {
-                await Taro.openSetting({
-                  success: (res) => {
-                    const userLocation = res.authSetting['scope.userLocation'];
-                    if (!userLocation) {
-                      this.handleAuthorizeLocal(false);
-                      return;
-                    }
-                    this.handleAuthorizeLocal(!!userLocation);
-                  },
-                });
-              } else {
-                await this.handleAuthorizeLocal(false);
-              }
-            },
-          });
-          return;
-        }
-        this.setState({
-          authFail: true,
-        });
-        await this.handleAuthorizeLocal(false);
-      });
+  async authorizeLocal() {
+    await LocalService.authorizeLocal(this, this.handleLocalCallback);
   }
 
-  async handleAuthorizeLocal(status) {
-    if (!status) {
-      await Taro.showToast({
-        title: '获取位置信息授权失败，请重新授权。',
-        icon: 'none',
-      });
-      return;
-    }
+  handleLocalCallback = async () => {
     this.getWaitStartList();
     await this.getLocalInfo();
-  }
+  };
 
   calcDistance(lonA, latA, lonB, latB) {
     const earthR = 6371000;

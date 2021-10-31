@@ -17,7 +17,8 @@ import Taro from '@tarojs/taro';
 import './index.scss';
 import requestData from '@/utils/requestData';
 import uploadData from '@/utils/uploadData';
-import { SERVER_PROTOCOL, SERVER_DOMAIN } from '../../../config';
+import { SERVER_PROTOCOL, SERVER_DOMAIN } from '@/src/config';
+import * as LocalService from '@/services/localService';
 
 interface IState {
   matchList: Array<any>;
@@ -35,6 +36,7 @@ interface IState {
   files: any[];
   previewImage: boolean;
   previewIndex: number;
+  authFail: boolean;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -56,6 +58,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       files: [],
       previewImage: false,
       previewIndex: 0,
+      authFail: true,
     };
   }
 
@@ -177,6 +180,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
     if (index === 0) {
       this.matchInit();
     } else {
+      Taro.getSetting().then(async (res) => {
+        const userLocation = res?.authSetting['scope.userLocation'];
+        if (!userLocation) {
+          await LocalService.authorizeLocal(this);
+        }
+      });
       await this.stadiumInit();
     }
   }
@@ -399,39 +408,50 @@ class StadiumDetailsPage extends Component<{}, IState> {
     wx.chooseLocation({
       longitude,
       latitude,
-    }).then(async (res) => {
-      const { longitude: lng, latitude: lat } = res;
-      if (longitude === lng && latitude === lat) return;
+    })
+      .then(async (res) => {
+        const { longitude: lng, latitude: lat } = res;
+        if (longitude === lng && latitude === lat) return;
 
-      const result = await Taro.request({
-        url: 'https://restapi.amap.com/v3/geocode/regeo?parameters',
-        data: {
-          key: '075561bf69a838475b7ca778cf71e6d9',
-          location: `${lng},${lat}`,
-          extensions: 'all',
-          roadlevel: 0,
-        },
+        const result = await Taro.request({
+          url: 'https://restapi.amap.com/v3/geocode/regeo?parameters',
+          data: {
+            key: '075561bf69a838475b7ca778cf71e6d9',
+            location: `${lng},${lat}`,
+            extensions: 'all',
+            roadlevel: 0,
+          },
+        });
+
+        const localInfo = result?.data.status === '1' ? result.data.regeocode : {};
+        const {
+          formatted_address: address,
+          addressComponent: { city, province, district },
+        } = localInfo;
+
+        const stadiumInfo = this.state.stadiumInfo;
+        this.setState({
+          stadiumInfo: {
+            ...stadiumInfo,
+            address,
+            city: city && city?.length ? city : '',
+            province,
+            district,
+            longitude: lng,
+            latitude: lat,
+          },
+        });
+      })
+      .catch(async (err) => {
+        if (err?.errMsg === 'chooseLocation:fail auth deny') {
+          await LocalService.authorizeLocal(this, () => {
+            Taro.showToast({
+              icon: 'none',
+              title: '请重新选择场馆详细地址',
+            });
+          });
+        }
       });
-
-      const localInfo = result?.data.status === '1' ? result.data.regeocode : {};
-      const {
-        formatted_address: address,
-        addressComponent: { city, province, district },
-      } = localInfo;
-
-      const stadiumInfo = this.state.stadiumInfo;
-      this.setState({
-        stadiumInfo: {
-          ...stadiumInfo,
-          address,
-          city: city && city?.length ? city : '',
-          province,
-          district,
-          longitude: lng,
-          latitude: lat,
-        },
-      });
-    });
   }
 
   fileChange(val) {
