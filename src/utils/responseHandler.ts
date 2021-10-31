@@ -1,6 +1,7 @@
 import { ResError } from 'src/interfaces/common';
 import Taro, { request } from '@tarojs/taro';
 import * as LoginService from '../services/loginService';
+import { getGlobalData, setGlobalData } from '@/utils/globalData';
 
 /**
  * 处理返回值
@@ -15,37 +16,34 @@ export default function responseHandler() {
       succeed: boolean;
     }>
   ) =>
-    new Promise((resolve: (data: any) => void, reject: (data: ResError) => void) => {
+    new Promise(async (resolve: (data: any) => void, reject: (data: ResError) => void) => {
       if (response.statusCode !== 200) {
         if (response.statusCode === 401) {
-          Taro.clearStorageSync();
-          Taro.showModal({
+          Taro.removeStorageSync('userInfo');
+          Taro.removeStorageSync('openId');
+          Taro.removeStorageSync('token');
+          await Taro.showModal({
             title: '提示',
             content: '当前登录已失效，请重新登录。',
             confirmText: '去登录',
             showCancel: false,
             success: async (res) => {
               if (res.confirm) {
-                const userInfo: any = await LoginService.login();
-                if (!userInfo) {
-                  this.setState({
-                    authorize: true,
+                const ctx: any = getGlobalData('pageCtx');
+                if (ctx?.props) {
+                  const userInfo: any = await LoginService.login();
+                  ctx.props.loginStore.setUserInfo(userInfo?.id);
+                  setGlobalData('pageCtx', '');
+                } else {
+                  await Taro.reLaunch({
+                    url: '/pages/userCenter/index',
                   });
-                  return;
                 }
-                this.setState(
-                  {
-                    userId: userInfo.id,
-                  },
-                  () => {
-                    this.loginInit(userInfo.id);
-                  }
-                );
               }
             },
           });
         }
-        Taro.showToast({
+        await Taro.showToast({
           icon: 'none',
           title: response.data.message || '网络异常，请检查网络',
         });
@@ -66,9 +64,6 @@ export default function responseHandler() {
           const codeList = [10000100, 10000102];
           if (codeList.includes(response.data.code)) {
             Taro.clearStorageSync();
-            // Taro.switchTab({
-            //   url: '../index/index',
-            // });
           }
           reject({
             ...response.data,

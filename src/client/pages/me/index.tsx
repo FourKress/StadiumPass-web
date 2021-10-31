@@ -69,16 +69,6 @@ class MePage extends Component<{}, IState> {
     });
   }
 
-  getOpenId(code) {
-    return requestData({
-      method: 'GET',
-      api: '/wx/code2Session',
-      params: {
-        code,
-      },
-    });
-  }
-
   checkLogin() {
     const token = Taro.getStorageSync('token');
     if (!token) {

@@ -2,8 +2,8 @@ import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
 const login = () => {
-  return new Promise((resolve, reject) => {
-    Taro.showLoading({
+  return new Promise(async (resolve, reject) => {
+    await Taro.showLoading({
       title: '快捷登陆中',
     });
     Taro.login()
@@ -28,10 +28,10 @@ const login = () => {
         }
       })
       .then((res: any) => {
-        console.log(res);
         return saveUserInfo(res);
       })
       .then((res) => {
+        Taro.hideLoading();
         resolve(res);
       })
       .catch((err) => {
@@ -91,9 +91,9 @@ const handleAuthorize = () => {
       desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
       lang: 'zh_CN',
     })
-      .then((res) => {
+      .then(async (res) => {
         const openId = Taro.getStorageSync('openId');
-        Taro.showLoading({
+        await Taro.showLoading({
           title: '快捷登陆中',
         });
         return sendLogin(openId, res.userInfo);

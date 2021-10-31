@@ -80,7 +80,7 @@ page {
       .title {
         font-size: 28px;
         color: #101010;
-        padding-bottom: 10px;
+        //padding-bottom: 10px;
       }
 
       .info {
@@ -123,7 +123,7 @@ page {
       }
 
       .line {
-        margin-top: 20px;
+        margin-top: 10px;
         width: 100%;
         height: 1px;
         background-color: rgba(187, 187, 187, 100);
@@ -174,6 +174,11 @@ page {
               &.run {
                 background-color: #d6f4dd;
                 color: #46cc67;
+              }
+
+              &.pay {
+                background-color: #ff2000;
+                color: #fff;
               }
             }
           }
@@ -381,5 +386,19 @@ page {
     padding: 16px 10px;
     margin: 0 auto;
     border-radius: 16px;
+  }
+
+  .at-curtain__container {
+    width: 90%;
+
+    .swiper-wrapper {
+      height: 540px;
+
+      image {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    }
   }
 }

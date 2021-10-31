@@ -652,11 +652,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
             indicatorDots
             autoplay
             current={previewIndex}
+            className="swiper-wrapper"
           >
             {files.map((item) => {
               return (
                 <SwiperItem className="swiper-wrapper">
-                  <Image src={item.url} className="img"></Image>
+                  <Image src={item.url} mode="aspectFit" className="img"></Image>
                 </SwiperItem>
               );
             })}

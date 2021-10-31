@@ -5,9 +5,11 @@ import { Provider } from 'mobx-react';
 import './app.scss';
 
 import TabBarStore from './store/tabbarStore';
+import LoginStore from './store/loginStore';
 
 const store = {
   tabBarStore: new TabBarStore(),
+  loginStore: new LoginStore(),
 };
 
 class App extends Component {
@@ -31,8 +33,8 @@ class App extends Component {
       // 请求完新版本信息的回调
       console.log(res.hasUpdate, '无版本更新');
     });
-    updateManager.onUpdateReady(function () {
-      Taro.showModal({
+    updateManager.onUpdateReady(async function () {
+      await Taro.showModal({
         title: '更新提示',
         content: '新版本已经准备好，是否重启应用？',
         success: function (res) {
@@ -43,9 +45,9 @@ class App extends Component {
         },
       });
     });
-    updateManager.onUpdateFailed(function () {
+    updateManager.onUpdateFailed(async function () {
       // 新的版本下载失败
-      Taro.showModal({
+      await Taro.showModal({
         title: '更新提示',
         content: '新版本下载失败',
         showCancel: false,

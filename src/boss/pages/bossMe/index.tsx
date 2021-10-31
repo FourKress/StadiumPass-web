@@ -4,7 +4,6 @@ import { AtIcon, AtInput, AtModal, AtModalAction, AtModalContent, AtModalHeader 
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 import * as LoginService from '@/services/loginService';
-import AuthorizeUserBtn from '@/components/authorizeUserModal';
 
 import './index.scss';
 
@@ -12,7 +11,6 @@ import { validateRegular } from '@/utils/validateRule';
 
 interface IState {
   userInfo: any;
-  authorize: boolean;
   stadiumList: Array<any>;
   bossPhoneNum: string;
   showPhoneModal: boolean;
@@ -25,7 +23,6 @@ class BossMePage extends Component<any, IState> {
       userInfo: {},
       bossPhoneNum: '',
       showPhoneModal: false,
-      authorize: false,
       stadiumList: [],
     };
   }
@@ -82,27 +79,10 @@ class BossMePage extends Component<any, IState> {
   async handleLogin() {
     const userInfo = await LoginService.login();
     if (!userInfo) {
-      this.setState({
-        authorize: true,
-      });
       return;
     }
     this.setState({
       userInfo,
-    });
-  }
-
-  async handleAuthorize(status) {
-    if (!status) {
-      this.setState({
-        authorize: status,
-      });
-      return;
-    }
-    const userInfo = await LoginService.handleAuthorize();
-    this.setState({
-      userInfo,
-      authorize: false,
     });
   }
 
@@ -153,7 +133,7 @@ class BossMePage extends Component<any, IState> {
   }
 
   render() {
-    const { userInfo, authorize, stadiumList, bossPhoneNum, showPhoneModal } = this.state;
+    const { userInfo, stadiumList, bossPhoneNum, showPhoneModal } = this.state;
 
     return (
       <View className="bossPage">
@@ -241,8 +221,6 @@ class BossMePage extends Component<any, IState> {
             <Button onClick={() => this.changePhoneNum()}>确定</Button>
           </AtModalAction>
         </AtModal>
-
-        <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
       </View>
     );
   }

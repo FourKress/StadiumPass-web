@@ -9,10 +9,12 @@ import dayjs from 'dayjs';
 import './index.scss';
 
 import TabBarStore from '@/store/tabbarStore';
+import LoginStore from '@/store/loginStore';
 import { inject, observer } from 'mobx-react';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import * as LoginService from '@/services/loginService';
 import { SERVER_PROTOCOL, SERVER_DOMAIN } from '../../../config';
+import { setGlobalData } from '@/utils/globalData';
 
 interface IState {
   headerPosition: any;
@@ -34,6 +36,7 @@ interface IState {
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
+  loginStore: LoginStore;
 }
 
 const weekMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
@@ -44,7 +47,7 @@ const statusMap = {
   '3': '进行中',
 };
 
-@inject('tabBarStore')
+@inject('tabBarStore', 'loginStore')
 @observer
 class WaitStartPage extends Component<InjectStoreProps, IState> {
   constructor(props) {
@@ -53,7 +56,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       headerPosition: {},
       searchValue: '',
       isWatch: false,
-      isRecommend: false,
+      isRecommend: true,
       stadiumList: [],
       waitStartList: [],
       userId: '',
@@ -74,41 +77,56 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   componentWillMount() {
-    Taro.getSetting().then((res) => {
+    Taro.getSetting().then(async (res) => {
       const userLocation = res?.authSetting['scope.userLocation'];
-      console.log(userLocation);
-      Taro.getLocation({
-        type: 'gcj02',
-        success: (res) => {
-          const { latitude, longitude } = res;
-          this.setState(
-            {
-              userLocation: !!userLocation,
-              latitude,
-              longitude,
-            },
-            () => {
-              this.getStadium(1);
-            }
-          );
-        },
-      });
+      if (!userLocation) {
+        await this.authorizeLocal();
+      } else {
+        await this.getLocalInfo();
+      }
     });
   }
 
-  componentDidShow() {
+  componentWillUnmount() {
+    setGlobalData('pageCtx', '');
+  }
+
+  async getLocalInfo() {
+    await Taro.getLocation({
+      type: 'gcj02',
+      success: (res) => {
+        const { latitude, longitude } = res;
+        this.setState(
+          {
+            userLocation: true,
+            latitude,
+            longitude,
+          },
+          () => {
+            this.getStadium(1);
+          }
+        );
+      },
+      fail: async () => {
+        await this.handleAuthorizeLocal(false);
+      },
+    });
+  }
+
+  async componentDidShow() {
     this.inject.tabBarStore.setSelected(1);
+    setGlobalData('pageCtx', this);
     this.setHeaderPosition();
     this.setState({
       isWatch: false,
       searchValue: '',
-      isRecommend: false,
+      isRecommend: true,
       authFail: false,
     });
     const userInfo = Taro.getStorageSync('userInfo') || {};
     if (userInfo?.id) {
-      this.getWaitStartList();
-      this.setState({
+      await this.getWaitStartList();
+      await this.setState({
         userId: userInfo.id,
       });
     }
@@ -142,8 +160,8 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     requestData({
       method: 'GET',
       api: '/match/waitStartList',
-    }).then((res: any) => {
-      this.setState({
+    }).then(async (res: any) => {
+      await this.setState({
         waitStartList: res,
       });
     });
@@ -162,8 +180,10 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         userId,
       },
     }).then((res: any) => {
+      const stadiumListSort = this.handleStadiumSort(res);
+      // if ()
       this.setState({
-        stadiumList: res,
+        stadiumList: stadiumListSort,
       });
     });
   }
@@ -182,7 +202,14 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       params: {
         stadiumName: searchValue,
       },
-    }).then((res: any) => {
+    }).then(async (res: any) => {
+      if (!res?.length) {
+        await Taro.showToast({
+          icon: 'none',
+          title: '暂无搜索的场馆',
+        });
+        return;
+      }
       this.setState({
         searchList: res,
       });
@@ -195,10 +222,9 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  async handleSelectType(type) {
-    const { isWatch, isRecommend, userId } = this.state;
+  async handleSelectType(type, flag) {
+    const { isWatch, isRecommend, userId, stadiumList } = this.state;
     if (type === 1) {
-      console.log(isWatch, userId);
       if (!isWatch && !userId) {
         await Taro.showModal({
           title: '提示',
@@ -219,7 +245,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                 },
                 () => {
                   this.getWaitStartList();
-                  this.handleSelectType(type);
+                  this.handleSelectType(type, false);
                 }
               );
             }
@@ -227,18 +253,34 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         });
         return;
       }
+      if (flag === isWatch) return;
       this.setState({
         isWatch: !isWatch,
         searchList: [],
       });
       this.getStadium(isWatch ? 1 : 2);
     } else if (type === 2) {
+      if (flag === isRecommend) return;
+      const stadiumListSort = this.handleStadiumSort(stadiumList);
       this.setState({
         isRecommend: !isRecommend,
         searchList: [],
+        stadiumList: stadiumListSort,
       });
     }
   }
+
+  handleStadiumSort(stadiumList) {
+    const { longitude, latitude } = this.state;
+    const stadiumListSort = stadiumList.sort((a, b) => {
+      const distanceA = this.calcDistance(longitude, latitude, a.longitude, a.latitude);
+      const distanceB = this.calcDistance(longitude, latitude, b.longitude, b.latitude);
+      return distanceA - distanceB;
+    });
+    return stadiumListSort;
+  }
+
+  handleStadiumSortMatch() {}
 
   async jumpStadium(id) {
     await Taro.navigateTo({
@@ -264,6 +306,28 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       userId: userInfo.id,
       authorize: false,
     });
+  }
+
+  loginInit(userId) {
+    this.props.loginStore.setUserInfo('');
+    if (!userId) {
+      this.setState({
+        authorize: true,
+      });
+      return;
+    }
+
+    this.setState(
+      {
+        userId,
+      },
+      async () => {
+        await this.getWaitStartList();
+        if (this.state.userLocation) {
+          this.getStadium(1);
+        }
+      }
+    );
   }
 
   authorizeLocal() {
@@ -308,15 +372,13 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   async handleAuthorizeLocal(status) {
     if (!status) {
       await Taro.showToast({
-        title: '授权失败',
+        title: '获取位置信息授权失败，请重新授权。',
         icon: 'none',
       });
       return;
     }
     this.getWaitStartList();
-    this.setState({
-      userLocation: true,
-    });
+    await this.getLocalInfo();
   }
 
   calcDistance(lonA, latA, lonB, latB) {
@@ -358,6 +420,13 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
 
     const showList = searchList.length ? searchList : stadiumList;
 
+    const {
+      loginStore: { userId },
+    } = this.inject;
+    if (userId) {
+      this.loginInit(userId);
+    }
+
     return (
       <View className="wait-start-page">
         <View className="page-header" style={{ height: headerPosition.top + 44 }}>
@@ -393,7 +462,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                     <View className="panel" onClick={() => this.jumpOrder(item.isStart)}>
                       <View className="title">我的场次</View>
                       <View className="info">
-                        <Image src={item.stadiumUrl} className="logo" />
+                        <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.stadiumUrls[0].path}`} className="logo" />
                         <View className="details">
                           <View className="name">{item.stadiumName}</View>
                           <View className="sub">{item.stadiumAddress}</View>
@@ -407,7 +476,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                             <View>
                               <Text className="bold">{item.selectPeople}</Text>/{item.totalPeople}
                             </View>
-                            <View className={item.isStart === 3 ? 'tag run' : 'tag wait'}>
+                            <View className={item.isStart ? (item.isStart === 3 ? 'tag run' : 'tag wait') : 'tag pay'}>
                               {statusMap[item.isStart]}
                             </View>
                           </View>
@@ -437,18 +506,18 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         <View className="main">
           <View className="nav">
             <View className="left">
-              <View className={isWatch ? 'item' : 'active item'} onClick={() => this.handleSelectType(1)}>
+              <View className={isWatch ? 'item' : 'active item'} onClick={() => this.handleSelectType(1, false)}>
                 全部
               </View>
-              <View className={isWatch ? 'active item' : 'item'} onClick={() => this.handleSelectType(1)}>
+              <View className={isWatch ? 'active item' : 'item'} onClick={() => this.handleSelectType(1, true)}>
                 收藏
               </View>
             </View>
             <View className="right">
-              <View className={isRecommend ? 'item' : 'active item'} onClick={() => this.handleSelectType(2)}>
+              <View className={isRecommend ? 'active item' : 'item'} onClick={() => this.handleSelectType(2, true)}>
                 推荐
               </View>
-              <View className={isRecommend ? 'active item' : 'item'} onClick={() => this.handleSelectType(2)}>
+              <View className={isRecommend ? 'item' : 'active item'} onClick={() => this.handleSelectType(2, false)}>
                 距离
               </View>
             </View>
@@ -509,11 +578,21 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
             this.onImageClick(false);
           }}
         >
-          <Swiper indicatorColor="#999" indicatorActiveColor="#0080ff" circular indicatorDots autoplay>
+          <Swiper
+            indicatorColor="#999"
+            indicatorActiveColor="#0080ff"
+            circular
+            indicatorDots
+            className="swiper-wrapper"
+          >
             {files.map((item) => {
               return (
                 <SwiperItem className="swiper-wrapper">
-                  <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.path}`} className="img"></Image>
+                  <Image
+                    src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.path}`}
+                    mode="aspectFit"
+                    className="img"
+                  ></Image>
                 </SwiperItem>
               );
             })}

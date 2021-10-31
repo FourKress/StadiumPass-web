@@ -38,17 +38,19 @@ export default function requestData<T = void>(data: ReqData) {
     request(options)
       .then(responseHandler())
       .then((res) => {
-        Taro.hideLoading();
+        // Taro.hideLoading();
         console.log('请求地址=', options.url, '请求参数=', requestParams, '返回数据', res);
         resolve(res);
       })
-      .catch((err) => {
+      .catch(async (err) => {
         // Taro.hideLoading();
         console.log('请求地址=', options.url, '请求参数=', requestParams, '接口返回全部错误==', err);
-        Taro.showToast({
-          icon: 'none',
-          title: err.message,
-        });
+        if (err.message) {
+          await Taro.showToast({
+            icon: 'none',
+            title: err.message,
+          });
+        }
         reject(err);
       });
   });
