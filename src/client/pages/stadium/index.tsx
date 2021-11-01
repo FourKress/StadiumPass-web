@@ -13,6 +13,9 @@ import { SERVER_DOMAIN, SERVER_PROTOCOL } from '@/src/config';
 
 const STAR_DATE = dayjs().format('YYYY.MM.DD');
 const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
+import LoginStore from '@/store/loginStore';
+import { inject, observer } from 'mobx-react';
+import { setGlobalData } from '@/utils/globalData';
 
 interface IState {
   tabValue: number;
@@ -37,13 +40,24 @@ interface IState {
   refundAmount: number;
 }
 
+interface InjectStoreProps {
+  loginStore: LoginStore;
+}
+
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
 const currentDay = dayjs().format('YYYY-MM-DD');
 
-class StadiumPage extends Component<{}, IState> {
+@inject('loginStore')
+@observer
+class StadiumPage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
     this.state = { ...this.initData(), headerPosition: {} };
+  }
+
+  get inject() {
+    // 兼容注入store 类型
+    return this.props as InjectStoreProps;
   }
 
   async onShareAppMessage() {
@@ -104,6 +118,7 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   async componentDidShow() {
+    setGlobalData('pageCtx', this);
     await this.setHeaderPosition();
     await Taro.showShareMenu({
       withShareTicket: true,
@@ -130,6 +145,11 @@ class StadiumPage extends Component<{}, IState> {
     }
     const userId = Taro.getStorageSync('userInfo').id || '';
     this.loginInit(userId);
+  }
+
+  componentWillUnmount() {
+    this.inject.loginStore.setUserInfo('');
+    setGlobalData('pageCtx', '');
   }
 
   async setHeaderPosition() {
@@ -161,14 +181,18 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   loginInit(userId) {
+    this.props.loginStore.setUserInfo('');
+    if (!userId) {
+      this.setState({
+        authorize: true,
+      });
+      return;
+    }
     this.setState(
       {
         userId,
       },
       () => {
-        if (!userId) {
-          return;
-        }
         this.getWatchStatus(this.state.stadiumId);
       }
     );
@@ -395,7 +419,7 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   jumpOrderPay(orderId) {
-    Taro.navigateTo({
+    Taro.redirectTo({
       url: `/client/pages/orderPay/index?orderId=${orderId}`,
     });
   }
@@ -479,20 +503,7 @@ class StadiumPage extends Component<{}, IState> {
         success: async (res) => {
           if (res.confirm) {
             const userInfo: any = await LoginService.login();
-            if (!userInfo) {
-              this.setState({
-                authorize: true,
-              });
-              return;
-            }
-            this.setState(
-              {
-                userId: userInfo.id,
-              },
-              () => {
-                this.loginInit(userInfo.id);
-              }
-            );
+            this.loginInit(userInfo?.id);
           }
         },
       });
@@ -522,8 +533,14 @@ class StadiumPage extends Component<{}, IState> {
   }
 
   async goBack() {
-    await Taro.navigateBack({
-      delta: -1,
+    if (this.state.orderId) {
+      await Taro.navigateBack({
+        delta: -1,
+      });
+      return;
+    }
+    await Taro.switchTab({
+      url: '/client/pages/waitStart/index',
     });
   }
 
@@ -547,6 +564,13 @@ class StadiumPage extends Component<{}, IState> {
       cancelDialog,
       refundAmount,
     } = this.state;
+
+    const {
+      loginStore: { userId },
+    } = this.inject;
+    if (userId) {
+      this.loginInit(userId);
+    }
 
     const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
     const stadiumUrls = stadiumInfo?.stadiumUrls || [];

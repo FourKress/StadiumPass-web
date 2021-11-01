@@ -42,6 +42,7 @@ export default function responseHandler() {
               }
             },
           });
+          return;
         }
         await Taro.showToast({
           icon: 'none',

@@ -89,6 +89,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   componentWillUnmount() {
+    this.inject.loginStore.setUserInfo('');
     setGlobalData('pageCtx', '');
   }
 
@@ -283,7 +284,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   handleStadiumSortMatch() {}
 
   async jumpStadium(id) {
-    await Taro.navigateTo({
+    await Taro.redirectTo({
       url: `/client/pages/stadium/index?stadiumId=${id}`,
     });
   }
@@ -309,7 +310,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   loginInit(userId) {
-    this.props.loginStore.setUserInfo('');
+    this.inject.loginStore.setUserInfo('');
     if (!userId) {
       this.setState({
         authorize: true,
