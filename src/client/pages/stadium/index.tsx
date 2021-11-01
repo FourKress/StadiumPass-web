@@ -419,7 +419,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
   }
 
   jumpOrderPay(orderId) {
-    Taro.redirectTo({
+    Taro.navigateTo({
       url: `/client/pages/orderPay/index?orderId=${orderId}`,
     });
   }

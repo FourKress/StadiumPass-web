@@ -7,6 +7,30 @@ page {
 }
 
 .share-page {
+  .page-header {
+    width: 100vw;
+    box-sizing: border-box;
+    background-color: #fff;
+
+    .header-panel {
+      position: relative;
+
+      .page-title {
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        color: #000;
+      }
+
+      .back-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+  }
+
   .panel {
     display: flex;
     flex-direction: column;

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, View } from '@tarojs/components';
+import { Button, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { AtIcon } from 'taro-ui';
 
@@ -9,6 +9,7 @@ import requestData from '@/utils/requestData';
 interface IState {
   matchId: string;
   matchInfo: any;
+  meHeaderPosition: any;
 }
 
 class SharePage extends Component<{}, IState> {
@@ -17,10 +18,12 @@ class SharePage extends Component<{}, IState> {
     this.state = {
       matchId: '',
       matchInfo: {},
+      meHeaderPosition: {},
     };
   }
 
   async componentDidShow() {
+    this.setMeBtnPosition();
     // @ts-ignore
     await Taro.showShareMenu({
       withShareTicket: true,
@@ -32,6 +35,21 @@ class SharePage extends Component<{}, IState> {
     this.getMatchInfo(matchId);
     this.setState({
       matchId,
+    });
+  }
+
+  setMeBtnPosition() {
+    let stateHeight = 0; //  接收状态栏高度
+    Taro.getSystemInfo({
+      success(res) {
+        stateHeight = res.statusBarHeight;
+      },
+    });
+
+    this.setState({
+      meHeaderPosition: {
+        top: stateHeight,
+      },
     });
   }
 
@@ -51,13 +69,33 @@ class SharePage extends Component<{}, IState> {
 
   onShareAppMessage() {}
 
+  async goBack() {
+    await Taro.switchTab({
+      url: '/client/pages/waitStart/index',
+    });
+  }
+
   render() {
-    const { matchInfo } = this.state;
+    const { matchInfo, meHeaderPosition } = this.state;
     const success = matchInfo.minPeople - matchInfo.selectPeople;
     const max = matchInfo.totalPeople - matchInfo.selectPeople;
 
     return (
       <View className="share-page">
+        <View className="page-header" style={`padding-top: ${meHeaderPosition.top}px`}>
+          <View className="header-panel">
+            <AtIcon
+              className="back-icon"
+              value="chevron-left"
+              size="24"
+              color="#000"
+              onClick={() => this.goBack()}
+            ></AtIcon>
+            <View className="page-title">
+              <Text>球场详情</Text>
+            </View>
+          </View>
+        </View>
         <View className="panel">
           <AtIcon value="check-circle" size="60" color="#00E36A"></AtIcon>
           <View className="title">报名成功</View>

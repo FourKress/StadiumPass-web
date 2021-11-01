@@ -1,4 +1,3 @@
 export default {
-  navigationBarTitleText: '',
-  navigationBarBackgroundColor: '#fff',
+  navigationStyle: 'custom',
 };
