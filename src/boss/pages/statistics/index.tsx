@@ -66,12 +66,9 @@ class StatisticsPage extends Component<{}, IState> {
   }
 
   componentDidShow() {
-    // @ts-ignore
-    const pageParams = Taro.getCurrentInstance().router.params;
-    const stadiumId = (pageParams.stadiumId + '').toString();
     this.setMeBtnPosition();
     this.getMonthAndAayStatistics();
-    this.getSignUpTop(stadiumId);
+    this.getUserList();
   }
 
   getMonthAndAayStatistics(month = '') {
@@ -88,13 +85,10 @@ class StatisticsPage extends Component<{}, IState> {
     });
   }
 
-  getSignUpTop(stadiumId) {
+  getUserList() {
     requestData({
       method: 'GET',
-      api: '/order/signUpTop',
-      params: {
-        stadiumId,
-      },
+      api: '/order/userList',
     }).then((res: any) => {
       this.setState({
         topList: res,
@@ -207,8 +201,8 @@ class StatisticsPage extends Component<{}, IState> {
                   <View className="item">
                     <View className="index">{index + 1}</View>
                     <View className="user">
-                      <Image src={item?.user?.avatarUrl}></Image>
-                      <Text className="name">{item?.user?.nickName}</Text>
+                      <Image src={item.avatarUrl}></Image>
+                      <Text className="name">{item.nickName}</Text>
                     </View>
                     <View className="info">
                       <View className="money">{item.totalPayAmount}</View>
