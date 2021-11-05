@@ -131,9 +131,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         userId: userInfo.id,
       });
     }
-    if (this.state.userLocation) {
-      this.getStadium(1);
-    }
+    this.getStadium(1);
   }
 
   async setHeaderPosition() {
@@ -162,9 +160,19 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       method: 'GET',
       api: '/match/waitStartList',
     }).then(async (res: any) => {
-      await this.setState({
-        waitStartList: res,
-      });
+      await this.setState(
+        {
+          waitStartList: res,
+        },
+        () => {
+          const { stadiumList } = this.state;
+          if (stadiumList?.length) {
+            this.setState({
+              stadiumList: this.handleStadiumSortMatch(stadiumList),
+            });
+          }
+        }
+      );
     });
   }
 
@@ -172,7 +180,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     if (!this.state.userLocation) {
       return;
     }
-    const { userId } = this.state;
+    const { userId, isRecommend } = this.state;
     requestData({
       method: 'POST',
       api: '/stadium/waitStartList',
@@ -181,8 +189,8 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         userId,
       },
     }).then((res: any) => {
-      const stadiumListSort = this.handleStadiumSort(res);
-      // if ()
+      const sortList = this.handleStadiumSort(res);
+      const stadiumListSort = isRecommend ? this.handleStadiumSortMatch(this.handleStadiumSort(res)) : sortList;
       this.setState({
         stadiumList: stadiumListSort,
       });
@@ -209,10 +217,14 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
           icon: 'none',
           title: '暂无搜索的场馆',
         });
+        this.setState({
+          searchValue: '',
+        });
         return;
       }
+      const searchList = this.handleStadiumSortMatch(this.handleStadiumSort(res));
       this.setState({
-        searchList: res,
+        searchList: searchList,
       });
     });
   }
@@ -224,7 +236,10 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   async handleSelectType(type, flag) {
-    const { isWatch, isRecommend, userId, stadiumList } = this.state;
+    const { isWatch, isRecommend, userId, stadiumList, searchValue } = this.state;
+    if (searchValue) {
+      this.setSearchValue('');
+    }
     if (type === 1) {
       if (!isWatch && !userId) {
         await Taro.showModal({
@@ -261,8 +276,8 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       });
       this.getStadium(isWatch ? 1 : 2);
     } else if (type === 2) {
-      if (flag === isRecommend) return;
-      const stadiumListSort = this.handleStadiumSort(stadiumList);
+      const sortList = this.handleStadiumSort(stadiumList);
+      const stadiumListSort = flag ? this.handleStadiumSortMatch(sortList) : sortList;
       this.setState({
         isRecommend: !isRecommend,
         searchList: [],
@@ -281,7 +296,20 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     return stadiumListSort;
   }
 
-  handleStadiumSortMatch() {}
+  handleStadiumSortMatch(stadiumList) {
+    const { waitStartList = [] } = this.state;
+    const stadiumIds = waitStartList.map((d) => d.stadiumId);
+    const currentList: any = [];
+    const normalList: any = [];
+    stadiumList.forEach((item: any) => {
+      if (stadiumIds.includes(item.id)) {
+        currentList.push(item);
+      } else {
+        normalList.push(item);
+      }
+    });
+    return currentList.concat(normalList);
+  }
 
   async jumpStadium(id) {
     await Taro.redirectTo({
@@ -324,9 +352,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       },
       async () => {
         await this.getWaitStartList();
-        if (this.state.userLocation) {
-          this.getStadium(1);
-        }
+        this.getStadium(1);
       }
     );
   }

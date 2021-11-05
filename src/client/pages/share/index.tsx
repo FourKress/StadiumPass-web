@@ -10,6 +10,7 @@ interface IState {
   matchId: string;
   matchInfo: any;
   meHeaderPosition: any;
+  unitList: any[];
 }
 
 class SharePage extends Component<{}, IState> {
@@ -19,6 +20,7 @@ class SharePage extends Component<{}, IState> {
       matchId: '',
       matchInfo: {},
       meHeaderPosition: {},
+      unitList: [],
     };
   }
 
@@ -33,8 +35,20 @@ class SharePage extends Component<{}, IState> {
     // @ts-ignore
     const matchId = Taro.getCurrentInstance().router.params.matchId + '';
     this.getMatchInfo(matchId);
+    await this.getUnitList();
     this.setState({
       matchId,
+    });
+  }
+
+  async getUnitList() {
+    await requestData({
+      method: 'GET',
+      api: '/space/unitEnum',
+    }).then((res: any) => {
+      this.setState({
+        unitList: res,
+      });
     });
   }
 
@@ -67,7 +81,18 @@ class SharePage extends Component<{}, IState> {
     });
   }
 
-  onShareAppMessage() {}
+  onShareAppMessage() {
+    const { matchInfo, unitList } = this.state;
+    const { stadium, space, runDate, startAt, endAt, id } = matchInfo;
+    const shareObj = {
+      title: `${stadium.name}/${space.name}${
+        unitList.find((d) => d.value === space.unit)?.label
+      }/${runDate} ${startAt}-${endAt}`,
+      path: `/client/pages/stadium/index?stadiumId=${stadium.id}&runDate=${runDate}&spaceId=${space.id}&matchId=${id}`,
+      imageUrl: '',
+    };
+    return shareObj;
+  }
 
   async goBack() {
     await Taro.switchTab({

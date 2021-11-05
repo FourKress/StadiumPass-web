@@ -38,6 +38,8 @@ interface IState {
   headerPosition: any;
   cancelDialog: boolean;
   refundAmount: number;
+  spaceId?: string;
+  matchId?: string;
 }
 
 interface InjectStoreProps {
@@ -86,10 +88,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         });
       },
     });
+    const { unitList, stadiumInfo, spaceDate, currentMatch, spaceList, spaceActive } = this.state;
+    const { id, spaceId, startAt, endAt } = currentMatch;
+    const space = spaceList[spaceActive];
     return {
-      title: '测试分享,自定义Title',
+      title: `${stadiumInfo.name}/${space.name}${
+        unitList.find((d) => d.value === space.unit)?.label
+      }/${spaceDate} ${startAt}-${endAt}`,
       imageUrl: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg',
-      path: '/pages/stadium/index',
+      path: `/client/pages/stadium/index?stadiumId=${stadiumInfo.id}&runDate=${spaceDate}&spaceId=${spaceId}&matchId=${id}`,
     };
   }
 
@@ -114,11 +121,12 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       personList: [],
       cancelDialog: false,
       refundAmount: 0,
+      spaceId: '',
+      matchId: '',
     };
   }
 
-  async componentDidShow() {
-    setGlobalData('pageCtx', this);
+  async componentWillMount() {
     await this.setHeaderPosition();
     await Taro.showShareMenu({
       withShareTicket: true,
@@ -126,25 +134,42 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       menus: ['shareAppMessage', 'shareTimeline'],
     });
     // @ts-ignore
-    const pageParams = Taro.getCurrentInstance().router.params;
+    const pageParams = await Taro.getCurrentInstance().router.params;
     const id = pageParams.stadiumId + '';
     const matchId = pageParams.matchId;
     const orderId = pageParams?.orderId;
-    this.setState({
+    const runDate = pageParams?.runDate;
+    const spaceId = pageParams?.spaceId;
+    await this.setState({
       ...this.initData(),
       stadiumId: id,
       orderId,
+      spaceId,
+      matchId,
     });
     if (!id) return;
     this.getStadiumInfo(id);
     await this.getUnitList();
     if (!orderId) {
-      this.getSpace(id, currentDay).then(() => {});
+      if (runDate) {
+        await this.onSpaceDateChange({
+          detail: {
+            value: runDate,
+          },
+        });
+      } else {
+        await this.getSpace(id, currentDay);
+      }
     } else {
       this.getOrderMatch(matchId);
     }
     const userId = Taro.getStorageSync('userInfo').id || '';
     this.loginInit(userId);
+  }
+
+  async componentDidShow() {
+    setGlobalData('pageCtx', this);
+    await this.handleRefreshPeoPle(this.state.openIndex, true);
   }
 
   componentWillUnmount() {
@@ -234,18 +259,21 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         stadiumId,
         runDate,
       },
-    }).then((res: any) => {
+    }).then(async (res: any) => {
       if (!res?.length) {
-        Taro.showToast({
+        await Taro.showToast({
           icon: 'none',
           title: '暂无组队场次，请重新选择其它日期。',
         });
         return false;
       }
-      this.getMatchList(res[0]?.id, runDate, 0);
+      const spaceId = this.state.spaceId || res[0]?.id;
+      const spaceActive = res.findIndex((d) => d.id === spaceId);
+      this.getMatchList(spaceId, runDate, spaceActive);
       this.setState({
         spaceList: res,
         selectList: [],
+        spaceId: '',
       });
       return res;
     });
@@ -281,17 +309,19 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         runDate,
       },
     }).then(async (res: any) => {
-      const notDone = res.findIndex((d) => !d.isDone && !d.isCancel);
+      const { matchId } = this.state;
+      const openIndex = res.findIndex((d) => (matchId ? d.id === matchId : !d.isDone && !d.isCancel));
       const openList = res.map(() => false);
-      openList[notDone] = true;
+      openList[openIndex] = true;
       this.setState({
         matchList: res,
         openList,
         spaceActive: index,
-        currentMatch: res[notDone] || res.reverse()[0],
+        currentMatch: res[openIndex] || res.reverse()[0],
         selectList: [],
+        matchId: '',
       });
-      await this.getPeoPelList(res[notDone]);
+      await this.getPeoPelList(res[openIndex]);
     });
   }
 
@@ -347,15 +377,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
   }
 
   async handlePeoPleOpen(index) {
-    const { openList, matchList, openIndex } = this.state;
+    const { openList } = this.state;
     const status = openList[index];
     if (!status) {
-      if (openIndex !== index) {
-        this.setState({
-          selectList: [],
-        });
-      }
-      await this.getPeoPelList(matchList[index]);
+      await this.handleRefreshPeoPle(index);
     }
     this.setState({
       openList: openList.map((open, i) => {
@@ -364,6 +389,16 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       }),
       openIndex: index,
     });
+  }
+
+  async handleRefreshPeoPle(index, isRefresh = false) {
+    const { matchList, openIndex } = this.state;
+    if (openIndex !== index || isRefresh) {
+      this.setState({
+        selectList: [],
+      });
+    }
+    await this.getPeoPelList(matchList[index]);
   }
 
   handleSelectPerson(item, index) {
