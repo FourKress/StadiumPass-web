@@ -63,7 +63,7 @@ class MonthlyCardPage extends Component<{}, IState> {
                       <View className="label">开通场馆</View>：{item?.stadium?.name}
                     </View>
                     <View className="row">
-                      <View className="label">有效期</View>：{item.validPeriodStart}-{item.validPeriodEnd}
+                      <View className="label">有效期</View>：{item.validPeriodStart} - {item.validPeriodEnd}
                     </View>
                   </View>
                 </View>

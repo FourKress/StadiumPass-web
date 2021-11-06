@@ -206,7 +206,9 @@ class StatisticsPage extends Component<{}, IState> {
                     </View>
                     <View className="info">
                       <View className="money">{item.totalPayAmount}</View>
-                      <View className="count">{item.count}次</View>
+                      <View className="count">
+                        {item.count}次{item.monthlyCardCount ? `(月卡X${item.monthlyCardCount}次)` : ''}
+                      </View>
                     </View>
                   </View>
                 );

@@ -54,6 +54,8 @@ class MyClientPage extends Component<{}, IState> {
     }).then((res: any) => {
       this.setState({
         clientList: res,
+        clientTotal: res.length,
+        monthlyCardCount: res.filter((d) => d.isMonthlyCard).length,
       });
     });
   }
