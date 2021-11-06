@@ -171,8 +171,8 @@ class MePage extends Component<{}, IState> {
   }
 
   async handleLogin() {
-    const userInfo = await LoginService.login();
-    if (!userInfo) {
+    const userInfo: any = await LoginService.login();
+    if (!userInfo?.id) {
       this.setState({
         authorize: true,
       });

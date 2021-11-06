@@ -21,10 +21,14 @@ export default function responseHandler() {
         if (response.statusCode === 401) {
           Taro.removeStorageSync('userInfo');
           Taro.removeStorageSync('openId');
+          let tips = '当前还未登录，请立即登录。';
+          if (Taro.getStorageSync('token')) {
+            tips = '当前登录已失效，请重新登录。';
+          }
           Taro.removeStorageSync('token');
           await Taro.showModal({
             title: '提示',
-            content: '当前登录已失效，请重新登录。',
+            content: tips,
             confirmText: '去登录',
             showCancel: false,
             success: async (res) => {

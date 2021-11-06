@@ -77,8 +77,8 @@ class BossMePage extends Component<any, IState> {
   }
 
   async handleLogin() {
-    const userInfo = await LoginService.login();
-    if (!userInfo) {
+    const userInfo: any = await LoginService.login();
+    if (!userInfo?.id) {
       return;
     }
     this.setState({

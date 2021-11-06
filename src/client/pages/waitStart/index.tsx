@@ -249,7 +249,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
           success: async (res) => {
             if (res.confirm) {
               const userInfo: any = await LoginService.login();
-              if (!userInfo) {
+              if (!userInfo?.id) {
                 this.setState({
                   authorize: true,
                 });
@@ -362,7 +362,9 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   handleLocalCallback = async () => {
-    this.getWaitStartList();
+    if (this.state.userId) {
+      this.getWaitStartList();
+    }
     await this.getLocalInfo();
   };
 
