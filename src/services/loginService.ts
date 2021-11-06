@@ -24,6 +24,7 @@ const login = () => {
           return sendLogin(res.openId);
         } else {
           console.log('第一次登陆');
+          Taro.hideLoading();
           resolve(false);
         }
       })
@@ -99,6 +100,7 @@ const handleAuthorize = () => {
         return sendLogin(openId, res.userInfo);
       })
       .then((res) => {
+        Taro.hideLoading();
         return saveUserInfo(res);
       })
       .then((res) => {
