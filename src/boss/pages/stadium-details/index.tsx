@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Picker, Text, View, CoverView, Swiper, SwiperItem, Image } from '@tarojs/components';
+import { Picker, Text, View, Swiper, SwiperItem, Image } from '@tarojs/components';
 import {
   AtForm,
   AtInput,
@@ -703,7 +703,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
         )}
 
         {showSpaceDetails && (
-          <CoverView>
+          <View className="cover-view">
             <View className="space-details" style={`padding-top: ${meHeaderPosition.top + 45}px`}>
               <View className="cancel-icon" style={`top: ${meHeaderPosition.top + 8}px`}>
                 <AtIcon value="chevron-left" size="24" color="#000" onClick={() => this.closeSpaceDetails()}></AtIcon>
@@ -745,7 +745,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 </View>
               </View>
             </View>
-          </CoverView>
+          </View>
         )}
       </View>
     );
