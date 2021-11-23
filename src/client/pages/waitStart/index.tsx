@@ -536,10 +536,10 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                         </View>
                       </View>
                       <View className="money" onClick={() => this.jumpStadium(item.id)}>
-                        <View className="new">25</View>
+                        <View className="new">{item?.matchInfo?.rebatePrice}</View>
                         <View className="old">
-                          <View className="price">50</View>
-                          <View className="tips">折</View>
+                          <View className="price">{item?.matchInfo?.price}</View>
+                          {item?.matchInfo.rebate && <View className="tips">折</View>}
                         </View>
                       </View>
                     </View>
