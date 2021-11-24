@@ -151,7 +151,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     this.getStadiumInfo(id);
     await this.getUnitList();
     if (!orderId) {
-      if (runDate) {
+      if (runDate && runDate !== currentDay) {
         await this.onSpaceDateChange({
           detail: {
             value: runDate,
@@ -164,7 +164,11 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       this.getOrderMatch(matchId);
     }
     const userId = Taro.getStorageSync('userInfo').id || '';
-    this.loginInit(userId);
+    if (userId) {
+      this.loginInit(userId);
+    } else {
+      await this.checkLogin();
+    }
   }
 
   async componentDidShow() {
