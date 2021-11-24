@@ -113,6 +113,7 @@ class BossMePage extends Component<any, IState> {
       api: '/user/modify',
       params: {
         bossPhoneNum,
+        phoneNum: userInfo?.phoneNum || bossPhoneNum,
       },
     }).then((res) => {
       this.setState({
