@@ -9,46 +9,49 @@ import dayjs from 'dayjs';
 import './index.scss';
 
 // @ts-ignore
-// import * as echarts from '../../ec-canvas/echarts';
+import * as echarts from '../../../ec-canvas/echarts.min.js';
 
-// const chart = null;
+let chart = null;
 
 interface IState {
   tabPosition: object;
   statisticsDate: string;
   tabActive: number;
   summary: any;
-  // ec: object;
+  ec: object;
   topList: Array<any>;
 }
 
-// const option = {
-//   xAxis: {
-//     type: 'category',
-//     data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
-//   },
-//   yAxis: {
-//     type: 'value',
-//   },
-//   series: [
-//     {
-//       data: [120, 200, 150, 80, 70, 110, 130],
-//       type: 'bar',
-//     },
-//   ],
-// };
+const option = {
+  xAxis: {
+    type: 'category',
+    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+  },
+  yAxis: {
+    type: 'value',
+  },
+  grid: {
+    right: '0%',
+  },
+  series: [
+    {
+      data: [120, 200, 150, 80, 70, 110, 130],
+      type: 'bar',
+    },
+  ],
+};
 
-// function initChart(canvas, width, height, dpr) {
-//   chart = echarts.init(canvas, null, {
-//     width: width,
-//     height: height,
-//     devicePixelRatio: dpr, // new
-//   });
-//   canvas.setChart(chart);
-//   // @ts-ignore
-//   chart.setOption(option);
-//   return chart;
-// }
+function initChart(canvas, width, height, dpr) {
+  chart = echarts.init(canvas, null, {
+    width: width,
+    height: height,
+    devicePixelRatio: dpr, // new
+  });
+  canvas.setChart(chart);
+  // @ts-ignore
+  chart.setOption(option);
+  return chart;
+}
 
 class StatisticsPage extends Component<{}, IState> {
   constructor(props) {
@@ -58,9 +61,9 @@ class StatisticsPage extends Component<{}, IState> {
       summary: {},
       tabActive: 0,
       statisticsDate: dayjs().format('YYYY-MM'),
-      // ec: {
-      //   onInit: initChart,
-      // },
+      ec: {
+        onInit: initChart,
+      },
       topList: [],
     };
   }
@@ -137,17 +140,12 @@ class StatisticsPage extends Component<{}, IState> {
 
   refChart = React.createRef();
 
-  // renderChart() {
-  //   return (
-  //     // @ts-ignore
-  //     <ec-canvas
-  //       ref={this.refChart}
-  //       canvas-id="chart-area"
-  //       ec={this.state.ec}
-  //       force-use-old-canvas="true"
-  //     />
-  //   );
-  // }
+  renderChart() {
+    return (
+      // @ts-ignore
+      <ec-canvas ref={this.refChart} canvas-id="chart-area" ec={this.state.ec} force-use-old-canvas="true" />
+    );
+  }
 
   render() {
     const { tabPosition, statisticsDate, tabActive, topList, summary } = this.state;
@@ -192,7 +190,7 @@ class StatisticsPage extends Component<{}, IState> {
         </View>
         <View className="main">
           <View className="title">收入对比</View>
-          {/*<View className="charts">{this.renderChart()}</View>*/}
+          <View className="charts">{this.renderChart()}</View>
           <View className="title">报名Top10</View>
           {topList.length > 0 ? (
             <View className="list">
