@@ -41,6 +41,10 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     });
   }
 
+  isWaitPath(path) {
+    return path === 'client/pages/waitStart/index';
+  }
+
   render() {
     const {
       tabBarStore: { selected },
@@ -58,7 +62,7 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
         {tabBarList.map((item, index) => {
           return (
             <View
-              className="bottom-tab-item"
+              className={`${this.isWaitPath(item.pagePath) ? 'bottom-tab-item wait-tab' : 'bottom-tab-item'}`}
               onClick={() => this.switchTab(item, index)}
               data-path={item.pagePath}
               key={item.text}

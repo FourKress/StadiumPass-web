@@ -7,6 +7,8 @@ page {
 }
 
 .wait-start-page {
+  height: calc(100vh - 146px - env(safe-area-inset-bottom));
+
   .page-header {
     width: 100vw;
     position: relative;
