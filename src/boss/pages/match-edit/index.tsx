@@ -253,12 +253,23 @@ class MatchEditPage extends Component<{}, IState> {
 
   handleSave() {
     const { form, matchId } = this.state;
-    const { repeatModel, rebate, totalPeople, minPeople, price, rebatePrice, duration, startAt, endAt, repeatWeek } =
-      form;
+    const {
+      repeatModel,
+      rebate,
+      totalPeople,
+      minPeople,
+      price,
+      rebatePrice,
+      duration,
+      startAt,
+      endAt,
+      repeatWeek,
+      runDate,
+    } = form;
     const key = Object.keys(form).find((d) => !form[d] && d !== 'repeatWeek');
-    if ((repeatModel === '2' && !repeatWeek) || key) {
+    if ((parseInt(repeatModel) === 2 && !repeatWeek?.length) || key) {
       Taro.showToast({
-        title: `请填写完整的场次信息, ${key} 不能为空`,
+        title: `请填写完整的场次信息, 不能为空`,
         icon: 'none',
       });
       return;
@@ -273,6 +284,30 @@ class MatchEditPage extends Component<{}, IState> {
       return;
     }
 
+    let realDate = runDate;
+    if (parseInt(repeatModel) === 2) {
+      const week = dayjs().day();
+      if (!repeatWeek.includes(week ? week : 7)) {
+        const stepArr = repeatWeek.map((d) => d - (week || 7));
+        const stepPre: any = [];
+        const stepNext = stepArr.filter((d) => {
+          if (d > 0) {
+            return true;
+          } else {
+            stepPre.push(d);
+          }
+        });
+        if (stepNext?.length) {
+          realDate = dayjs().add(stepNext[0], 'day').format('YYYY-MM-DD');
+        } else {
+          realDate = dayjs()
+            .add(7 + stepPre[0], 'day')
+            .format('YYYY-MM-DD');
+        }
+      }
+      realDate = dateNow;
+    }
+
     const params = {
       ...form,
       repeatModel: Number(repeatModel),
@@ -283,6 +318,7 @@ class MatchEditPage extends Component<{}, IState> {
       price: Number(price),
       rebatePrice: Number(rebatePrice),
       duration: Number(duration),
+      runDate: realDate,
     };
 
     requestData({
