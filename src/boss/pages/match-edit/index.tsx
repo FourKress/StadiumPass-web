@@ -298,14 +298,13 @@ class MatchEditPage extends Component<{}, IState> {
           }
         });
         if (stepNext?.length) {
-          realDate = dayjs().add(stepNext[0], 'day').format('YYYY-MM-DD');
+          realDate = dayjs().add(stepNext.reverse()[0], 'day').format('YYYY-MM-DD');
         } else {
           realDate = dayjs()
-            .add(7 + stepPre[0], 'day')
+            .add(7 + stepPre.reverse()[0], 'day')
             .format('YYYY-MM-DD');
         }
       }
-      realDate = dateNow;
     }
 
     const params = {
