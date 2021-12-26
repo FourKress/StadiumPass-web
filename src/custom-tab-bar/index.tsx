@@ -62,7 +62,9 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
         {tabBarList.map((item, index) => {
           return (
             <View
-              className={`${this.isWaitPath(item.pagePath) ? 'bottom-tab-item wait-tab' : 'bottom-tab-item'}`}
+              className={`${
+                !isBoss && this.isWaitPath(item.pagePath) ? 'bottom-tab-item wait-tab' : 'bottom-tab-item'
+              }`}
               onClick={() => this.switchTab(item, index)}
               data-path={item.pagePath}
               key={item.text}
