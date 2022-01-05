@@ -118,8 +118,9 @@ class OrderPayPage extends Component<{}, IState> {
         // });
         console.log(res.paySign);
         wx.requestPayment({
+          appId: 'wx8e63001d0409fa13',
           timeStamp: res.timestamp,
-          nonceStr: res.randomStr,
+          nonceStr: res.nonceStr,
           package: res.package,
           paySign: res.paySign,
           // @ts-ignore
