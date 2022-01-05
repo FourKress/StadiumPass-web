@@ -101,20 +101,46 @@ class OrderPayPage extends Component<{}, IState> {
       payMethod,
       orderInfo: { matchId },
     } = this.state;
+    console.log(matchId);
     requestData({
       method: 'POST',
-      api: '/order/pay',
+      // api: '/order/pay',
+      api: '/wx/pay',
       params: {
         id: orderId,
         payMethod,
       },
     }).then((res: any) => {
       if (res) {
-        Taro.reLaunch({
-          url: `/client/pages/share/index?matchId=${matchId}`,
+        console.log('return res', res);
+        // Taro.reLaunch({
+        //   url: `/client/pages/share/index?matchId=${matchId}`,
+        // });
+        console.log(res.paySign);
+        wx.requestPayment({
+          timeStamp: res.timestamp,
+          nonceStr: res.randomStr,
+          package: res.package,
+          paySign: res.paySign,
+          // @ts-ignore
+          signType: 'RSA',
+        }).then(() => {
+          Taro.showToast({
+            icon: 'none',
+            title: '测试支付成功~~',
+          });
         });
       }
     });
+  }
+
+  //生成随机字符串
+  generate(length = 32) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let str = '';
+    const maxPos = chars.length;
+    while (length--) str += chars[(Math.random() * maxPos) | 0];
+    return str;
   }
 
   render() {
