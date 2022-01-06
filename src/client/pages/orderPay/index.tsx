@@ -95,44 +95,61 @@ class OrderPayPage extends Component<{}, IState> {
     });
   }
 
-  handleOrderPay() {
+  async handleOrderPay() {
     const {
       orderId,
       payMethod,
       orderInfo: { matchId },
     } = this.state;
-    console.log(matchId);
-    requestData({
+    const orderFromDB: any = await requestData({
       method: 'POST',
-      // api: '/order/pay',
-      api: '/wx/pay',
+      api: '/order/pay',
       params: {
         id: orderId,
         payMethod,
       },
-    }).then((res: any) => {
-      if (res) {
-        console.log('return res', res);
-        // Taro.reLaunch({
-        //   url: `/client/pages/share/index?matchId=${matchId}`,
-        // });
-        console.log(res.paySign);
-        wx.requestPayment({
-          appId: 'wx8e63001d0409fa13',
-          timeStamp: res.timestamp,
-          nonceStr: res.nonceStr,
-          package: res.package,
-          paySign: res.paySign,
-          // @ts-ignore
-          signType: 'RSA',
-        }).then(() => {
+    });
+    if (!orderFromDB) {
+      return;
+    }
+    const openId = Taro.getStorageSync('openId');
+    const prePayInfo: any = await requestData({
+      method: 'POST',
+      api: '/wx/pay',
+      params: {
+        orderId,
+        openId,
+        payAmount: orderFromDB.payAmount,
+      },
+    });
+
+    if (prePayInfo) {
+      Taro.requestPayment({
+        appId: 'wx8e63001d0409fa13',
+        timeStamp: prePayInfo.timestamp,
+        nonceStr: prePayInfo.nonceStr,
+        package: prePayInfo.package,
+        paySign: prePayInfo.paySign,
+        // @ts-ignore
+        signType: 'RSA',
+      })
+        .then(() => {
           Taro.showToast({
             icon: 'none',
             title: '测试支付成功~~',
           });
+          Taro.reLaunch({
+            url: `/client/pages/share/index?matchId=${matchId}`,
+          });
+        })
+        .catch((e) => {
+          console.log(e);
+          Taro.showToast({
+            icon: 'none',
+            title: '支付失败',
+          });
         });
-      }
-    });
+    }
   }
 
   //生成随机字符串
