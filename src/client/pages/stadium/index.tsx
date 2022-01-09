@@ -496,13 +496,13 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     if (status) {
       requestData({
         method: 'GET',
-        api: '/order/getRefundAmount',
+        api: '/order/getRefundInfo',
         params: {
           orderId: this.state.orderId,
         },
       }).then((res: any) => {
         this.setState({
-          refundAmount: res,
+          refundAmount: res.refundAmount,
           cancelDialog: status,
         });
       });
@@ -513,12 +513,14 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  handleRefund() {
+  async handleRefund() {
+    const { orderId, refundAmount } = this.state;
     requestData({
-      method: 'GET',
-      api: '/order/refund',
+      method: 'POST',
+      api: '/wx/refund',
       params: {
-        orderId: this.state.orderId,
+        orderId,
+        refundAmount,
       },
     }).then(async () => {
       await Taro.showToast({
@@ -889,7 +891,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                       this.handleRefund();
                     }}
                   >
-                    <View>检查取消</View>
+                    <View>坚持取消</View>
                     <View className="tips">可退￥{refundAmount}</View>
                   </View>
                   <View
