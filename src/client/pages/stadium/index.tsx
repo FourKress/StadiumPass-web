@@ -37,7 +37,7 @@ interface IState {
   unitList: any;
   headerPosition: any;
   cancelDialog: boolean;
-  refundAmount: number;
+  refundInfo: any;
   spaceId?: string;
   matchId?: string;
 }
@@ -120,7 +120,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       unitList: [],
       personList: [],
       cancelDialog: false,
-      refundAmount: 0,
+      refundInfo: {},
       spaceId: '',
       matchId: '',
     };
@@ -502,7 +502,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         },
       }).then((res: any) => {
         this.setState({
-          refundAmount: res.refundAmount,
+          refundInfo: res,
           cancelDialog: status,
         });
       });
@@ -513,14 +513,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  async handleRefund() {
-    const { orderId, refundAmount } = this.state;
+  handleRefund() {
+    const { orderId, refundInfo } = this.state;
     requestData({
       method: 'POST',
       api: '/wx/refund',
       params: {
         orderId,
-        refundAmount,
+        refundAmount: refundInfo.refundAmount,
+        refundId: refundInfo.refundId,
       },
     }).then(async () => {
       await Taro.showToast({
@@ -603,7 +604,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       unitList,
       headerPosition,
       cancelDialog,
-      refundAmount,
+      refundInfo,
     } = this.state;
 
     const {
@@ -892,7 +893,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                     }}
                   >
                     <View>坚持取消</View>
-                    <View className="tips">可退￥{refundAmount}</View>
+                    <View className="tips">可退￥{refundInfo.refundAmount}</View>
                   </View>
                   <View
                     className="btn confirm"

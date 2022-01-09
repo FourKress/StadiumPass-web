@@ -134,9 +134,10 @@ class OrderPayPage extends Component<{}, IState> {
         signType: 'RSA',
       })
         .then(() => {
+          // TODO 这里处理订单为支付中
           Taro.showToast({
             icon: 'none',
-            title: '测试支付成功~~',
+            title: '支付成功!',
           });
           Taro.reLaunch({
             url: `/client/pages/share/index?matchId=${matchId}`,
