@@ -133,13 +133,21 @@ class OrderPayPage extends Component<{}, IState> {
         // @ts-ignore
         signType: 'RSA',
       })
-        .then(() => {
-          // TODO 这里处理订单为支付中
-          Taro.showToast({
+        .then(async () => {
+          await requestData({
+            method: 'POST',
+            api: '/order/modify',
+            params: {
+              id: orderId,
+              status: 5,
+            },
+          });
+
+          await Taro.showToast({
             icon: 'none',
             title: '支付成功!',
           });
-          Taro.reLaunch({
+          await Taro.reLaunch({
             url: `/client/pages/share/index?matchId=${matchId}`,
           });
         })
