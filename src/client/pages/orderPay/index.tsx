@@ -134,15 +134,6 @@ class OrderPayPage extends Component<{}, IState> {
         signType: 'RSA',
       })
         .then(async () => {
-          await requestData({
-            method: 'POST',
-            api: '/order/modify',
-            params: {
-              id: orderId,
-              status: 5,
-            },
-          });
-
           await Taro.showToast({
             icon: 'none',
             title: '支付成功!',
@@ -151,14 +142,26 @@ class OrderPayPage extends Component<{}, IState> {
             url: `/client/pages/share/index?matchId=${matchId}`,
           });
         })
-        .catch((e) => {
+        .catch(async (e) => {
           console.log(e);
-          Taro.showToast({
+          await Taro.showToast({
             icon: 'none',
             title: '支付失败',
           });
+          await this.changeOrderStatus(orderId, 0);
         });
     }
+  }
+
+  async changeOrderStatus(orderId, status) {
+    await requestData({
+      method: 'POST',
+      api: '/order/modify',
+      params: {
+        id: orderId,
+        status,
+      },
+    });
   }
 
   //生成随机字符串
