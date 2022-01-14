@@ -270,7 +270,9 @@ class MePage extends Component<{}, IState> {
             </View>
             <View className="panel">
               <View className="item" onClick={() => this.jumpMyWatch()}>
-                <View className="icon"></View>
+                <View className="icon">
+                  <AtIcon value="star-2" color="#A4AAAE" size="24"></AtIcon>
+                </View>
                 <Text className="label">我的关注</Text>
                 <View className="info">
                   <Text className="name"></Text>
@@ -278,7 +280,9 @@ class MePage extends Component<{}, IState> {
                 </View>
               </View>
               <View className="item" onClick={() => this.handlePhoneModal(true)}>
-                <View className="icon"></View>
+                <View className="icon">
+                  <AtIcon value="iphone" color="#A4AAAE" size="24"></AtIcon>
+                </View>
                 <Text className="label">联系电话</Text>
                 <View className="info">
                   <Text className="name">{userInfo.phoneNum}</Text>

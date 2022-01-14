@@ -164,15 +164,6 @@ class OrderPayPage extends Component<{}, IState> {
     });
   }
 
-  //生成随机字符串
-  generate(length = 32) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let str = '';
-    const maxPos = chars.length;
-    while (length--) str += chars[(Math.random() * maxPos) | 0];
-    return str;
-  }
-
   render() {
     const { orderInfo, countdown, payAmount, hasMonthlyCardAmount } = this.state;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');

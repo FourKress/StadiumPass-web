@@ -177,7 +177,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
           <View className="row">
             <Text className="name">营收</Text>
             <View className="btn" onClick={() => this.handleShowDrawer()}>
-              <View className="search-icon"></View>
+              <AtIcon className="search-icon" value="search" size="14" color="#000"></AtIcon>
               <Text>自定义查询</Text>
             </View>
           </View>

@@ -176,14 +176,18 @@ class BossMePage extends Component<any, IState> {
           <View className="nav-list" style="margin-top: 16px;">
             <View className="panel">
               <View className="item" onClick={() => this.jumpCustomer()}>
-                <View className="icon"></View>
+                <View className="icon">
+                  <AtIcon value="star-2" color="#A4AAAE" size="24"></AtIcon>
+                </View>
                 <Text className="label">我的顾客</Text>
                 <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
               </View>
             </View>
             <View className="panel">
               <View className="item" onClick={() => this.handlePhoneModal(true)}>
-                <View className="icon"></View>
+                <View className="icon">
+                  <AtIcon value="iphone" color="#A4AAAE" size="24"></AtIcon>
+                </View>
                 <Text className="label">联系电话</Text>
                 <View className="info">
                   <Text className="name">{userInfo.bossPhoneNum}</Text>

@@ -630,7 +630,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
             })}
           </Swiper>
           <View className="back-icon" style={{ top: headerPosition.top }}>
-            <AtIcon onClick={() => this.goBack()} value="chevron-left" size="24" color="#fff"></AtIcon>
+            <AtIcon onClick={() => this.goBack()} value="chevron-left" size="24" color="#000"></AtIcon>
           </View>
         </View>
         <View className="main">
@@ -638,8 +638,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
             <View className="left">
               <View className="name">{stadiumInfo?.name}</View>
               <View className="address">
-                <View className="icon"></View>
-                <Text>{stadiumInfo?.address}</Text>
+                <View className="icon">
+                  <AtIcon value="map-pin" size="14" color="#666"></AtIcon>
+                </View>
+                <Text className="text">{stadiumInfo?.address}</Text>
               </View>
             </View>
             <AtIcon
@@ -778,7 +780,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
             <AtTabsPane current={tabValue} index={1}>
               <View className="details">
                 <View className="row" style="border-bottom: 1px solid #F2F2F2">
-                  <View className="icon"></View>
+                  <View className="icon">
+                    <AtIcon value="iphone" color="#A4AAAE" size="20"></AtIcon>
+                  </View>
                   <View className="label">电话</View>
                   <View className="info">
                     <Text
@@ -790,7 +794,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                   </View>
                 </View>
                 <View className="row">
-                  <View className="icon"></View>
+                  <View className="icon">
+                    <AtIcon value="map-pin" color="#A4AAAE" size="20"></AtIcon>
+                  </View>
                   <View className="label">位置</View>
                   <View className="info">
                     <Text>{stadiumInfo?.address}</Text>
@@ -804,7 +810,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px; align-items: flex-start;">
-                  <View className="icon icon-detail"></View>
+                  <View className="icon icon-detail">
+                    <AtIcon value="volume-plus" color="#A4AAAE" size="20"></AtIcon>
+                  </View>
                   <View className="label">说明</View>
                   <View className="info" style="padding-top: 2px">
                     <AtTextarea
