@@ -230,7 +230,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   handleSpaceEdit(space, index) {
-    this.addSpace(space, index);
+    this.addSpace(
+      {
+        ...space,
+      },
+      index
+    );
   }
 
   handleSpaceChange(value, key) {

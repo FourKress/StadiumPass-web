@@ -10,11 +10,18 @@ interface InjectStoreProps {
   tabBarStore: TabBarStore;
 }
 
+interface IState {
+  renderKey: any;
+}
+
 @inject('tabBarStore')
 @observer
-class UserCenter extends Component<InjectStoreProps> {
+class UserCenter extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
+    this.state = {
+      renderKey: '',
+    };
   }
 
   get inject() {
@@ -23,13 +30,17 @@ class UserCenter extends Component<InjectStoreProps> {
   }
 
   componentDidShow() {
+    this.setState({
+      renderKey: Date.now(),
+    });
     this.inject.tabBarStore.setSelected(2);
   }
 
   render() {
     const isBoss = Taro.getStorageSync('auth') === 'boss';
+    const { renderKey } = this.state;
 
-    return isBoss ? <BossMePage /> : <MePage />;
+    return isBoss ? <BossMePage key={renderKey} /> : <MePage key={renderKey} />;
   }
 }
 

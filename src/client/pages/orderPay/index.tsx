@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
+import payService from '@/services/payService';
 
 import './index.scss';
 import dayjs from 'dayjs';
@@ -50,11 +51,11 @@ class OrderPayPage extends Component<{}, IState> {
         id: orderId,
       },
     }).then((res: any) => {
-      const { isMonthlyCard, monthlyCardStatus, monthlyCardPrice, totalPrice, countdown, price } = res;
+      const { monthlyCardStatus, monthlyCardPrice, totalPrice, countdown, price, monthlyCardPayStatus } = res;
       let state;
-      if (monthlyCardStatus) {
+      if (monthlyCardStatus && monthlyCardPayStatus) {
         const diffPrice = totalPrice - price;
-        const hasMonthlyCardAmount = isMonthlyCard ? diffPrice : monthlyCardPrice + diffPrice;
+        const hasMonthlyCardAmount = res.isMonthlyCard ? diffPrice : monthlyCardPrice + diffPrice;
         state = {
           hasMonthlyCardAmount,
           payAmount: hasMonthlyCardAmount,
@@ -76,12 +77,13 @@ class OrderPayPage extends Component<{}, IState> {
           if (!countdown || countdown <= 0) return;
           timer = setInterval(() => {
             const { countdown } = this.state;
-            if (countdown <= 0) {
+            if (countdown < 1000) {
               clearInterval(timer);
+            } else {
+              this.setState({
+                countdown: countdown - 1000,
+              });
             }
-            this.setState({
-              countdown: countdown - 1000,
-            });
           }, 1000);
         }
       );
@@ -89,6 +91,7 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   selectPayMethod(payAmount, payMethod) {
+    if (payMethod === 'monthlyCard' && !this.state.orderInfo.monthlyCardPayStatus) return;
     this.setState({
       payAmount,
       payMethod,
@@ -97,71 +100,21 @@ class OrderPayPage extends Component<{}, IState> {
 
   async handleOrderPay() {
     const {
+      orderInfo: { matchId },
       orderId,
       payMethod,
-      orderInfo: { matchId },
     } = this.state;
-    const orderFromDB: any = await requestData({
-      method: 'POST',
-      api: '/order/pay',
-      params: {
-        id: orderId,
+    await payService(
+      {
+        orderId,
         payMethod,
       },
-    });
-    if (!orderFromDB) {
-      return;
-    }
-    const openId = Taro.getStorageSync('openId');
-    const prePayInfo: any = await requestData({
-      method: 'POST',
-      api: '/wx/pay',
-      params: {
-        orderId,
-        openId,
-        payAmount: orderFromDB.payAmount,
-      },
-    });
-
-    if (prePayInfo) {
-      Taro.requestPayment({
-        appId: 'wx8e63001d0409fa13',
-        timeStamp: prePayInfo.timestamp,
-        nonceStr: prePayInfo.nonceStr,
-        package: prePayInfo.package,
-        paySign: prePayInfo.paySign,
-        // @ts-ignore
-        signType: 'RSA',
-      })
-        .then(async () => {
-          await Taro.showToast({
-            icon: 'none',
-            title: '支付成功!',
-          });
-          await Taro.reLaunch({
-            url: `/client/pages/share/index?matchId=${matchId}`,
-          });
-        })
-        .catch(async (e) => {
-          console.log(e);
-          await Taro.showToast({
-            icon: 'none',
-            title: '支付失败',
-          });
-          await this.changeOrderStatus(orderId, 0);
+      async () => {
+        await Taro.reLaunch({
+          url: `/client/pages/share/index?matchId=${matchId}`,
         });
-    }
-  }
-
-  async changeOrderStatus(orderId, status) {
-    await requestData({
-      method: 'POST',
-      api: '/order/modify',
-      params: {
-        id: orderId,
-        status,
-      },
-    });
+      }
+    );
   }
 
   render() {
@@ -228,7 +181,7 @@ class OrderPayPage extends Component<{}, IState> {
             </View>
             {orderInfo.monthlyCardStatus && (
               <View>
-                <View className="row">
+                <View className={orderInfo.monthlyCardPayStatus ? 'row' : 'row disabled'}>
                   <Text className="icon"></Text>
                   <Text className="label">
                     <Text>场地月卡</Text>
@@ -248,7 +201,7 @@ class OrderPayPage extends Component<{}, IState> {
                   <View className="tips month">
                     <View>月卡用户单场仅可免除1个名额的费用</View>
                     <Text>
-                      月卡有效期：{orderInfo.validPeriodStart}-{orderInfo.validPeriodStart}
+                      月卡有效期：{orderInfo.validPeriodStart}-{orderInfo.validPeriodEnd}
                     </Text>
                   </View>
                 ) : (

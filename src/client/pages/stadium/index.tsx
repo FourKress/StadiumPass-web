@@ -513,27 +513,48 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  handleRefund() {
+  async handleRefund() {
     const { orderId, refundInfo } = this.state;
+    const { refundAmount, refundId } = refundInfo;
+    if (refundAmount === 0) {
+      await requestData({
+        method: 'POST',
+        api: '/order/refund',
+        params: {
+          orderId,
+          status: 3,
+        },
+      });
+      await Taro.showToast({
+        icon: 'none',
+        title: '月卡订单取消成功，请在订单中查看。',
+      });
+      await this.handleRefundSuccess();
+      return;
+    }
     requestData({
       method: 'POST',
       api: '/wx/refund',
       params: {
         orderId,
-        refundAmount: refundInfo.refundAmount,
-        refundId: refundInfo.refundId,
+        refundAmount,
+        refundId,
       },
     }).then(async () => {
       await Taro.showToast({
         icon: 'none',
         title: '发起退款成功，请在订单中查看。',
       });
-      this.setState({
-        orderId: '',
-      });
-      this.getSpace(this.state.stadiumId, currentDay).then(() => {});
-      this.handleCancel(false);
+      await this.handleRefundSuccess();
     });
+  }
+
+  async handleRefundSuccess() {
+    this.setState({
+      orderId: '',
+    });
+    this.getSpace(this.state.stadiumId, currentDay).then(() => {});
+    this.handleCancel(false);
   }
 
   async checkLogin() {

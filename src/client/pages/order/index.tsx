@@ -27,7 +27,9 @@ const colorMap = {
   4: '#1A1E22',
   3: '#1A1E22',
   2: '#93A7B6',
-  6: '#ccc',
+  6: '#cccccc',
+  8: '#FF2000',
+  9: '#FF2000',
 };
 
 class OrderPage extends Component<{}, IState> {
@@ -128,7 +130,7 @@ class OrderPage extends Component<{}, IState> {
                       {[1, 7].includes(item.status) && <Text>组队成功 </Text>}
                       {[3, 4].includes(item.status) &&
                         (item.refundType === 1 ? <Text>组队失败 </Text> : <Text>主动取消 </Text>)}
-                      {item.statusName}
+                      {item.refundAmount === 0 ? '' : item.statusName}
                     </Text>
                   </View>
                   <View className="info">
@@ -141,7 +143,7 @@ class OrderPage extends Component<{}, IState> {
                   </View>
                   <View className="footer">
                     <Text className="date">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
-                    <Text className="money">总价：￥{item.totalPrice}</Text>
+                    <Text className="money">总价：￥{item.payAmount}</Text>
                   </View>
                 </View>
               );

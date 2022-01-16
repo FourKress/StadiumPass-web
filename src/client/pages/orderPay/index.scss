@@ -7,7 +7,7 @@ page {
 }
 
 .pay-page {
-  background-color: #F4F4F4;
+  background-color: #f4f4f4;
   min-height: 100vh;
   box-sizing: border-box;
   position: relative;
@@ -33,14 +33,14 @@ page {
       display: flex;
       height: 48px;
       align-items: center;
-      color: #333D44;
+      color: #333d44;
       font-weight: bold;
 
       .block {
         width: 40px;
         height: 48px;
         line-height: 48px;
-        background-color: #333D44;
+        background-color: #333d44;
         text-align: center;
         color: #fff;
         border-radius: 8px;
@@ -93,6 +93,10 @@ page {
         border-bottom: none;
       }
 
+      &.disabled {
+        opacity: 0.5;
+      }
+
       .icon {
         display: block;
         width: 48px;
@@ -110,13 +114,13 @@ page {
         align-items: center;
 
         .text {
-          color: #93A6B5;
+          color: #93a6b5;
           font-size: 24px;
         }
       }
 
       .money {
-        color: #FF3A30;
+        color: #ff3a30;
         font-size: 32px;
         padding-right: 16px;
         font-weight: bold;
@@ -124,7 +128,7 @@ page {
         align-items: center;
 
         .text {
-          color: #333D44;
+          color: #333d44;
           font-size: 24px;
           font-weight: normal;
         }
@@ -135,7 +139,7 @@ page {
       width: 100%;
       height: 92px;
       line-height: 92px;
-      color: #333D44;
+      color: #333d44;
       font-size: 24px;
     }
 
@@ -176,13 +180,13 @@ page {
       }
 
       .label {
-        color: #93A8B7;
+        color: #93a8b7;
         padding-right: 48px;
       }
 
       .text {
         flex: 1;
-        color: #0F100F;
+        color: #0f100f;
       }
     }
   }
@@ -191,7 +195,7 @@ page {
     width: 100vw;
     box-sizing: border-box;
     padding: 0 32px;
-    color: #A4AAAE;
+    color: #a4aaae;
     font-size: 24px;
   }
 
@@ -213,7 +217,7 @@ page {
       height: 88px;
       line-height: 88px;
       text-align: center;
-      background-color: #FF9502;
+      background-color: #ff9502;
       color: #fff;
       font-size: 28px;
       border-radius: 88px;

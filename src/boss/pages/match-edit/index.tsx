@@ -327,7 +327,7 @@ class MatchEditPage extends Component<{}, IState> {
     }).then(() => {
       Taro.showToast({
         icon: 'none',
-        title: '场次保存成功',
+        title: '场次保存成功,在新的重复日期上开始生效',
       });
       Taro.navigateBack({
         delta: -1,
