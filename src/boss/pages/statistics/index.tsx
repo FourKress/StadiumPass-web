@@ -149,7 +149,8 @@ class StatisticsPage extends Component<{}, IState> {
 
   render() {
     const { tabPosition, statisticsDate, tabActive, topList, summary } = this.state;
-    const tabs = ['收入统计', '支出统计'];
+    // const tabs = ['收入统计', '支出统计'];
+    const tabs = ['收入统计'];
 
     return (
       <View className="statistics-page">

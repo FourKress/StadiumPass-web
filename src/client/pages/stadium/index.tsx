@@ -7,6 +7,7 @@ import requestData from '@/utils/requestData';
 import * as LoginService from '@/services/loginService';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import dayjs from 'dayjs';
+import * as currency from 'currency.js';
 
 import './index.scss';
 import { SERVER_DOMAIN, SERVER_PROTOCOL } from '@/src/config';
@@ -515,7 +516,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
   async handleRefund() {
     const { orderId, refundInfo } = this.state;
-    const { refundAmount, refundId } = refundInfo;
+    const { refundAmount, refundId, payAmount } = refundInfo;
     if (refundAmount === 0) {
       await requestData({
         method: 'POST',
@@ -539,6 +540,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         orderId,
         refundAmount,
         refundId,
+        payAmount,
       },
     }).then(async () => {
       await Taro.showToast({
@@ -861,7 +863,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                     ，共：
                   </View>
                   <View className="money">
-                    <View className="new">{selectList.length * currentMatch.price * (currentMatch.rebate / 10)}</View>
+                    <View className="new">
+                      {currency(selectList.length * currentMatch.price).multiply(currentMatch.rebate / 10).value}
+                    </View>
                     <View className="old">
                       <Text className="price">{selectList.length * currentMatch.price}</Text>
                       <View className="tips1">{currentMatch.rebate}折</View>

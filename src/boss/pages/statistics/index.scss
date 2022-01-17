@@ -53,28 +53,30 @@ page {
         font-size: 32px;
         font-weight: bold;
 
+        justify-content: center;
+
         .item {
           width: 50%;
           height: 100%;
-          background-color: #303043;
-          border: 1px solid #fff;
+          //background-color: #303043;
+          //border: 1px solid #fff;
 
-          &:last-child {
-            border-top-right-radius: 32px;
-            border-bottom-right-radius: 32px;
-            border-left: none;
-          }
-
-          &:first-child {
-            border-top-left-radius: 32px;
-            border-bottom-left-radius: 32px;
-            border-right: none;
-          }
-
-          &.active {
-            color: #101010;
-            background-color: #fff;
-          }
+          //&:last-child {
+          //  border-top-right-radius: 32px;
+          //  border-bottom-right-radius: 32px;
+          //  border-left: none;
+          //}
+          //
+          //&:first-child {
+          //  border-top-left-radius: 32px;
+          //  border-bottom-left-radius: 32px;
+          //  border-right: none;
+          //}
+          //
+          //&.active {
+          //  color: #101010;
+          //  background-color: #fff;
+          //}
         }
       }
     }

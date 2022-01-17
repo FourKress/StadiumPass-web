@@ -48,6 +48,7 @@
     "@tarojs/taro": "^3.2.1",
     "@types/classnames": "^2.2.11",
     "classnames": "^2.2.6",
+    "currency.js": "^2.0.4",
     "dayjs": "^1.10.5",
     "global": "^4.4.0",
     "mobx": "^5.15.7",

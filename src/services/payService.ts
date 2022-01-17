@@ -15,7 +15,7 @@ const changeOrderStatus = async (orderId, params) => {
 const paySuccess = async (cb) => {
   await Taro.showToast({
     icon: 'none',
-    title: '支付成功!',
+    title: '支付成功',
   });
   cb && cb();
 };

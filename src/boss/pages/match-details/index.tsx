@@ -105,7 +105,13 @@ class MatchDetailsPage extends Component<{}, IState> {
     const { matchList, peopleList, matchInfo } = this.state;
 
     return (
-      <View className={matchInfo.status ? 'match-details-page' : 'match-details-page full'}>
+      <View
+        className={
+          matchInfo.status && !matchInfo.isDone && !matchInfo.isCancel
+            ? 'match-details-page'
+            : 'match-details-page full'
+        }
+      >
         <View className="list">
           <View className="scroll-wrap">
             {matchList.map((index) => {
@@ -135,7 +141,7 @@ class MatchDetailsPage extends Component<{}, IState> {
                     <Image className="img" src=""></Image>
                     <Text className="index">{index}</Text>
                     <Text className="name" style="color: #DEDEDD;">
-                      等待报名
+                      {matchInfo.isCancel ? '组队失败' : matchInfo.isDone ? '已结束' : '等待报名'}
                     </Text>
                   </View>
                   {index + 1 === matchInfo.minPeople && isMinPeople}
@@ -145,13 +151,11 @@ class MatchDetailsPage extends Component<{}, IState> {
           </View>
         </View>
 
-        {matchInfo.status && !matchInfo.isDone && (
+        {matchInfo.status && !matchInfo.isDone && !matchInfo.isCancel && (
           <View className="btn-list">
-            {!matchInfo.isCancel && (
-              <View className="btn" onClick={() => this.handleCancel()}>
-                取消本场次
-              </View>
-            )}
+            <View className="btn" onClick={() => this.handleCancel()}>
+              取消本场次
+            </View>
             <View className="btn">分享场次</View>
           </View>
         )}

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Picker, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { AtIcon } from 'taro-ui';
-// import requestData from '@/utils/requestData';
 
 import './index.scss';
 
@@ -70,7 +69,8 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     // 兼容注入store 类型
     return this.props as InjectStoreProps;
   }
-  componentDidShow() {
+
+  componentDidMount() {
     this.inject.tabBarStore.setSelected(1);
     this.setMeBtnPosition();
     const userInfo = Taro.getStorageSync('userInfo') || '';
@@ -203,7 +203,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
                         ) : (
                           <Text style="color: #ff0000">本场已取消</Text>
                         )}
-                        {item.status && !item.isDone && (
+                        {item.status && !item.isDone && !item.isCancel && (
                           <View className="share">
                             <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
                             <Text>分享</Text>

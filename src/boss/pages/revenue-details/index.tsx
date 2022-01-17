@@ -162,7 +162,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
                       <Text className="name">{item.user?.nickName}</Text>
                     </View>
                     <View className="info">
-                      <View className="money">-{item.payAmount}</View>
+                      <View className="money">-{item.payAmount - (item.payAmount - (item.refundAmount || 0))}</View>
                       <View className="count">退款时间：{dayjs(item.updatedAt).format('MM-DD HH:MM')}</View>
                     </View>
                   </View>
