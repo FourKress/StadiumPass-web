@@ -92,11 +92,29 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     const { unitList, stadiumInfo, spaceDate, currentMatch, spaceList, spaceActive } = this.state;
     const { id, spaceId, startAt, endAt } = currentMatch;
     const space = spaceList[spaceActive];
+    let imageData = '';
+    await Taro.request({
+      url: 'http://150.158.22.228:4927/registry/generate',
+      method: 'GET',
+      success: (res) => {
+        imageData = res.data;
+      },
+    });
+    console.log(imageData);
+
+    const fs = Taro.getFileSystemManager();
+    const imgPath = `${Taro.env.USER_DATA_PATH}_${Date.now()}.jpg`;
+
+    const preViewUrl = fs.writeFileSync(imgPath, imageData, 'base64');
+
+    // fs.unlinkSync()
+    console.log(preViewUrl);
+
     return {
       title: `${stadiumInfo.name}/${space.name}${
         unitList.find((d) => d.value === space.unit)?.label
       }/${spaceDate} ${startAt}-${endAt}`,
-      imageUrl: 'https://ossweb-img.qq.com/images/lol/web201310/skin/big84000.jpg',
+      imageUrl: preViewUrl,
       path: `/client/pages/stadium/index?stadiumId=${stadiumInfo.id}&runDate=${spaceDate}&spaceId=${spaceId}&matchId=${id}`,
     };
   }
