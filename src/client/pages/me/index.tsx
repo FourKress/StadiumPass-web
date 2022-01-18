@@ -208,7 +208,7 @@ class MePage extends Component<{}, IState> {
             <View className="loginBox">
               <View className="box">
                 <Image className="avatar" src={userInfo.avatarUrl}></Image>
-                <AtIcon className="member" value="user" size="20" color="#fff"></AtIcon>
+                <View className="member"></View>
               </View>
               <View className="text">{userInfo.nickName}</View>
               <Text>本月组队：{userInfo.teamUpCount}次</Text>
@@ -228,30 +228,30 @@ class MePage extends Component<{}, IState> {
             <View className="item" onClick={() => this.jumpOrder(0)}>
               {orderCount.payCount ? (
                 <AtBadge value={orderCount.payCount} maxValue={99}>
-                  <View className="icon"></View>
+                  <View className="icon icon-1"></View>
                 </AtBadge>
               ) : (
-                <View className="icon"></View>
+                <View className="icon icon-1"></View>
               )}
               <Text className="name">待付款</Text>
             </View>
             <View className="item" onClick={() => this.jumpOrder(1)}>
               {orderCount.startCount ? (
                 <AtBadge value={orderCount.startCount} maxValue={99}>
-                  <View className="icon"></View>
+                  <View className="icon icon-2"></View>
                 </AtBadge>
               ) : (
-                <View className="icon"></View>
+                <View className="icon icon-2"></View>
               )}
               <Text className="name">待开始</Text>
             </View>
             <View className="item" onClick={() => this.jumpOrder(2)}>
               {orderCount.allCount ? (
                 <AtBadge value={orderCount.allCount} maxValue={99}>
-                  <View className="icon"></View>
+                  <View className="icon icon-3"></View>
                 </AtBadge>
               ) : (
-                <View className="icon"></View>
+                <View className="icon icon-3"></View>
               )}
               <Text className="name">全部订单</Text>
             </View>
@@ -260,7 +260,7 @@ class MePage extends Component<{}, IState> {
           <View className="nav-list">
             <View className="panel">
               <View className="item" onClick={() => this.jumpMonthlyCard()}>
-                <View className="icon"></View>
+                <View className="icon card-icon"></View>
                 <Text className="label">场馆月卡</Text>
                 <View className="info">
                   {userInfo.monthlyCardCount > 0 && <Text className="name">已开通：{userInfo.monthlyCardCount}张</Text>}

@@ -66,7 +66,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
   async onShareAppMessage() {
     const { stadiumInfo, spaceDate, spaceList, spaceActive, currentMatch } = this.state;
-    const { id, startAt, endAt } = currentMatch;
+    const { id, startAt, endAt, selectPeople, minPeople, totalPeople, isDone, isCancel } = currentMatch;
     const space = spaceList[spaceActive];
     const matchInfo = {
       stadium: stadiumInfo,
@@ -75,6 +75,11 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       startAt,
       endAt,
       id,
+      selectPeople,
+      minPeople,
+      totalPeople,
+      isDone,
+      isCancel,
     };
     return handleShare({
       matchInfo,

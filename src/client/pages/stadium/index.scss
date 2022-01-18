@@ -449,6 +449,8 @@ page {
           align-items: baseline;
           .icon-space {
             transform: translateY(8px);
+            background: url("../../../assets/icons/stadium.png") no-repeat;
+            background-size: 100% 100%;
           }
 
           .icon-detail {

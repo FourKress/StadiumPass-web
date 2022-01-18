@@ -69,7 +69,10 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
               data-path={item.pagePath}
               key={item.text}
             >
-              <Image className="bottom-tab-item-img" src={selected === index ? item.selectedIconPath : item.iconPath} />
+              <Image
+                className="bottom-tab-item-img"
+                src={`../${selected === index ? item.selectedIconPath : item.iconPath}`}
+              />
               <View
                 className="bottom-tab-item-text"
                 style={{

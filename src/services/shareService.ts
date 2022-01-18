@@ -21,20 +21,31 @@ const getMemberList = async (matchId) => {
 
 const handleShare = async (state) => {
   const { matchInfo } = state;
-  const { stadium, space, runDate, startAt, endAt, id } = matchInfo;
+  const { stadium, space, runDate, startAt, endAt, id, selectPeople, minPeople, totalPeople, isDone, isCancel } =
+    matchInfo;
+  const count = selectPeople >= minPeople ? totalPeople : minPeople;
   let imageData = '';
 
   const memberList: any = await getMemberList(id);
-  const userList = memberList.map((d) => {
-    const { avatarUrl, nickName } = d;
-    return {
-      avatarUrl,
-      nickName,
-    };
-  });
+  console.log(memberList, count);
+  const userList = Array(count)
+    .fill({})
+    .map((d, i) => {
+      const target = memberList[i];
+      if (target) {
+        const { avatarUrl, nickName } = target;
+        return {
+          avatarUrl,
+          nickName,
+        };
+      }
+      return d;
+    });
 
   await Taro.request({
-    url: `http://150.158.22.228:4927/registry/generate?userList=${JSON.stringify(userList)}`,
+    url: `http://150.158.22.228:4927/registry/generate?userList=${JSON.stringify(
+      userList
+    )}&isDone=${isDone}&isCancel=${isCancel}`,
     method: 'GET',
     success: (res) => {
       imageData = res.data;

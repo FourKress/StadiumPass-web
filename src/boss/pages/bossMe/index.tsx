@@ -143,7 +143,7 @@ class BossMePage extends Component<any, IState> {
             <View className="loginBox">
               <View className="box">
                 <Image className="avatar" src={userInfo.avatarUrl}></Image>
-                <AtIcon className="member" value="user" size="20" color="#fff"></AtIcon>
+                <View className="member"></View>
               </View>
               <View className="text">{userInfo.nickName}</View>
             </View>

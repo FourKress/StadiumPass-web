@@ -174,7 +174,7 @@ class OrderPayPage extends Component<{}, IState> {
           <View className="pay">
             <View className="top">场次信息</View>
             <View className="row">
-              <Text className="icon"></Text>
+              <Text className="icon icon-1"></Text>
               <Text className="label">微信支付</Text>
               <Text className="money">￥{orderInfo.totalPrice}</Text>
               <Text className="icon" onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}></Text>
@@ -182,7 +182,7 @@ class OrderPayPage extends Component<{}, IState> {
             {orderInfo.monthlyCardStatus && (
               <View>
                 <View className={orderInfo.monthlyCardPayStatus ? 'row' : 'row disabled'}>
-                  <Text className="icon"></Text>
+                  <Text className="icon icon-2"></Text>
                   <Text className="label">
                     <Text>场地月卡</Text>
                     {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
