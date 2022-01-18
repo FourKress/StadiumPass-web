@@ -27,7 +27,6 @@ const handleShare = async (state) => {
   let imageData = '';
 
   const memberList: any = await getMemberList(id);
-  console.log(memberList, count);
   const userList = Array(count)
     .fill({})
     .map((d, i) => {
@@ -37,15 +36,19 @@ const handleShare = async (state) => {
         return {
           avatarUrl,
           nickName,
+          isDone,
+          isCancel,
         };
       }
-      return d;
+      return {
+        ...d,
+        isDone,
+        isCancel,
+      };
     });
 
   await Taro.request({
-    url: `http://150.158.22.228:4927/registry/generate?userList=${JSON.stringify(
-      userList
-    )}&isDone=${isDone}&isCancel=${isCancel}`,
+    url: `http://150.158.22.228:4927/registry/generate?userList=${JSON.stringify(userList)}`,
     method: 'GET',
     success: (res) => {
       imageData = res.data;
