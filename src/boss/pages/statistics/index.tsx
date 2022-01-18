@@ -190,8 +190,8 @@ class StatisticsPage extends Component<{}, IState> {
           </View>
         </View>
         <View className="main">
-          <View className="title">收入对比</View>
-          <View className="charts">{this.renderChart()}</View>
+          {/*<View className="title">收入对比</View>*/}
+          {/*<View className="charts">{this.renderChart()}</View>*/}
           <View className="title">报名Top10</View>
           {topList.length > 0 ? (
             <View className="list">

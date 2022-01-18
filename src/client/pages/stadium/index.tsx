@@ -17,6 +17,7 @@ const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
 import LoginStore from '@/store/loginStore';
 import { inject, observer } from 'mobx-react';
 import { setGlobalData } from '@/utils/globalData';
+import { handleShare, setShareMenu } from '@/services/shareService';
 
 interface IState {
   tabValue: number;
@@ -64,59 +65,20 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
   }
 
   async onShareAppMessage() {
-    const activityId: any = await this.getActivityId();
-    console.log('activityId', activityId);
-    await Taro.updateShareMenu({
-      isUpdatableMessage: true,
-      activityId: activityId, // 活动 ID
-      templateInfo: {
-        parameterList: [
-          {
-            name: 'member_count',
-            value: '1',
-          },
-          {
-            name: 'room_limit',
-            value: '3',
-          },
-        ],
-      },
-      fail: (err) => {
-        console.log('err', err);
-        Taro.showToast({
-          icon: 'none',
-          title: '分享失败',
-        });
-      },
-    });
-    const { unitList, stadiumInfo, spaceDate, currentMatch, spaceList, spaceActive } = this.state;
-    const { id, spaceId, startAt, endAt } = currentMatch;
+    const { stadiumInfo, spaceDate, spaceList, spaceActive, currentMatch } = this.state;
+    const { id, startAt, endAt } = currentMatch;
     const space = spaceList[spaceActive];
-    let imageData = '';
-    await Taro.request({
-      url: 'http://150.158.22.228:4927/registry/generate',
-      method: 'GET',
-      success: (res) => {
-        imageData = res.data;
-      },
-    });
-    console.log(imageData);
-
-    const fs = Taro.getFileSystemManager();
-    const imgPath = `${Taro.env.USER_DATA_PATH}_${Date.now()}.jpg`;
-
-    const preViewUrl = fs.writeFileSync(imgPath, imageData, 'base64');
-
-    // fs.unlinkSync()
-    console.log(preViewUrl);
-
-    return {
-      title: `${stadiumInfo.name}/${space.name}${
-        unitList.find((d) => d.value === space.unit)?.label
-      }/${spaceDate} ${startAt}-${endAt}`,
-      imageUrl: preViewUrl,
-      path: `/client/pages/stadium/index?stadiumId=${stadiumInfo.id}&runDate=${spaceDate}&spaceId=${spaceId}&matchId=${id}`,
+    const matchInfo = {
+      stadium: stadiumInfo,
+      space,
+      runDate: spaceDate,
+      startAt,
+      endAt,
+      id,
     };
+    return handleShare({
+      matchInfo,
+    });
   }
 
   initData() {
@@ -147,11 +109,6 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
   async componentWillMount() {
     await this.setHeaderPosition();
-    await Taro.showShareMenu({
-      withShareTicket: true,
-      // @ts-ignore
-      menus: ['shareAppMessage', 'shareTimeline'],
-    });
     // @ts-ignore
     const pageParams = await Taro.getCurrentInstance().router.params;
     const id = pageParams.stadiumId + '';
@@ -188,6 +145,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     } else {
       await this.checkLogin();
     }
+    await setShareMenu();
   }
 
   async componentDidShow() {
@@ -216,15 +174,6 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       headerPosition: {
         top: stateHeight + top + (height - 24) / 2,
       },
-    });
-  }
-
-  getActivityId() {
-    return requestData({
-      method: 'GET',
-      api: '/wx/getActivityId',
-    }).then((res) => {
-      return res;
     });
   }
 

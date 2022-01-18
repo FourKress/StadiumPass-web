@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View, Image } from '@tarojs/components';
+import { Text, View, Image, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
+import { handleShare, setShareMenu } from '@/services/shareService';
 
 import './index.scss';
 
@@ -25,7 +26,7 @@ class MatchDetailsPage extends Component<{}, IState> {
     };
   }
 
-  componentDidShow() {
+  async componentDidShow() {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const matchId = (pageParams.matchId + '').toString();
@@ -36,6 +37,11 @@ class MatchDetailsPage extends Component<{}, IState> {
       matchId,
       stadiumId,
     });
+    await setShareMenu();
+  }
+
+  async onShareAppMessage() {
+    return await handleShare(this.state);
   }
 
   getMatchInfo(id) {
@@ -156,7 +162,9 @@ class MatchDetailsPage extends Component<{}, IState> {
             <View className="btn" onClick={() => this.handleCancel()}>
               取消本场次
             </View>
-            <View className="btn">分享场次</View>
+            <Button className="btn share" openType="share">
+              分享场次
+            </Button>
           </View>
         )}
       </View>

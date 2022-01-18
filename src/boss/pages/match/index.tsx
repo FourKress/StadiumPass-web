@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Picker, Text, View } from '@tarojs/components';
+import { Picker, Text, View, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { AtIcon } from 'taro-ui';
 
@@ -9,6 +9,7 @@ import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
 import dayjs from 'dayjs';
 import requestData from '@/utils/requestData';
+import { handleShare, setShareMenu } from '@/services/shareService';
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
@@ -70,7 +71,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     return this.props as InjectStoreProps;
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.inject.tabBarStore.setSelected(1);
     this.setMeBtnPosition();
     const userInfo = Taro.getStorageSync('userInfo') || '';
@@ -80,6 +81,14 @@ class MatchPage extends Component<InjectStoreProps, IState> {
       });
       this.getStadiumList();
     }
+    await setShareMenu();
+  }
+
+  async onShareAppMessage(event) {
+    const matchInfo = event.target.dataset.share;
+    return await handleShare({
+      matchInfo,
+    });
   }
 
   setMeBtnPosition() {
@@ -194,7 +203,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
             <View className="scroll-warp">
               {matchList.map((item) => {
                 return (
-                  <View className="item" onClick={() => this.jumpDetails(item)}>
+                  <View className="item">
                     <View className="top">
                       <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
                       <View className="right">
@@ -204,14 +213,14 @@ class MatchPage extends Component<InjectStoreProps, IState> {
                           <Text style="color: #ff0000">本场已取消</Text>
                         )}
                         {item.status && !item.isDone && !item.isCancel && (
-                          <View className="share">
+                          <Button className="share" openType="share" data-share={item}>
                             <AtIcon value="share" size="14" color="#0080FF"></AtIcon>
                             <Text>分享</Text>
-                          </View>
+                          </Button>
                         )}
                       </View>
                     </View>
-                    <View className="item-body">
+                    <View className="item-body" onClick={() => this.jumpDetails(item)}>
                       <View>场地：{item.space?.name}</View>
                       <View>
                         时间：{item.repeatName} / {item.startAt}-{item.endAt}

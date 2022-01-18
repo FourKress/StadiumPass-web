@@ -5,6 +5,7 @@ import { AtIcon } from 'taro-ui';
 
 import './index.scss';
 import requestData from '@/utils/requestData';
+import { handleShare, setShareMenu } from '@/services/shareService';
 
 interface IState {
   matchId: string;
@@ -27,18 +28,13 @@ class SharePage extends Component<{}, IState> {
   async componentDidShow() {
     this.setMeBtnPosition();
     // @ts-ignore
-    await Taro.showShareMenu({
-      withShareTicket: true,
-      // @ts-ignore
-      menus: ['shareAppMessage', 'shareTimeline'],
-    });
-    // @ts-ignore
     const matchId = Taro.getCurrentInstance().router.params.matchId + '';
     this.getMatchInfo(matchId);
     await this.getUnitList();
     this.setState({
       matchId,
     });
+    await setShareMenu();
   }
 
   async getUnitList() {
@@ -81,17 +77,8 @@ class SharePage extends Component<{}, IState> {
     });
   }
 
-  onShareAppMessage() {
-    const { matchInfo, unitList } = this.state;
-    const { stadium, space, runDate, startAt, endAt, id } = matchInfo;
-    const shareObj = {
-      title: `${stadium.name}/${space.name}${
-        unitList.find((d) => d.value === space.unit)?.label
-      }/${runDate} ${startAt}-${endAt}`,
-      path: `/client/pages/stadium/index?stadiumId=${stadium.id}&runDate=${runDate}&spaceId=${space.id}&matchId=${id}`,
-      imageUrl: '',
-    };
-    return shareObj;
+  async onShareAppMessage() {
+    return await handleShare(this.state);
   }
 
   async goBack() {
