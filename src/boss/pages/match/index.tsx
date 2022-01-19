@@ -84,6 +84,13 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     await setShareMenu();
   }
 
+  componentDidShow() {
+    const { stadiumInfo } = this.state;
+    if (stadiumInfo?.id) {
+      this.getMatchList(stadiumInfo.id, dateNow);
+    }
+  }
+
   async onShareAppMessage(event) {
     const matchInfo = event.target.dataset.share;
     return await handleShare({
