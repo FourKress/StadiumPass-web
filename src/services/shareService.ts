@@ -21,8 +21,19 @@ const getMemberList = async (matchId) => {
 
 const handleShare = async (state) => {
   const { matchInfo } = state;
-  const { stadium, space, runDate, startAt, endAt, id, selectPeople, minPeople, totalPeople, isDone, isCancel } =
-    matchInfo;
+  const {
+    stadium,
+    space,
+    runDate,
+    startAt,
+    endAt,
+    id,
+    selectPeople,
+    minPeople,
+    totalPeople,
+    isDone,
+    isCancel,
+  } = matchInfo;
   const count = selectPeople >= minPeople ? totalPeople : minPeople;
   let imageData = '';
 
@@ -31,19 +42,23 @@ const handleShare = async (state) => {
     .fill({})
     .map((d, i) => {
       const target = memberList[i];
+      const index = i + 1;
+      const data = {
+        index,
+        isDone,
+        isCancel,
+      };
       if (target) {
         const { avatarUrl, nickName } = target;
         return {
           avatarUrl,
           nickName,
-          isDone,
-          isCancel,
+          ...data,
         };
       }
       return {
         ...d,
-        isDone,
-        isCancel,
+        ...data,
       };
     });
 
