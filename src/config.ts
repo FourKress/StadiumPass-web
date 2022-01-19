@@ -5,7 +5,7 @@ let serverDomain = '';
 
 if (NODE_ENV !== 'development') {
   serverProtocol = 'https://';
-  if (NODE_ENV === 'testProd') {
+  if (NODE_ENV === 'server') {
     serverDomain = 'wx-test.qiuchangtong.xyz';
   } else {
     serverDomain = 'wx.qiuchangtong.xyz';
