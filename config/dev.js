@@ -1,9 +1,8 @@
 module.exports = {
   env: {
-    NODE_ENV: '"production"'
+    NODE_ENV: '"development"',
   },
-  defineConstants: {
-  },
+  defineConstants: {},
   mini: {},
-  h5: {}
-}
+  h5: {},
+};
