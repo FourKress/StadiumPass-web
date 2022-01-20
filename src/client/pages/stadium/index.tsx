@@ -581,6 +581,17 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  async showMap() {
+    const { stadiumInfo } = this.state;
+    const { latitude, longitude, address } = stadiumInfo;
+    await Taro.openLocation({
+      latitude,
+      longitude,
+      scale: 18,
+      name: address,
+    });
+  }
+
   render() {
     const {
       tabValue,
@@ -636,7 +647,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 <View className="icon">
                   <AtIcon value="map-pin" size="14" color="#666"></AtIcon>
                 </View>
-                <Text className="text">{stadiumInfo?.address}</Text>
+                <Text className="text" onClick={() => this.showMap()}>
+                  {stadiumInfo?.address}
+                </Text>
               </View>
             </View>
             <AtIcon
@@ -794,7 +807,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                   </View>
                   <View className="label">位置</View>
                   <View className="info">
-                    <Text>{stadiumInfo?.address}</Text>
+                    <Text onClick={() => this.showMap()}>{stadiumInfo?.address}</Text>
                   </View>
                 </View>
                 <View className="row flex-start" style="margin-top: 16px">
@@ -809,7 +822,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                     <AtIcon value="volume-plus" color="#A4AAAE" size="20"></AtIcon>
                   </View>
                   <View className="label">说明</View>
-                  <View className="info" style="padding-top: 2px">
+                  <View className="info" style="transform: translateY(-7px);">
                     <AtTextarea
                       disabled
                       count={false}

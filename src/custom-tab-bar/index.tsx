@@ -28,7 +28,7 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     if (pagePath.includes('community')) {
       await Taro.showToast({
         icon: 'none',
-        title: '敬请期待!',
+        title: '敬请期待',
       });
       return;
     }

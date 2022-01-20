@@ -54,8 +54,20 @@ class MePage extends Component<{}, IState> {
           return;
         }
         this.getOrderCount();
+        this.getUserInfo();
       }
     );
+  }
+
+  getUserInfo() {
+    requestData({
+      method: 'GET',
+      api: '/user/findOneById',
+    }).then((res: any) => {
+      this.setState({
+        userInfo: res,
+      });
+    });
   }
 
   getOrderCount() {

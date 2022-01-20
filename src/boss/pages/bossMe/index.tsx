@@ -162,9 +162,9 @@ class BossMePage extends Component<any, IState> {
           <View className="nav-list">
             {stadiumList.map((item) => {
               return (
-                <View className="panel">
+                <View className="panel stadium-panel">
                   <View className="item" onClick={() => this.jumpDetails(item.id)}>
-                    <View className="icon"></View>
+                    <View className="icon icon-stadium"></View>
                     <Text className="label">{item.name}</Text>
                     <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
                   </View>
