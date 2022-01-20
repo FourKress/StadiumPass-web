@@ -12,7 +12,7 @@ if (NODE_ENV !== 'development') {
   }
 } else {
   serverProtocol = 'http://';
-  serverDomain = 'localhost:9527';
+  serverDomain = 'localhost:3000';
 }
 
 export const SERVER_PROTOCOL = serverProtocol;
