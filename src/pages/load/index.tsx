@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View } from '@tarojs/components';
+import { View, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 
 import './index.scss';
 
 import * as LoginService from '@/services/loginService';
+import { SERVER_DOMAIN, SERVER_PROTOCOL } from '@/src/config';
 
 interface IState {}
 
@@ -37,13 +38,19 @@ class LoadPage extends Component<{}, IState> {
 
     Taro.setStorageSync('auth', auth);
     Taro.hideToast();
-    await Taro.reLaunch({
-      url,
-    });
+    setTimeout(() => {
+      Taro.reLaunch({
+        url,
+      });
+    }, 1000);
   }
 
   render() {
-    return <View></View>;
+    return (
+      <View className="load-page">
+        <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}/images/load.jpg`} className="load-bg" />
+      </View>
+    );
   }
 }
 

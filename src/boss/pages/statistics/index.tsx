@@ -8,49 +8,12 @@ import dayjs from 'dayjs';
 
 import './index.scss';
 
-// @ts-ignore
-import * as echarts from '../../../ec-canvas/echarts.min.js';
-
-let chart = null;
-
 interface IState {
   tabPosition: object;
   statisticsDate: string;
   tabActive: number;
   summary: any;
-  ec: object;
   topList: Array<any>;
-}
-
-const option = {
-  xAxis: {
-    type: 'category',
-    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
-  },
-  yAxis: {
-    type: 'value',
-  },
-  grid: {
-    right: '0%',
-  },
-  series: [
-    {
-      data: [120, 200, 150, 80, 70, 110, 130],
-      type: 'bar',
-    },
-  ],
-};
-
-function initChart(canvas, width, height, dpr) {
-  chart = echarts.init(canvas, null, {
-    width: width,
-    height: height,
-    devicePixelRatio: dpr, // new
-  });
-  canvas.setChart(chart);
-  // @ts-ignore
-  chart.setOption(option);
-  return chart;
 }
 
 class StatisticsPage extends Component<{}, IState> {
@@ -61,9 +24,6 @@ class StatisticsPage extends Component<{}, IState> {
       summary: {},
       tabActive: 0,
       statisticsDate: dayjs().format('YYYY-MM'),
-      ec: {
-        onInit: initChart,
-      },
       topList: [],
     };
   }
@@ -136,15 +96,6 @@ class StatisticsPage extends Component<{}, IState> {
     Taro.navigateBack({
       delta: -1,
     });
-  }
-
-  refChart = React.createRef();
-
-  renderChart() {
-    return (
-      // @ts-ignore
-      <ec-canvas ref={this.refChart} canvas-id="chart-area" ec={this.state.ec} force-use-old-canvas="true" />
-    );
   }
 
   render() {
