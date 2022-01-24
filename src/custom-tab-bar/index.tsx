@@ -53,9 +53,20 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     const isBoss = Taro.getStorageSync('auth') === 'boss';
 
     const filterKeys: string[] = isBoss ? ['revenue', 'match'] : ['community', 'waitStart'];
-    const tabBarList = tabBar.list.filter(
-      (d) => filterKeys.some((key) => d.pagePath.includes(key)) || d.pagePath.includes('userCenter')
-    );
+    const tabBarList = tabBar.list
+      .filter((d) => filterKeys.some((key) => d.pagePath.includes(key)) || d.pagePath.includes('userCenter'))
+      .map((d, i) => {
+        if (i === 2) {
+          if (isBoss) {
+            d.iconPath = require('../assets/icons/bar-5.png');
+            d.selectedIconPath = require('../assets/icons/bar-6.png');
+          } else {
+            d.iconPath = require('../assets/icons/bar-10.png');
+            d.selectedIconPath = require('../assets/icons/bar-11.png');
+          }
+        }
+        return d;
+      });
 
     return (
       <View className="bottom-tab">
@@ -69,10 +80,17 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
               data-path={item.pagePath}
               key={item.text}
             >
-              <Image
-                className="bottom-tab-item-img"
-                src={`../${selected === index ? item.selectedIconPath : item.iconPath}`}
-              />
+              {index !== 2 ? (
+                <Image
+                  className="bottom-tab-item-img"
+                  src={`../${selected === index ? item.selectedIconPath : item.iconPath}`}
+                />
+              ) : (
+                <Image
+                  className="bottom-tab-item-img"
+                  src={selected === index ? item.selectedIconPath : item.iconPath}
+                />
+              )}
               <View
                 className="bottom-tab-item-text"
                 style={{

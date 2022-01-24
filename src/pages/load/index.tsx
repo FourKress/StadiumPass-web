@@ -42,7 +42,7 @@ class LoadPage extends Component<{}, IState> {
       Taro.reLaunch({
         url,
       });
-    }, 1000);
+    }, 600);
   }
 
   render() {
