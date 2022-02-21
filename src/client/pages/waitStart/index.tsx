@@ -43,8 +43,8 @@ interface InjectStoreProps {
 const weekMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 const statusMap = {
   '0': '待付款',
-  '1': '已成团',
-  '2': '待成团',
+  '1': '已组队',
+  '2': '待组队',
   '3': '进行中',
 };
 
@@ -388,6 +388,17 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  async showMap(event, item) {
+    event.stopPropagation();
+    const { latitude, longitude, address } = item;
+    await Taro.openLocation({
+      latitude,
+      longitude,
+      scale: 18,
+      name: address,
+    });
+  }
+
   render() {
     const {
       headerPosition,
@@ -528,11 +539,12 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                       </View>
                       <View className="info" onClick={() => this.jumpStadium(item.id)}>
                         <View className="name">{item.name}</View>
-                        <View>
+                        <View onClick={(e) => this.showMap(e, item)}>
                           <Text className="address">[{item.district}]</Text>
                           <Text className="num">
                             {distance >= 1000 ? `${(distance / 1000).toFixed(2)}km` : `${distance}m`}
                           </Text>
+                          <AtIcon value="map-pin" size="14" color="#666"></AtIcon>
                         </View>
                       </View>
                       <View className="money" onClick={() => this.jumpStadium(item.id)}>

@@ -592,6 +592,12 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  async goUserCenter() {
+    await Taro.switchTab({
+      url: '/pages/userCenter/index',
+    });
+  }
+
   render() {
     const {
       tabValue,
@@ -637,6 +643,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
           </Swiper>
           <View className="back-icon" style={{ top: headerPosition.top }}>
             <AtIcon onClick={() => this.goBack()} value="chevron-left" size="24" color="#000"></AtIcon>
+            <View onClick={() => this.goUserCenter()} className="back-center">
+              返回个人中心
+            </View>
           </View>
         </View>
         <View className="main">
