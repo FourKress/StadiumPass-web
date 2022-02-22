@@ -1,5 +1,6 @@
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
+import { SERVER_PROTOCOL, SERVER_DOMAIN } from '@/src/config';
 
 const setShareMenu = async () => {
   await Taro.showShareMenu({
@@ -51,7 +52,7 @@ const handleShare = async (state) => {
     });
 
   await Taro.request({
-    url: `http://150.158.22.228:4927/registry/generate?userList=${JSON.stringify(userList)}`,
+    url: `${SERVER_PROTOCOL}${SERVER_DOMAIN}/shareImage/registry/generate?userList=${JSON.stringify(userList)}`,
     method: 'GET',
     success: (res) => {
       imageData = res.data;
