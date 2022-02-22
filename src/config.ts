@@ -17,5 +17,6 @@ if (NODE_ENV !== 'development') {
 
 export const SERVER_PROTOCOL = serverProtocol;
 export const SERVER_DOMAIN = serverDomain;
+export const SERVER_STATIC = '/serverStatic';
 // 后端 API 地址
 export const SERVER_API_ROOT = `${SERVER_PROTOCOL}${SERVER_DOMAIN}/api`;

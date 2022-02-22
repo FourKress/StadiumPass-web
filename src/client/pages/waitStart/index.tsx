@@ -13,7 +13,7 @@ import LoginStore from '@/store/loginStore';
 import { inject, observer } from 'mobx-react';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import * as LoginService from '@/services/loginService';
-import { SERVER_PROTOCOL, SERVER_DOMAIN } from '@/src/config';
+import { SERVER_PROTOCOL, SERVER_DOMAIN, SERVER_STATIC } from '@/src/config';
 import { setGlobalData } from '@/utils/globalData';
 import * as LocalService from '@/services/localService';
 
@@ -460,7 +460,10 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                     <View className="panel" onClick={() => this.jumpOrder(item.isStart)}>
                       <View className="title">我的场次</View>
                       <View className="info">
-                        <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.stadiumUrls[0].path}`} className="logo" />
+                        <Image
+                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0].path}`}
+                          className="logo"
+                        />
                         <View className="details">
                           <View className="name">{item.stadiumName}</View>
                           <View className="sub">{item.stadiumAddress}</View>
@@ -534,7 +537,10 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                           this.onImageClick(true, item.stadiumUrls);
                         }}
                       >
-                        <Image src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.stadiumUrls[0].path}`} className="img" />
+                        <Image
+                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0].path}`}
+                          className="img"
+                        />
                         <View className="count">{item.stadiumUrls.length}</View>
                       </View>
                       <View className="info" onClick={() => this.jumpStadium(item.id)}>
@@ -588,7 +594,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
               return (
                 <SwiperItem className="swiper-wrapper">
                   <Image
-                    src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${item.path}`}
+                    src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.path}`}
                     mode="aspectFit"
                     className="img"
                   ></Image>

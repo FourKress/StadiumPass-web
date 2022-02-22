@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import * as currency from 'currency.js';
 
 import './index.scss';
-import { SERVER_DOMAIN, SERVER_PROTOCOL } from '@/src/config';
+import { SERVER_DOMAIN, SERVER_PROTOCOL, SERVER_STATIC } from '@/src/config';
 
 const STAR_DATE = dayjs().format('YYYY.MM.DD');
 const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
@@ -636,7 +636,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
             {stadiumUrls.map((img) => {
               return (
                 <SwiperItem>
-                  <Image className="bg" src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${img?.path}`}></Image>
+                  <Image className="bg" src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${img?.path}`}></Image>
                 </SwiperItem>
               );
             })}

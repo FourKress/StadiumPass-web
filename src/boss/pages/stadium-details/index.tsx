@@ -17,7 +17,7 @@ import Taro from '@tarojs/taro';
 import './index.scss';
 import requestData from '@/utils/requestData';
 import uploadData from '@/utils/uploadData';
-import { SERVER_PROTOCOL, SERVER_DOMAIN } from '@/src/config';
+import { SERVER_PROTOCOL, SERVER_DOMAIN, SERVER_STATIC } from '@/src/config';
 import * as LocalService from '@/services/localService';
 
 interface IState {
@@ -136,21 +136,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
         id: this.state.stadiumId,
       },
     }).then((res: any) => {
-      console.log(
-        res.stadiumUrls.map((d) => {
-          const { path, fileId } = d;
-          return {
-            path: `${SERVER_PROTOCOL}${SERVER_DOMAIN}${path}`,
-            fileId,
-          };
-        })
-      );
       this.setState({
         stadiumInfo: res,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
           return {
-            url: `${SERVER_PROTOCOL}${SERVER_DOMAIN}${path}`,
+            url: `${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${path}`,
             path,
             fileId,
           };
