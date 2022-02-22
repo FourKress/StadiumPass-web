@@ -29,7 +29,7 @@ page {
           right: 0;
           width: 40px;
           height: 40px;
-          background: url("../../../assets/icons/user-tag.png") no-repeat;
+          background: url('../../../assets/icons/user-tag.png') no-repeat;
           background-size: 100% 100%;
         }
       }
@@ -46,6 +46,10 @@ page {
         font-size: 28px;
         margin-left: 10px;
         flex: 1;
+      }
+
+      .count {
+        color: #fff;
       }
     }
   }
@@ -86,17 +90,17 @@ page {
           margin-bottom: 16px;
 
           &.icon-1 {
-            background: url("../../../assets/icons/order-1.png") no-repeat;
+            background: url('../../../assets/icons/order-1.png') no-repeat;
             background-size: 100% 100%;
           }
 
           &.icon-2 {
-            background: url("../../../assets/icons/order-2.png") no-repeat;
+            background: url('../../../assets/icons/order-2.png') no-repeat;
             background-size: 100% 100%;
           }
 
           &.icon-3 {
-            background: url("../../../assets/icons/order-3.png") no-repeat;
+            background: url('../../../assets/icons/order-3.png') no-repeat;
             background-size: 100% 100%;
           }
         }
@@ -131,7 +135,7 @@ page {
             margin-right: 16px;
 
             &.card-icon {
-              background: url("../../../assets/icons/card-icon.png") no-repeat;
+              background: url('../../../assets/icons/card-icon.png') no-repeat;
               background-size: 100% 100%;
             }
           }

@@ -223,7 +223,7 @@ class MePage extends Component<{}, IState> {
                 <View className="member"></View>
               </View>
               <View className="text">{userInfo.nickName}</View>
-              <Text>本月组队：{userInfo.teamUpCount}次</Text>
+              <Text className="count">本月组队：{userInfo.teamUpCount}次</Text>
             </View>
           ) : (
             <View className="loginBox">
