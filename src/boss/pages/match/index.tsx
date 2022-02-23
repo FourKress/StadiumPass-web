@@ -187,12 +187,18 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     return (
       <View className="match-page">
         <View className="top-bar">
-          <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
+          {stadiumList?.length ? (
+            <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
+              <View className="bar" style={tabPosition}>
+                <Text>{stadiumInfo.name}</Text>
+                <AtIcon value="chevron-down" size="20" color="#000"></AtIcon>
+              </View>
+            </Picker>
+          ) : (
             <View className="bar" style={tabPosition}>
-              <Text>{stadiumInfo.name}</Text>
-              <AtIcon value="chevron-down" size="20" color="#000"></AtIcon>
+              暂无场次
             </View>
-          </Picker>
+          )}
         </View>
         <View className="date-list">
           <View className="scroll-warp">

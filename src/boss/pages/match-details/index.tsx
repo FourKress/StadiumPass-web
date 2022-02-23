@@ -144,7 +144,7 @@ class MatchDetailsPage extends Component<{}, IState> {
               ) : (
                 <View>
                   <View className="item">
-                    <Image className="img" src=""></Image>
+                    <Text className="img"></Text>
                     <Text className="index">{index}</Text>
                     <Text className="name" style="color: #DEDEDD;">
                       {matchInfo.isCancel ? '组队失败' : matchInfo.isDone ? '已结束' : '等待报名'}

@@ -650,7 +650,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
           </View>
 
           <View className="me" style={headerPosition} onClick={() => this.jumpCenter()}>
-            <Image className="icon" src=""></Image>
+            <Text className="icon"></Text>
             <Text>我的</Text>
           </View>
         </View>
