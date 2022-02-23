@@ -121,7 +121,14 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     requestData({
       method: 'GET',
       api: '/stadium/stadiumList',
-    }).then((res: any) => {
+    }).then(async (res: any) => {
+      if (!res?.length) {
+        await Taro.showToast({
+          title: '请先到个人中心完善球场相关设置',
+          icon: 'none',
+        });
+        return;
+      }
       const stadiumInfo = res[0];
       this.getMatchList(stadiumInfo.id, dateNow);
       this.setState({

@@ -173,11 +173,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
     const menuButton = Taro.getMenuButtonBoundingClientRect();
     const top = menuButton.top - stateHeight; //  获取top值
-    const { height } = menuButton;
-
+    const { width, left, height } = menuButton;
     this.setState({
       headerPosition: {
-        top: stateHeight + top + (height - 24) / 2,
+        left: left - 16 - 88,
+        // top: stateHeight + top + (height - 24) / 2,
+        top: stateHeight + top,
+        height,
+        width,
+        borderRadius: height,
       },
     });
   }
@@ -592,7 +596,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  async goUserCenter() {
+  async jumpCenter() {
     await Taro.switchTab({
       url: '/pages/userCenter/index',
     });
@@ -643,9 +647,11 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
           </Swiper>
           <View className="back-icon" style={{ top: headerPosition.top }}>
             <AtIcon onClick={() => this.goBack()} value="chevron-left" size="24" color="#000"></AtIcon>
-            <View onClick={() => this.goUserCenter()} className="back-center">
-              返回个人中心
-            </View>
+          </View>
+
+          <View className="me" style={headerPosition} onClick={() => this.jumpCenter()}>
+            <Image className="icon" src=""></Image>
+            <Text>我的</Text>
           </View>
         </View>
         <View className="main">
