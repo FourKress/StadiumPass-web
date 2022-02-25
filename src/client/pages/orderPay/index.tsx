@@ -117,8 +117,38 @@ class OrderPayPage extends Component<{}, IState> {
     );
   }
 
+  async handleOrderCancel() {
+    await Taro.showModal({
+      title: '提示',
+      content: '确定要取消报名吗?',
+      success: async (res) => {
+        if (res.confirm) {
+          const { orderId } = this.state;
+          await requestData({
+            method: 'GET',
+            api: '/order/getRefundInfo',
+            params: {
+              orderId,
+            },
+          });
+          await requestData({
+            method: 'POST',
+            api: '/order/refund',
+            params: {
+              orderId,
+              status: 6,
+            },
+          });
+          await Taro.switchTab({
+            url: '/client/pages/waitStart/index',
+          });
+        }
+      },
+    });
+  }
+
   render() {
-    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount } = this.state;
+    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount, payMethod } = this.state;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
 
     const M = countdownArr[0].split('');
@@ -177,7 +207,10 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="icon icon-1"></Text>
               <Text className="label">微信支付</Text>
               <Text className="money">￥{orderInfo.totalPrice}</Text>
-              <Text className="icon" onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}></Text>
+              <Text
+                className={payMethod === 'wechat' ? 'pay-icon select' : 'pay-icon'}
+                onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}
+              ></Text>
             </View>
             {orderInfo.monthlyCardStatus && (
               <View>
@@ -193,7 +226,7 @@ class OrderPayPage extends Component<{}, IState> {
                   </Text>
 
                   <Text
-                    className="icon"
+                    className={payMethod === 'monthlyCard' ? 'pay-icon select' : 'pay-icon'}
                     onClick={() => this.selectPayMethod(hasMonthlyCardAmount, 'monthlyCard')}
                   ></Text>
                 </View>
@@ -226,8 +259,13 @@ class OrderPayPage extends Component<{}, IState> {
           </View>
         </View>
 
-        <View className="pay-btn" onClick={() => this.handleOrderPay()}>
-          <View className="btn">立即支付 ￥{payAmount}</View>
+        <View className="pay-btn">
+          <View className="btn cancel" onClick={() => this.handleOrderCancel()}>
+            取消订单
+          </View>
+          <View className="btn" onClick={() => this.handleOrderPay()}>
+            立即支付 ￥{payAmount}
+          </View>
         </View>
       </View>
     );

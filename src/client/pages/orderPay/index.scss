@@ -101,15 +101,41 @@ page {
         display: block;
         width: 48px;
         height: 48px;
+        border-radius: 50%;
+        border: 1px;
 
         &.icon-1 {
-          background: url("../../../assets/icons/wechat-pay.png") no-repeat;
+          background: url('../../../assets/icons/wechat-pay.png') no-repeat;
           background-size: 100% 100%;
         }
 
         &.icon-2 {
-          background: url("../../../assets/icons/card-icon.png") no-repeat;
+          background: url('../../../assets/icons/card-icon.png') no-repeat;
           background-size: 100% 100%;
+        }
+      }
+
+      .pay-icon {
+        display: block;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 1px solid #333d44;
+
+        &.select {
+          border-color: #0092ff;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &:after {
+            content: ' ';
+            display: block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #0092ff;
+          }
         }
       }
 
@@ -131,7 +157,7 @@ page {
       .money {
         color: #ff3a30;
         font-size: 32px;
-        padding-right: 16px;
+        padding-right: 24px;
         font-weight: bold;
         display: flex;
         align-items: center;
@@ -209,6 +235,9 @@ page {
   }
 
   .pay-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     position: fixed;
     box-sizing: border-box;
     left: 0;
@@ -230,6 +259,15 @@ page {
       color: #fff;
       font-size: 28px;
       border-radius: 88px;
+
+      &.cancel {
+        width: 30%;
+        background-color: red;
+
+        & + .btn {
+          width: 66%;
+        }
+      }
     }
   }
 }
