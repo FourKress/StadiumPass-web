@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { View, Image } from '@tarojs/components';
-// import Taro from '@tarojs/taro';
+import { View } from '@tarojs/components';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
@@ -51,9 +50,7 @@ class MonthlyCardPage extends Component<{}, IState> {
             cardList.map((item) => {
               return (
                 <View className="item" onClick={() => this.jumpStadium(item.stadiumId)}>
-                  <View className="left">
-                    <Image src="" className="icon"></Image>
-                  </View>
+                  <View className="left"></View>
                   <View className="right">
                     <View className="row">
                       <View className="label">价格</View>：￥
