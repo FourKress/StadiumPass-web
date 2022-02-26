@@ -139,8 +139,8 @@ class OrderPayPage extends Component<{}, IState> {
               status: 6,
             },
           });
-          await Taro.switchTab({
-            url: '/client/pages/waitStart/index',
+          await Taro.navigateBack({
+            delta: -1,
           });
         }
       },
