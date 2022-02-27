@@ -52,8 +52,9 @@ const handleShare = async (state) => {
     });
 
   await Taro.request({
-    url: `${SERVER_PROTOCOL}${SERVER_DOMAIN}/shareImage/registry/generate?userList=${JSON.stringify(userList)}`,
-    method: 'GET',
+    url: `${SERVER_PROTOCOL}${SERVER_DOMAIN}/shareImage/registry/generate`,
+    data: userList,
+    method: 'POST',
     success: (res) => {
       imageData = res.data;
     },
