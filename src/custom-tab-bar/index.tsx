@@ -23,6 +23,10 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     return this.props as InjectStoreProps;
   }
 
+  onLoad() {
+    console.log('刷新tabBar');
+  }
+
   async switchTab(item, index) {
     const { pagePath } = item;
     if (pagePath.includes('community')) {

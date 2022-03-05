@@ -58,8 +58,9 @@ page {
     }
 
     .back-icon {
-      position: absolute;
+      position: fixed;
       left: 16px;
+      z-index: 9;
     }
   }
 
