@@ -31,8 +31,6 @@ interface IState {
   showSpaceDetails: boolean;
   unitList: Array<any>;
   meHeaderPosition: any;
-  latitude: string;
-  longitude: string;
   files: any[];
   previewImage: boolean;
   previewIndex: number;
@@ -53,8 +51,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
       stadiumId: '',
       unitList: [],
       meHeaderPosition: {},
-      latitude: '',
-      longitude: '',
       files: [],
       previewImage: false,
       previewIndex: 0,
@@ -247,6 +243,21 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   async saveStadium() {
     const { stadiumInfo, spaceList, files } = this.state;
+    const { wxGroup, address, longitude, latitude } = stadiumInfo;
+    if (!wxGroup) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请设置关联的微信群！',
+      });
+      return;
+    }
+    if (!(address && longitude && latitude)) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请选择详细地址！',
+      });
+      return;
+    }
     if (!files?.length) {
       await Taro.showToast({
         icon: 'none',
@@ -256,7 +267,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }
     stadiumInfo.spaces = spaceList;
     stadiumInfo.monthlyCardPrice = Number(stadiumInfo.monthlyCardPrice);
-    const url = stadiumInfo?.id ? '/stadium/modify' : '/stadium/add';
     const updateResult = await this.uploadFiles();
     if (!updateResult?.flag) {
       return;
@@ -273,7 +283,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       });
     requestData({
       method: 'POST',
-      api: url,
+      api: '/stadium/modify',
       params: {
         ...stadiumInfo,
         stadiumUrls: fileList,
@@ -402,8 +412,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
     const { longitude = undefined, latitude = undefined } = this.state.stadiumInfo;
     // @ts-ignore
     wx.chooseLocation({
-      longitude,
-      latitude,
+      longitude: undefined,
+      latitude: undefined,
     })
       .then(async (res) => {
         const { longitude: lng, latitude: lat } = res;
@@ -550,6 +560,26 @@ class StadiumDetailsPage extends Component<{}, IState> {
           >
             <View className="scroll-warp">
               <AtForm className="form">
+                <View className="title">
+                  <View className="name">微信群设置</View>
+                </View>
+                <AtInput
+                  name="wxGroup"
+                  title="关联微信群"
+                  type="text"
+                  placeholder="请输入关联微信群名称"
+                  value={stadiumInfo.wxGroup}
+                  disabled={stadiumInfo.wxGroupId}
+                  onChange={(value) => this.handleChange(value, 'wxGroup')}
+                />
+                {/*<AtInput*/}
+                {/*  name="welcomeWords"*/}
+                {/*  title="新人欢迎语"*/}
+                {/*  type="text"*/}
+                {/*  placeholder="请输入新人欢迎语"*/}
+                {/*  value={stadiumInfo.welcomeWords}*/}
+                {/*  onChange={(value) => this.handleChange(value, 'welcomeWords')}*/}
+                {/*/>*/}
                 <View className="title">
                   <View className="name">场地设置</View>
                 </View>
