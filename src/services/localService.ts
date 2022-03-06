@@ -29,7 +29,7 @@ const authorizeLocal = (ctx, cb = () => {}) => {
       if (errMsg.includes('authorize:fail') && ctx.state.authFail) {
         await Taro.showModal({
           title: '授权提示',
-          content: '授权获取位置信息，查看您附近的球场',
+          content: '授权获取位置信息，查看您附近的场馆',
           confirmText: '去设置',
           success: async (res) => {
             if (res.confirm) {

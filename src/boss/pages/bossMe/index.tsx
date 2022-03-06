@@ -158,7 +158,7 @@ class BossMePage extends Component<any, IState> {
         </View>
 
         <View className="main">
-          <View className="title">我的球场</View>
+          <View className="title">我的场馆</View>
           <View className="nav-list">
             {stadiumList.map((item) => {
               return (

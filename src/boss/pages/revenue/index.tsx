@@ -50,6 +50,9 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     this.getMonthAndAayStatistics();
     await this.getStadiumList();
     const { stadiumId } = this.state;
+    if (!stadiumId) {
+      return;
+    }
     this.getRevenueInfo({
       runDate: dateNow,
       stadiumId,
@@ -71,7 +74,14 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     await requestData({
       method: 'GET',
       api: '/stadium/stadiumList',
-    }).then((res: any) => {
+    }).then(async (res: any) => {
+      if (!res?.length) {
+        await Taro.showToast({
+          title: '请先到个人中心完善场馆相关设置',
+          icon: 'none',
+        });
+        return;
+      }
       this.setState({
         stadiumList: res,
         stadiumId: res[0].id,
@@ -271,7 +281,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             <View className="form-panel">
               <View className="drawer-item">
                 <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
-                  <View className="title">请选择球场</View>
+                  <View className="title">请选择场馆</View>
                   <AtInput
                     name="stadiumId"
                     onChange={() => {}}

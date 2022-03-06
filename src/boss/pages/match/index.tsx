@@ -124,7 +124,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
     }).then(async (res: any) => {
       if (!res?.length) {
         await Taro.showToast({
-          title: '请先到个人中心完善球场相关设置',
+          title: '请先到个人中心完善场馆相关设置',
           icon: 'none',
         });
         return;

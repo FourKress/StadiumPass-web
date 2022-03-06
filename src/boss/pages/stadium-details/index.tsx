@@ -501,7 +501,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
               onClick={() => this.goBack()}
             ></AtIcon>
             <View className="page-title">
-              <Text>球场详情</Text>
+              <Text>场馆详情</Text>
             </View>
           </View>
         </View>

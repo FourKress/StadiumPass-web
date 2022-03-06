@@ -461,7 +461,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                       <View className="title">我的场次</View>
                       <View className="info">
                         <Image
-                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0].path}`}
+                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0]?.path}`}
                           className="logo"
                         />
                         <View className="details">
@@ -538,7 +538,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                         }}
                       >
                         <Image
-                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0].path}`}
+                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0]?.path}`}
                           className="img"
                         />
                         <View className="count">{item.stadiumUrls.length}</View>
@@ -570,7 +570,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
               )
             ) : (
               <View className="not-data authorize-local" style="margin-top: 24px" onClick={() => this.authorizeLocal()}>
-                授权获取位置信息，查看您附近的球场
+                授权获取位置信息，查看您附近的场馆
               </View>
             )}
           </View>
