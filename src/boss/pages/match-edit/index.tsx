@@ -32,7 +32,7 @@ interface IState {
   repeatModelList: Array<any>;
 }
 
-const dateNow = dayjs().format('YYYY-MM-DD');
+const dateNow = () => dayjs().format('YYYY-MM-DD');
 
 class MatchEditPage extends Component<{}, IState> {
   constructor(props) {
@@ -175,7 +175,7 @@ class MatchEditPage extends Component<{}, IState> {
     } else {
       value = this.state[`${key}List`][index].value;
       if (key === 'repeatModel') {
-        form.runDate = value === 1 ? '' : dateNow;
+        form.runDate = value === 1 ? '' : dateNow();
       }
     }
     form[key] = value;
@@ -216,9 +216,9 @@ class MatchEditPage extends Component<{}, IState> {
   }
 
   checkDuration(startAt, endAt) {
-    const diff = dayjs(`${dateNow} ${endAt}`)
+    const diff = dayjs(`${dateNow()} ${endAt}`)
       .startOf('minute')
-      .diff(dayjs(`${dateNow} ${startAt}`));
+      .diff(dayjs(`${dateNow()} ${startAt}`));
     if (diff <= 0) {
       Taro.showToast({
         icon: 'none',
@@ -325,12 +325,12 @@ class MatchEditPage extends Component<{}, IState> {
       api: matchId ? '/match/modify' : '/match/add',
       params,
     }).then(() => {
+      Taro.navigateBack({
+        delta: -1,
+      });
       Taro.showToast({
         icon: 'none',
         title: '场次保存成功,在新的重复日期上开始生效',
-      });
-      Taro.navigateBack({
-        delta: -1,
       });
     });
   }
@@ -375,7 +375,7 @@ class MatchEditPage extends Component<{}, IState> {
             {Number(form.repeatModel) === 1 && (
               <Picker
                 value={form.runDate}
-                start={dateNow}
+                start={dateNow()}
                 mode="date"
                 onChange={(e) => this.handleDateChange(e, 'runDate')}
               >

@@ -49,14 +49,13 @@ const DATA_LIST = () => {
     });
 };
 
-let dateNow;
+const dateNow = () => dayjs().format('YYYY-MM-DD');
 
 @inject('tabBarStore')
 @observer
 class MatchPage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
-    dateNow = dayjs().format('YYYY-MM-DD');
     this.state = {
       tabPosition: {},
       stadiumList: [],
@@ -87,7 +86,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
   componentDidShow() {
     const { stadiumInfo } = this.state;
     if (stadiumInfo?.id) {
-      this.getMatchList(stadiumInfo.id, dateNow);
+      this.getMatchList(stadiumInfo.id, dateNow());
     }
   }
 
@@ -130,7 +129,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
         return;
       }
       const stadiumInfo = res[0];
-      this.getMatchList(stadiumInfo.id, dateNow);
+      this.getMatchList(stadiumInfo.id, dateNow());
       this.setState({
         stadiumList: res,
         stadiumInfo: stadiumInfo,
@@ -160,7 +159,7 @@ class MatchPage extends Component<InjectStoreProps, IState> {
       stadiumInfo: stadium,
       selectDate: DATA_LIST()[0],
     });
-    this.getMatchList(stadium.id, dateNow);
+    this.getMatchList(stadium.id, dateNow());
   }
 
   handleSelectDate(index) {

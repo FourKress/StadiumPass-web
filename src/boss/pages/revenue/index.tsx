@@ -23,7 +23,7 @@ interface IState {
   revenueInfo: any;
 }
 
-const dateNow = dayjs().format('YYYY-MM-DD');
+const dateNow = () => dayjs().format('YYYY-MM-DD');
 
 @inject('tabBarStore')
 @observer
@@ -35,7 +35,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       showDrawer: false,
       stadiumList: [],
       stadiumId: '',
-      runDate: dateNow,
+      runDate: dateNow(),
       revenueInfo: {},
     };
   }
@@ -54,7 +54,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       return;
     }
     this.getRevenueInfo({
-      runDate: dateNow,
+      runDate: dateNow(),
       stadiumId,
     });
   }
@@ -134,7 +134,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
 
   reset() {
     this.setState({
-      runDate: dateNow,
+      runDate: dateNow(),
       stadiumId: '',
     });
   }

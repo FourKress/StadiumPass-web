@@ -49,7 +49,7 @@ interface InjectStoreProps {
 }
 
 const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
-const currentDay = dayjs().format('YYYY-MM-DD');
+const currentDay = () => dayjs().format('YYYY-MM-DD');
 
 @inject('loginStore')
 @observer
@@ -100,7 +100,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       spaceActive: 0,
       currentMatch: {},
       selectList: [],
-      spaceDate: currentDay,
+      spaceDate: currentDay(),
       orderId: '',
       openIndex: 0,
       unitList: [],
@@ -132,14 +132,14 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     this.getStadiumInfo(id);
     await this.getUnitList();
     if (!orderId) {
-      if (runDate && runDate !== currentDay) {
+      if (runDate && runDate !== currentDay()) {
         await this.onSpaceDateChange({
           detail: {
             value: runDate,
           },
         });
       } else {
-        await this.getSpace(id, currentDay);
+        await this.getSpace(id, currentDay());
       }
     } else {
       this.getOrderMatch(matchId);
@@ -531,7 +531,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     this.setState({
       orderId: '',
     });
-    this.getSpace(this.state.stadiumId, currentDay).then(() => {});
+    this.getSpace(this.state.stadiumId, currentDay()).then(() => {});
     this.handleCancel(false);
   }
 

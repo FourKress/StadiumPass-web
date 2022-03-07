@@ -20,6 +20,9 @@ class App extends Component {
 
   componentDidShow() {
     console.log('渲染');
+  }
+
+  componentDidMount() {
     // 小程序更新检测
     this.updateManager();
   }
