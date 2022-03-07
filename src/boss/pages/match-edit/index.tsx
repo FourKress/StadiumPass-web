@@ -328,9 +328,13 @@ class MatchEditPage extends Component<{}, IState> {
       Taro.navigateBack({
         delta: -1,
       });
+      let message = '场次保存成功';
+      if (Number(repeatModel) !== 1) {
+        message += ',在新的重复日期上开始生效';
+      }
       Taro.showToast({
         icon: 'none',
-        title: '场次保存成功,在新的重复日期上开始生效',
+        title: message,
       });
     });
   }
