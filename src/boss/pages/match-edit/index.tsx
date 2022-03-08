@@ -325,13 +325,18 @@ class MatchEditPage extends Component<{}, IState> {
       api: matchId ? '/match/modify' : '/match/add',
       params,
     }).then(() => {
+      let message = '';
+      if (matchId) {
+        message = '场次保存成功';
+        if (Number(repeatModel) !== 1) {
+          message += ',在新的重复日期上开始生效';
+        }
+      } else {
+        message = '场次新建成功';
+      }
       Taro.navigateBack({
         delta: -1,
       });
-      let message = '场次保存成功';
-      if (Number(repeatModel) !== 1) {
-        message += ',在新的重复日期上开始生效';
-      }
       Taro.showToast({
         icon: 'none',
         title: message,
