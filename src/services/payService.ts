@@ -39,6 +39,13 @@ const payService = async (params, cb) => {
       status: 1,
       payAt: Date.now(),
     });
+    await requestData({
+      method: 'POST',
+      api: '/order/pay',
+      params: {
+        orderId,
+      },
+    });
     await paySuccess(cb);
     return;
   }
