@@ -21,6 +21,8 @@ interface IForm {
   repeatWeek: any;
   rebate?: number;
   id?: string;
+  chargeModel: number | '';
+  matchTotalAmt?: string;
 }
 
 interface IState {
@@ -30,9 +32,14 @@ interface IState {
   spaceList: Array<any>;
   weekList: Array<any>;
   repeatModelList: Array<any>;
+  chargeModelList: Array<any>;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
+const chargeModelList = [
+  { label: '场次总价', value: 1 },
+  { label: '人/次价', value: 2 },
+];
 
 class MatchEditPage extends Component<{}, IState> {
   constructor(props) {
@@ -53,10 +60,13 @@ class MatchEditPage extends Component<{}, IState> {
         repeatWeek: [],
         rebatePrice: '',
         price: '',
+        chargeModel: '',
+        matchTotalAmt: '',
       },
       spaceList: [],
       weekList: [],
       repeatModelList: [],
+      chargeModelList,
     };
   }
 
@@ -177,6 +187,9 @@ class MatchEditPage extends Component<{}, IState> {
       if (key === 'repeatModel') {
         form.runDate = value === 1 ? '' : dateNow();
       }
+      if (key === 'chargeModel' && value === 1) {
+        form.matchTotalAmt = '';
+      }
     }
     form[key] = value;
     this.setState({
@@ -251,7 +264,7 @@ class MatchEditPage extends Component<{}, IState> {
     return true;
   }
 
-  handleSave() {
+  async handleSave() {
     const { form, matchId } = this.state;
     const {
       repeatModel,
@@ -265,10 +278,12 @@ class MatchEditPage extends Component<{}, IState> {
       endAt,
       repeatWeek,
       runDate,
+      chargeModel,
+      matchTotalAmt,
     } = form;
-    const key = Object.keys(form).find((d) => !form[d] && d !== 'repeatWeek');
-    if ((parseInt(repeatModel) === 2 && !repeatWeek?.length) || key) {
-      Taro.showToast({
+    const key = Object.keys(form).find((d) => !form[d] && !['repeatWeek', 'matchTotalAmt'].includes(d));
+    if ((parseInt(repeatModel) === 2 && !repeatWeek?.length) || (!matchTotalAmt && chargeModel === 1) || key) {
+      await Taro.showToast({
         title: `请填写完整的场次信息, 不能为空`,
         icon: 'none',
       });
@@ -318,6 +333,7 @@ class MatchEditPage extends Component<{}, IState> {
       rebatePrice: Number(rebatePrice),
       duration: Number(duration),
       runDate: realDate,
+      matchTotalAmt: Number(matchTotalAmt),
     };
 
     requestData({
@@ -465,6 +481,30 @@ class MatchEditPage extends Component<{}, IState> {
               value={form.rebatePrice}
               onChange={(value) => this.handleChange(value, 'rebatePrice')}
             />
+            <Picker
+              mode="selector"
+              range={chargeModelList}
+              rangeKey="label"
+              onChange={(event) => this.handleSelectChange(event, 'chargeModel')}
+            >
+              <AtList>
+                <AtListItem
+                  title="收费模式"
+                  arrow="down"
+                  extraText={chargeModelList.find((d) => d.value === form.chargeModel)?.label}
+                />
+              </AtList>
+            </Picker>
+            {form.chargeModel === 1 && (
+              <AtInput
+                name="matchTotalAmt"
+                title="场次总价"
+                type="text"
+                placeholder="请输入场次总价"
+                value={form.matchTotalAmt}
+                onChange={(value) => this.handleChange(value, 'matchTotalAmt')}
+              />
+            )}
           </AtForm>
         </View>
         <View className="btn-list">

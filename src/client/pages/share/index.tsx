@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { Button, Text, View } from '@tarojs/components';
+import { Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { AtIcon } from 'taro-ui';
 
 import './index.scss';
 import requestData from '@/utils/requestData';
-import { handleShare, setShareMenu } from '@/services/shareService';
 
 interface IState {
   matchId: string;
@@ -34,7 +33,6 @@ class SharePage extends Component<{}, IState> {
     this.setState({
       matchId,
     });
-    await setShareMenu();
   }
 
   async getUnitList() {
@@ -77,11 +75,13 @@ class SharePage extends Component<{}, IState> {
     });
   }
 
-  async onShareAppMessage() {
-    return await handleShare(this.state);
+  async goBack() {
+    await Taro.switchTab({
+      url: '/client/pages/waitStart/index',
+    });
   }
 
-  async goBack() {
+  async backHome() {
     await Taro.switchTab({
       url: '/client/pages/waitStart/index',
     });
@@ -126,9 +126,9 @@ class SharePage extends Component<{}, IState> {
             <View>哇哦~，该场次已满场，尽情奔跑吧！</View>
           )}
         </View>
-        <Button className="share-button" openType="share">
-          分享到群
-        </Button>
+        <View className="share-button" onClick={() => this.backHome()}>
+          返回首页
+        </View>
       </View>
     );
   }
