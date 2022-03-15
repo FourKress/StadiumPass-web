@@ -41,7 +41,7 @@ const payService = async (params, cb) => {
     });
     await requestData({
       method: 'POST',
-      api: '/order/pay',
+      api: '/wx/wechatyBotNotice',
       params: {
         orderId,
       },
