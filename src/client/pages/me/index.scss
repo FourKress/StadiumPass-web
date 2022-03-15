@@ -167,7 +167,8 @@ page {
     .btn {
       display: flex;
       align-items: center;
-      width: 160px;
+      justify-content: center;
+      width: 220px;
       margin: 0 auto;
 
       .at-icon {

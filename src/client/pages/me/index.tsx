@@ -22,7 +22,6 @@ interface IState {
   orderCount: IOrderCount;
   showPhoneModal: boolean;
   phoneNum: any;
-  systemPhoneNum: string;
 }
 
 class MePage extends Component<{}, IState> {
@@ -39,7 +38,6 @@ class MePage extends Component<{}, IState> {
         allCount: 0,
       },
       phoneNum: '',
-      systemPhoneNum: '15523250903',
     };
   }
 
@@ -161,23 +159,43 @@ class MePage extends Component<{}, IState> {
     });
   }
 
-  handleConfirm() {
-    this.changeIdentity(false);
-    const { userInfo, systemPhoneNum } = this.state;
+  async handleConfirm() {
+    await this.changeIdentity(false);
+    const { userInfo } = this.state;
     if (userInfo?.bossId) {
-      Taro.setStorageSync('auth', 'boss');
-      Taro.reLaunch({
+      await Taro.setStorageSync('auth', 'boss');
+      await Taro.reLaunch({
         url: '/boss/pages/revenue/index',
       });
       return;
     }
-    Taro.makePhoneCall({
-      phoneNumber: systemPhoneNum,
+    this.handleApplyForBoss();
+  }
+
+  handleApplyForBoss() {
+    requestData({
+      method: 'GET',
+      api: '/user/applyForBoss',
+    }).then(async () => {
+      await Taro.showToast({
+        title: '申请成功,后续会有工作人员电话联系您,请注意接听电话!',
+        icon: 'none',
+        duration: 2000,
+      });
     });
   }
 
-  changeIdentity(status) {
+  async changeIdentity(status) {
     if (!this.checkLogin()) return;
+    const { userInfo } = this.state;
+    if (!userInfo.phoneNum) {
+      await Taro.showToast({
+        title: '请先完善联系电话!',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
     this.setState({
       isOpened: status,
     });
@@ -211,7 +229,7 @@ class MePage extends Component<{}, IState> {
   }
 
   render() {
-    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum, systemPhoneNum } = this.state;
+    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum } = this.state;
 
     return (
       <View className="mePage">
@@ -308,7 +326,7 @@ class MePage extends Component<{}, IState> {
         <View className="footer-btn">
           <View className="btn" onClick={() => this.changeIdentity(true)}>
             <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-            我是场主
+            {userInfo?.bossId ? '我是场主' : '申请成为场主'}
           </View>
         </View>
 
@@ -323,7 +341,7 @@ class MePage extends Component<{}, IState> {
               <View>
                 <AtIcon className="row" value="close-circle" size="24" color="#FF2000"></AtIcon>
                 <View className="row">对不起，您还未认证场主！</View>
-                <View className="row">如要认证场主，请联系：{systemPhoneNum}</View>
+                <View className="row">是否要申请认证场主</View>
               </View>
             )}
           </AtModalContent>

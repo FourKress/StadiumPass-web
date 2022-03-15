@@ -157,7 +157,7 @@ class OrderPayPage extends Component<{}, IState> {
     return (
       <View className="pay-page">
         <View className="top-bar">
-          <View className="tips">为提升组队成功率，请在倒计时结束前支付！</View>
+          <View className="tips">注意: 超时未支付将取消报名！</View>
           <View className="date">
             <View className="block">{M[0]}</View>
             <View className="block">{M[1]}</View>
