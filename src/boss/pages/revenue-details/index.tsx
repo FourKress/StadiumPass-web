@@ -123,7 +123,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
                       <Text className="name">{item.user?.nickName}</Text>
                     </View>
                     <View className="info">
-                      <View className="money">{item.payAmount}</View>
+                      <View className="money">{(item.payAmount - item.compensateAmt).toFixed(2)}</View>
                       {item.newMonthlyCard ? (
                         <View className="count">新购月卡</View>
                       ) : item.payMethod === 2 ? (

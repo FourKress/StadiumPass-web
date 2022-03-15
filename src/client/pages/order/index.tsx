@@ -143,7 +143,10 @@ class OrderPage extends Component<{}, IState> {
                   </View>
                   <View className="footer">
                     <Text className="date">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
-                    <Text className="money">总价：￥{item.payAmount}</Text>
+                    <Text className="money">
+                      总价:￥{item.payAmount}
+                      {item.isCompensate && <Text className="refund"> 已退:￥{item.compensateAmt}</Text>}
+                    </Text>
                   </View>
                 </View>
               );
