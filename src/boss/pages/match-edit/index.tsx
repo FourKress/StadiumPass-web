@@ -37,8 +37,8 @@ interface IState {
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
 const chargeModelList = [
-  { label: '场次总价', value: 1 },
   { label: '人/次价', value: 2 },
+  { label: '场次总价', value: 1 },
 ];
 
 class MatchEditPage extends Component<{}, IState> {
