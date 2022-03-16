@@ -177,10 +177,10 @@ class MePage extends Component<{}, IState> {
       method: 'GET',
       api: '/user/applyForBoss',
     }).then(async () => {
-      await Taro.showToast({
-        title: '申请成功,后续会有工作人员电话联系您,请注意接听电话!',
-        icon: 'none',
-        duration: 2000,
+      await Taro.showModal({
+        title: '提示',
+        content: '申请成功,后续会有工作人员电话联系您,请注意接听电话!',
+        showCancel: false,
       });
     });
   }
