@@ -7,7 +7,7 @@ page {
 }
 
 .revenue-details-page {
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
   min-height: 100vh;
   box-sizing: border-box;
   position: relative;
@@ -22,11 +22,11 @@ page {
     justify-content: space-between;
     color: #fff;
     font-size: 32px;
-    background-color: #1EBD69;
+    background-color: #1ebd69;
     font-weight: bold;
 
     &.fail {
-      background-color: #FF0000;
+      background-color: #ff0000;
     }
   }
 
@@ -34,7 +34,7 @@ page {
     width: 100vw;
     box-sizing: border-box;
     padding: 0 32px;
-    background-color: #F2F2F2;
+    background-color: #f2f2f2;
     padding-bottom: env(safe-area-inset-bottom);
 
     .title {
@@ -47,7 +47,7 @@ page {
       justify-content: space-between;
 
       .right {
-        color: #FF0000;
+        color: #ff0000;
       }
     }
 
@@ -63,18 +63,18 @@ page {
         padding: 32px 0 16px 0;
         font-size: 32px;
         font-weight: bold;
-        color: #302F43;
+        color: #302f43;
 
         &:first-child {
           padding-top: 20px;
         }
 
         &.pay {
-          color: #0080FF;
+          color: #0080ff;
         }
 
         &.fail {
-          color: #FF0000;
+          color: #ff0000;
         }
       }
 
@@ -83,13 +83,16 @@ page {
         height: 120px;
         display: flex;
         align-items: center;
-        border-bottom: 1px solid #E7E7E7;
+        border-bottom: 1px solid #e7e7e7;
 
         &.fail {
-
           .user {
-            opacity: .5;
+            opacity: 0.5;
           }
+        }
+
+        .opacity {
+          opacity: 0.5;
         }
 
         &:last-child {
@@ -97,7 +100,7 @@ page {
         }
 
         .index {
-          color: #0080FF;
+          color: #0080ff;
           transform: translate(8px, -30px);
         }
 
@@ -131,6 +134,13 @@ page {
           flex-direction: column;
           align-items: flex-end;
 
+          .label {
+            font-size: 28px;
+            color: #101010;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+          }
           .money {
             font-size: 28px;
             color: #101010;
@@ -143,7 +153,7 @@ page {
 
           .count {
             font-size: 24px;
-            color: #93A7B6;
+            color: #93a7b6;
           }
         }
       }
@@ -165,11 +175,11 @@ page {
         height: 100px;
 
         &:last-child {
-          border-top: 1px solid #E7E7E7;
+          border-top: 1px solid #e7e7e7;
         }
 
         .left {
-          color: #93A7B6;
+          color: #93a7b6;
         }
 
         .right {

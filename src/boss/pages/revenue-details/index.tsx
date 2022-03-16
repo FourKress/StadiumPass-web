@@ -123,12 +123,34 @@ class RevenueDetailsPage extends Component<{}, IState> {
                       <Text className="name">{item.user?.nickName}</Text>
                     </View>
                     <View className="info">
-                      <View className="money">{(item.payAmount - item.compensateAmt).toFixed(2)}</View>
+                      {item.payMethod === 1 ? (
+                        <View className="label">{(item.payAmount - item.compensateAmt).toFixed(2)}</View>
+                      ) : item.newMonthlyCard ? (
+                        <View className="label">
+                          {item.personCount > 1 ? (
+                            <Text>
+                              {(item.payAmount - (item.personCount - 1) * item.matchId.rebatePrice).toFixed(2)}+
+                              {((item.personCount - 1) * item.matchId.rebatePrice - item.compensateAmt).toFixed(2)}
+                            </Text>
+                          ) : (
+                            item.payAmount.toFixed(2)
+                          )}
+                        </View>
+                      ) : (
+                        <View className="label">
+                          月卡支付
+                          {item.personCount > 1 && (
+                            <Text>
+                              +{((item.personCount - 1) * item.matchId.rebatePrice - item.compensateAmt).toFixed(2)}
+                            </Text>
+                          )}
+                        </View>
+                      )}
                       {item.newMonthlyCard ? (
                         <View className="count">新购月卡</View>
                       ) : item.payMethod === 2 ? (
                         <View className="count">
-                          有效期至：{dayjs(item.monthlyCardValidDate).format('MM-DD HH:MM')}
+                          有效期至：{dayjs(item.monthlyCardValidDate).format('MM-DD')} 00:00
                         </View>
                       ) : (
                         <View className="count">付款时间：{dayjs(item.payAt).format('MM-DD HH:MM')}</View>
@@ -161,8 +183,23 @@ class RevenueDetailsPage extends Component<{}, IState> {
                       <Image src={item.user?.avatarUrl}></Image>
                       <Text className="name">{item.user?.nickName}</Text>
                     </View>
-                    <View className="info">
-                      <View className="money">-{item.payAmount - (item.payAmount - (item.refundAmount || 0))}</View>
+                    <View className="info opacity">
+                      {item.payMethod === 1 ? (
+                        <View className="label">
+                          <View>-{item.refundAmount.toFixed(2)}</View>
+                        </View>
+                      ) : (
+                        <View className="label">
+                          {item.newMonthlyCard ? '新购月卡' : '月卡退款'}
+                          {item.personCount > 1 && (
+                            <Text>
+                              &nbsp;&nbsp;
+                              <Text>-{item.refundAmount.toFixed(2)}</Text>
+                            </Text>
+                          )}
+                        </View>
+                      )}
+
                       <View className="count">退款时间：{dayjs(item.updatedAt).format('MM-DD HH:MM')}</View>
                     </View>
                   </View>

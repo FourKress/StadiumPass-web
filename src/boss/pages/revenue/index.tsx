@@ -227,10 +227,11 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                             <View className="tips">
                               {item.ordinaryCount > 0 && (
                                 <Text>
-                                  ￥{item.rebatePrice} X {item.ordinaryCount}
+                                  ￥{item.rebatePrice}X{item.ordinaryCount}
                                 </Text>
                               )}
-                              {item.monthlyCardCount > 0 && <Text> +{item.monthlyCardCount}月卡</Text>}
+                              {item.monthlyCardCount > 0 && <Text> + {item.monthlyCardCount}月卡</Text>}
+                              {item.refundAmt > 0 && <Text> - 退{item.refundAmt}</Text>}
                             </View>
                           </View>
                         )}
