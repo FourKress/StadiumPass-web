@@ -227,7 +227,7 @@ class OrderPayPage extends Component<{}, IState> {
             <View className={methodDisabled ? 'row disabled' : 'row'}>
               <Text className="icon icon-1"></Text>
               <Text className="label">微信支付</Text>
-              <Text className="money">￥{orderInfo.totalPrice.toFixed(2)}</Text>
+              <Text className="money">￥{orderInfo.totalPrice}</Text>
               <Text
                 className={payMethod === 'wechat' ? 'pay-icon select' : 'pay-icon'}
                 onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}
@@ -242,7 +242,7 @@ class OrderPayPage extends Component<{}, IState> {
                     {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
                   </Text>
                   <Text className="money">
-                    <Text>￥{hasMonthlyCardAmount.toFixed(2)}</Text>
+                    <Text>￥{hasMonthlyCardAmount}</Text>
                     {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
                   </Text>
 
@@ -285,7 +285,7 @@ class OrderPayPage extends Component<{}, IState> {
             取消订单
           </View>
           <View className="btn" onClick={() => this.handleOrderPay()}>
-            立即支付 ￥{payAmount.toFixed(2)}
+            立即支付 ￥{payAmount}
           </View>
         </View>
       </View>
