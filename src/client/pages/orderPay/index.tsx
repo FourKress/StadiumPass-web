@@ -24,7 +24,9 @@ class OrderPayPage extends Component<{}, IState> {
     super(props);
     this.state = {
       orderId: '',
-      orderInfo: {},
+      orderInfo: {
+        totalPrice: 0,
+      },
       countdown: 0,
       payAmount: 0,
       hasMonthlyCardAmount: 0,
@@ -67,7 +69,7 @@ class OrderPayPage extends Component<{}, IState> {
       let state;
       if (prepayInfo && payAmount) {
         state = {
-          methodDisabled: false,
+          methodDisabled: true,
           payAmount,
           payMethod: payMethod === 2 ? 'monthlyCard' : 'wechat',
           hasMonthlyCardAmount: payMethod === 2 ? payAmount : undefined,
@@ -125,6 +127,9 @@ class OrderPayPage extends Component<{}, IState> {
       orderId,
       payMethod,
     } = this.state;
+    this.setState({
+      methodDisabled: true,
+    });
     await payService(
       {
         orderId,
@@ -215,7 +220,7 @@ class OrderPayPage extends Component<{}, IState> {
               <Text className="label">金额</Text>
               <Text className="text">
                 ￥{orderInfo.price}/人，共
-                {orderInfo.totalPrice}
+                {orderInfo.totalPrice.toFixed(2)}
               </Text>
             </View>
           </View>
@@ -227,7 +232,7 @@ class OrderPayPage extends Component<{}, IState> {
             <View className={methodDisabled ? 'row disabled' : 'row'}>
               <Text className="icon icon-1"></Text>
               <Text className="label">微信支付</Text>
-              <Text className="money">￥{orderInfo.totalPrice}</Text>
+              <Text className="money">￥{orderInfo.totalPrice.toFixed(2)}</Text>
               <Text
                 className={payMethod === 'wechat' ? 'pay-icon select' : 'pay-icon'}
                 onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}
@@ -242,7 +247,7 @@ class OrderPayPage extends Component<{}, IState> {
                     {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
                   </Text>
                   <Text className="money">
-                    <Text>￥{hasMonthlyCardAmount}</Text>
+                    <Text>￥{hasMonthlyCardAmount.toFixed(2)}</Text>
                     {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
                   </Text>
 
@@ -285,7 +290,7 @@ class OrderPayPage extends Component<{}, IState> {
             取消订单
           </View>
           <View className="btn" onClick={() => this.handleOrderPay()}>
-            立即支付 ￥{payAmount}
+            立即支付 ￥{payAmount.toFixed(2)}
           </View>
         </View>
       </View>
