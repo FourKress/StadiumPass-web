@@ -14,6 +14,7 @@ interface IState {
   payAmount: number;
   hasMonthlyCardAmount: number;
   payMethod: string;
+  methodDisabled: boolean;
 }
 
 let timer: any = null;
@@ -28,6 +29,7 @@ class OrderPayPage extends Component<{}, IState> {
       payAmount: 0,
       hasMonthlyCardAmount: 0,
       payMethod: '',
+      methodDisabled: false,
     };
   }
 
@@ -51,9 +53,26 @@ class OrderPayPage extends Component<{}, IState> {
         id: orderId,
       },
     }).then((res: any) => {
-      const { monthlyCardStatus, monthlyCardPrice, totalPrice, countdown, price, monthlyCardPayStatus } = res;
+      const {
+        monthlyCardStatus,
+        monthlyCardPrice,
+        totalPrice,
+        countdown,
+        price,
+        monthlyCardPayStatus,
+        prepayInfo = null,
+        payMethod = null,
+        payAmount = 0,
+      } = res;
       let state;
-      if (monthlyCardStatus && monthlyCardPayStatus) {
+      if (prepayInfo && payAmount) {
+        state = {
+          methodDisabled: false,
+          payAmount,
+          payMethod: payMethod === 2 ? 'monthlyCard' : 'wechat',
+          hasMonthlyCardAmount: payMethod === 2 ? payAmount : undefined,
+        };
+      } else if (monthlyCardStatus && monthlyCardPayStatus) {
         const diffPrice = totalPrice - price;
         const hasMonthlyCardAmount = res.isMonthlyCard ? diffPrice : monthlyCardPrice + diffPrice;
         state = {
@@ -91,7 +110,9 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   selectPayMethod(payAmount, payMethod) {
-    if (payMethod === 'monthlyCard' && !this.state.orderInfo.monthlyCardPayStatus) return;
+    const { orderInfo, methodDisabled } = this.state;
+    if (methodDisabled) return;
+    if (payMethod === 'monthlyCard' && !orderInfo.monthlyCardPayStatus) return;
     this.setState({
       payAmount,
       payMethod,
@@ -148,7 +169,7 @@ class OrderPayPage extends Component<{}, IState> {
   }
 
   render() {
-    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount, payMethod } = this.state;
+    const { orderInfo, countdown, payAmount, hasMonthlyCardAmount, payMethod, methodDisabled } = this.state;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
 
     const M = countdownArr[0].split('');
@@ -203,10 +224,10 @@ class OrderPayPage extends Component<{}, IState> {
         <View className="panel">
           <View className="pay">
             <View className="top">场次信息</View>
-            <View className="row">
+            <View className={methodDisabled ? 'row disabled' : 'row'}>
               <Text className="icon icon-1"></Text>
               <Text className="label">微信支付</Text>
-              <Text className="money">￥{orderInfo.totalPrice}</Text>
+              <Text className="money">￥{orderInfo.totalPrice.toFixed(2)}</Text>
               <Text
                 className={payMethod === 'wechat' ? 'pay-icon select' : 'pay-icon'}
                 onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}
@@ -214,14 +235,14 @@ class OrderPayPage extends Component<{}, IState> {
             </View>
             {orderInfo.monthlyCardStatus && (
               <View>
-                <View className={orderInfo.monthlyCardPayStatus ? 'row' : 'row disabled'}>
+                <View className={!orderInfo.monthlyCardPayStatus || methodDisabled ? 'row disabled' : 'row'}>
                   <Text className="icon icon-2"></Text>
                   <Text className="label">
                     <Text>场地月卡</Text>
                     {orderInfo.isMonthlyCard && <Text className="text">(每场仅可免费1个名额)</Text>}
                   </Text>
                   <Text className="money">
-                    <Text>￥{hasMonthlyCardAmount}</Text>
+                    <Text>￥{hasMonthlyCardAmount.toFixed(2)}</Text>
                     {!orderInfo.isMonthlyCard && <Text className="text">(开通并使用月卡)</Text>}
                   </Text>
 
@@ -264,7 +285,7 @@ class OrderPayPage extends Component<{}, IState> {
             取消订单
           </View>
           <View className="btn" onClick={() => this.handleOrderPay()}>
-            立即支付 ￥{payAmount}
+            立即支付 ￥{payAmount.toFixed(2)}
           </View>
         </View>
       </View>
