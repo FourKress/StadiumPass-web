@@ -72,7 +72,7 @@ class OrderPayPage extends Component<{}, IState> {
           methodDisabled: true,
           payAmount,
           payMethod: payMethod === 2 ? 'monthlyCard' : 'wechat',
-          hasMonthlyCardAmount: payMethod === 2 ? payAmount : undefined,
+          hasMonthlyCardAmount: payMethod === 2 ? payAmount : 0,
         };
       } else if (monthlyCardStatus && monthlyCardPayStatus) {
         const diffPrice = totalPrice - price;
