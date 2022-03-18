@@ -37,8 +37,8 @@ interface IState {
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
 const chargeModelList = [
-  { label: '人/次价', value: 2 },
-  { label: '场次总价', value: 1 },
+  { label: '单价模式', value: 2 },
+  { label: '平摊模式', value: 1 },
 ];
 
 class MatchEditPage extends Component<{}, IState> {
@@ -168,6 +168,11 @@ class MatchEditPage extends Component<{}, IState> {
         form.rebate = parseFloat(((Number(form.rebatePrice) / Number(form.price)) * 10).toFixed(2));
       }
     }
+    if (form.rebatePrice && form.minPeople) {
+      form.matchTotalAmt = (Number(form.rebatePrice) * Number(form.minPeople)).toFixed(2);
+    } else {
+      form.matchTotalAmt = '';
+    }
 
     this.setState({
       form: {
@@ -187,8 +192,13 @@ class MatchEditPage extends Component<{}, IState> {
       if (key === 'repeatModel') {
         form.runDate = value === 1 ? '' : dateNow();
       }
-      if (key === 'chargeModel' && value === 1) {
-        form.matchTotalAmt = '';
+      if (key === 'chargeModel') {
+        if (value === 1) {
+          form.matchTotalAmt =
+            form.rebatePrice && form.minPeople ? (Number(form.rebatePrice) * Number(form.minPeople)).toFixed(2) : '';
+        } else {
+          form.matchTotalAmt = '';
+        }
       }
     }
     form[key] = value;
@@ -464,6 +474,7 @@ class MatchEditPage extends Component<{}, IState> {
               <View className="name">价格设置</View>
               <View className="tips">1、设置原价和折扣价后，系统将自动计算折扣。</View>
               <View className="tips">2、折扣价必须小于等于原价（相等则视为无折扣）。</View>
+              <View className="tips">3、场次总价 = 最少开场人数 * 单人折扣价, 系统自动计算。</View>
             </View>
             <AtInput
               name="price"
@@ -501,8 +512,9 @@ class MatchEditPage extends Component<{}, IState> {
                 title="场次总价"
                 type="text"
                 placeholder="请输入场次总价"
+                disabled
                 value={form.matchTotalAmt}
-                onChange={(value) => this.handleChange(value, 'matchTotalAmt')}
+                onChange={() => {}}
               />
             )}
           </AtForm>

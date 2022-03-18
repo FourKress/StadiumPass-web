@@ -406,7 +406,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  handleSubmit() {
+  async handleSubmit() {
     const {
       currentMatch,
       stadiumId,
@@ -415,7 +415,24 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     } = this.state;
     if (selectList.length <= 0) return;
     if (currentMatch.selectPeople === currentMatch.totalPeople) return;
-    if (!this.checkLogin()) return;
+    if (!(await this.checkLogin())) return;
+
+    if (currentMatch.chargeModel === 1) {
+      await Taro.showModal({
+        title: '报名提示',
+        content: '该场次收费模式为平摊模式，报名实际金额在场次结束时动态计算，多支付的金额将原路退回。',
+        success: async (res) => {
+          if (res.confirm) {
+            await this.sendSubmit(currentMatch, selectList, stadiumId, bossId);
+          }
+        },
+      });
+    } else {
+      await this.sendSubmit(currentMatch, selectList, stadiumId, bossId);
+    }
+  }
+
+  sendSubmit(currentMatch, selectList, stadiumId, bossId) {
     const { spaceId, id } = currentMatch;
     const payAmount = selectList.length * currentMatch.price * (currentMatch.rebate / 10);
     return requestData({

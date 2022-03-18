@@ -104,7 +104,7 @@ class SharePage extends Component<{}, IState> {
               onClick={() => this.goBack()}
             ></AtIcon>
             <View className="page-title">
-              <Text>场馆详情</Text>
+              <Text>支付成功</Text>
             </View>
           </View>
         </View>
