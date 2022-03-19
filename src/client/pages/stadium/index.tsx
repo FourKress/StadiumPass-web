@@ -18,6 +18,7 @@ import LoginStore from '@/store/loginStore';
 import { inject, observer } from 'mobx-react';
 import { setGlobalData } from '@/utils/globalData';
 import { handleShare, setShareMenu } from '@/services/shareService';
+import { throttle } from 'lodash';
 
 interface IState {
   tabValue: number;
@@ -406,7 +407,13 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  async handleSubmit() {
+  handleThrottle = (fun) =>
+    throttle(fun, 1000, {
+      leading: true,
+      trailing: false,
+    });
+
+  handleSubmit = async () => {
     const {
       currentMatch,
       stadiumId,
@@ -430,9 +437,13 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     } else {
       await this.sendSubmit(currentMatch, selectList, stadiumId, bossId);
     }
-  }
+  };
 
-  sendSubmit(currentMatch, selectList, stadiumId, bossId) {
+  async sendSubmit(currentMatch, selectList, stadiumId, bossId) {
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
     const { spaceId, id } = currentMatch;
     const payAmount = selectList.length * currentMatch.price * (currentMatch.rebate / 10);
     return requestData({
@@ -446,9 +457,14 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         payAmount,
         personCount: selectList.length,
       },
-    }).then((res: any) => {
-      this.jumpOrderPay(res);
-    });
+    })
+      .then(async (res: any) => {
+        await Taro.hideLoading();
+        this.jumpOrderPay(res);
+      })
+      .catch(async () => {
+        await Taro.hideLoading();
+      });
   }
 
   jumpOrderPay(orderId) {
@@ -507,9 +523,13 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     }
   }
 
-  async handleRefund() {
+  handleRefund = async () => {
     const { orderId, refundInfo } = this.state;
     const { refundAmount, refundId, payAmount } = refundInfo;
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
     if (refundAmount === 0) {
       await requestData({
         method: 'POST',
@@ -518,7 +538,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
           orderId,
           status: 3,
         },
-      });
+      }).catch(async () => await Taro.hideLoading());
       await Taro.showToast({
         icon: 'none',
         title: '月卡订单取消成功，请在订单中查看。',
@@ -535,16 +555,19 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         refundId,
         payAmount,
       },
-    }).then(async () => {
-      await Taro.showToast({
-        icon: 'none',
-        title: '发起退款成功，请在订单中查看。',
-      });
-      await this.handleRefundSuccess();
-    });
-  }
+    })
+      .then(async () => {
+        await Taro.showToast({
+          icon: 'none',
+          title: '发起退款成功，请在订单中查看。',
+        });
+        await this.handleRefundSuccess();
+      })
+      .catch(async () => await Taro.hideLoading());
+  };
 
   async handleRefundSuccess() {
+    await Taro.hideLoading();
     this.setState({
       orderId: '',
     });
@@ -911,7 +934,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 </View>
               )}
             </View>
-            <View onClick={() => this.handleSubmit()} className={selectList.length ? 'btn' : 'btn disabled'}>
+            <View
+              onClick={this.handleThrottle(this.handleSubmit)}
+              className={selectList.length ? 'btn' : 'btn disabled'}
+            >
               {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                 ? '已满员'
                 : `${orderId ? '追加' : '立即'}报名`}
@@ -936,12 +962,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                   <View className="row">2、月卡用户可随时无责取消订单，但不支持退款。</View>
                 </View>
                 <View className="btn-list">
-                  <View
-                    className="btn cancel"
-                    onClick={() => {
-                      this.handleRefund();
-                    }}
-                  >
+                  <View className="btn cancel" onClick={this.handleThrottle(this.handleRefund)}>
                     <View>坚持取消</View>
                     <View className="tips">可退￥{refundInfo.refundAmount}</View>
                   </View>

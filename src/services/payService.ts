@@ -13,6 +13,7 @@ const changeOrderStatus = async (orderId, params) => {
 };
 
 const paySuccess = async (cb) => {
+  Taro.hideLoading();
   await Taro.showToast({
     icon: 'none',
     title: '支付成功',
@@ -31,6 +32,7 @@ const payService = async (params, cb) => {
     },
   });
   if (!orderFromDB) {
+    Taro.hideLoading();
     return;
   }
   const { payMethod: method, payAmount } = orderFromDB;
@@ -75,6 +77,7 @@ const payService = async (params, cb) => {
       })
       .catch(async (e) => {
         console.log(e);
+        Taro.hideLoading();
         await Taro.showToast({
           icon: 'none',
           title: '支付失败',

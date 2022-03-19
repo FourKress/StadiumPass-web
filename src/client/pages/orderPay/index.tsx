@@ -6,6 +6,7 @@ import payService from '@/services/payService';
 
 import './index.scss';
 import dayjs from 'dayjs';
+import { throttle } from 'lodash';
 
 interface IState {
   orderId: string;
@@ -121,7 +122,17 @@ class OrderPayPage extends Component<{}, IState> {
     });
   }
 
-  async handleOrderPay() {
+  handleThrottle = (fun) =>
+    throttle(fun, 1000, {
+      leading: true,
+      trailing: false,
+    });
+
+  handleOrderPay = async () => {
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
     const {
       orderInfo: { matchId },
       orderId,
@@ -141,9 +152,9 @@ class OrderPayPage extends Component<{}, IState> {
         });
       }
     );
-  }
+  };
 
-  async handleOrderCancel() {
+  handleOrderCancel = async () => {
     await Taro.showModal({
       title: '提示',
       content: '确定要取消报名吗?',
@@ -171,7 +182,7 @@ class OrderPayPage extends Component<{}, IState> {
         }
       },
     });
-  }
+  };
 
   render() {
     const { orderInfo, countdown, payAmount, hasMonthlyCardAmount, payMethod, methodDisabled } = this.state;
@@ -286,10 +297,10 @@ class OrderPayPage extends Component<{}, IState> {
         </View>
 
         <View className="pay-btn">
-          <View className="btn cancel" onClick={() => this.handleOrderCancel()}>
+          <View className="btn cancel" onClick={this.handleThrottle(this.handleOrderCancel)}>
             取消订单
           </View>
-          <View className="btn" onClick={() => this.handleOrderPay()}>
+          <View className="btn" onClick={this.handleThrottle(this.handleOrderPay)}>
             立即支付 ￥{payAmount.toFixed(2)}
           </View>
         </View>
