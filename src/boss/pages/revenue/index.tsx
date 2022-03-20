@@ -231,7 +231,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                                 </Text>
                               )}
                               {item.monthlyCardCount > 0 && <Text> + {item.monthlyCardCount}月卡</Text>}
-                              {item.refundAmt > 0 && <Text> - 退{item.refundAmt}</Text>}
+                              {item.refundAmt > 0 && <Text> + 水费{item.refundAmt}</Text>}
                             </View>
                           </View>
                         )}
