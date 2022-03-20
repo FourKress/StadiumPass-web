@@ -41,13 +41,13 @@ const payService = async (params, cb) => {
       status: 1,
       payAt: Date.now(),
     });
-    await requestData({
+    requestData({
       method: 'POST',
       api: '/wx/wechatyBotNotice',
       params: {
         orderId,
       },
-    });
+    }).then(() => {});
     await paySuccess(cb);
     return;
   }
