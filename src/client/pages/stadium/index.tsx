@@ -821,7 +821,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                                   ) : (
                                     !selectList.includes(index) && (
                                       <View className="name default">
-                                        {match.isDone ? '已结束' : match.isCancel ? '组队失败' : '虚位以待'}
+                                        {match.isDone ? '已结束' : match.isCancel ? '组队失败' : '点击报名'}
                                       </View>
                                     )
                                   )}
