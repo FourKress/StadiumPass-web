@@ -33,7 +33,7 @@ const weekMap = {
   6: '周六',
 };
 const DATA_LIST = () => {
-  return Array(7)
+  return Array(14)
     .fill('')
     .map((d, index) => {
       const currentDay = dayjs().add(index, 'day');

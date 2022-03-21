@@ -63,7 +63,7 @@ class FailStadiumPage extends Component<{}, IState> {
                       <View className="right">
                         <View className="money">
                           <Text>￥{item.rebatePrice}</Text>
-                          <Text className="discount">{item.rebate}折</Text>
+                          {item.rebate !== 10 && <Text className="discount">{item.rebate}折</Text>}
                           <Text>/人</Text>
                         </View>
                       </View>

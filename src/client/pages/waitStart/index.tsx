@@ -557,7 +557,9 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                         <View className="new">{item?.matchInfo?.rebatePrice}</View>
                         <View className="old">
                           <View className="price">{item?.matchInfo?.price}</View>
-                          {item?.matchInfo?.rebate && <View className="tips">折</View>}
+                          {item?.matchInfo?.rebate && item?.matchInfo?.rebate !== 10 && (
+                            <View className="tips">折</View>
+                          )}
                         </View>
                       </View>
                     </View>

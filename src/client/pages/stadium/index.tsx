@@ -13,7 +13,7 @@ import './index.scss';
 import { SERVER_DOMAIN, SERVER_PROTOCOL, SERVER_STATIC } from '@/src/config';
 
 const STAR_DATE = dayjs().format('YYYY.MM.DD');
-const END_DATE = dayjs().add(6, 'day').format('YYYY.MM.DD');
+const END_DATE = dayjs().add(13, 'day').format('YYYY.MM.DD');
 import LoginStore from '@/store/loginStore';
 import { inject, observer } from 'mobx-react';
 import { setGlobalData } from '@/utils/globalData';
@@ -738,7 +738,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                             {item.full ? (
                               <View className="tips2">满</View>
                             ) : (
-                              item.rebate && <View className="tips1">折</View>
+                              item.rebate !== 10 && <View className="tips1">折</View>
                             )}
                           </View>
                         );
@@ -782,7 +782,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                             {match.selectPeople === match.totalPeople ? (
                               <View className="tips2">满</View>
                             ) : (
-                              match.rebate !== 1 && <View className="tips1">折</View>
+                              match.rebate !== 10 && <View className="tips1">折</View>
                             )}
                           </View>
                           <AtIcon
@@ -906,10 +906,12 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                     <View className="new">
                       {currency(selectList.length * currentMatch.price).multiply(currentMatch.rebate / 10).value}
                     </View>
-                    <View className="old">
-                      <Text className="price">{selectList.length * currentMatch.price}</Text>
-                      <View className="tips1">{currentMatch.rebate}折</View>
-                    </View>
+                    {currentMatch.rebate !== 10 && (
+                      <View className="old">
+                        <Text className="price">{selectList.length * currentMatch.price}</Text>
+                        <View className="tips1">{currentMatch.rebate}折</View>
+                      </View>
+                    )}
                   </View>
                 </View>
               ) : orderId ? (
