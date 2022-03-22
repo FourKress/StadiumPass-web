@@ -46,6 +46,7 @@ const payService = async (params, cb) => {
       api: '/wx/wechatyBotNotice',
       params: {
         orderId,
+        url: 'sendMiniProgram',
       },
     }).then(() => {});
     await paySuccess(cb);
