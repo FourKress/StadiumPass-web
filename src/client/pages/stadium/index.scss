@@ -650,6 +650,20 @@ page {
       &.disabled {
         background-color: #f9d6af;
       }
+
+      .phoneBtn {
+        background-color: transparent;
+        color: #fff;
+        border-radius: unset;
+        font-size: 28px;
+        height: 88px;
+        line-height: 88px;
+
+        &::after {
+          border: none;
+          border-radius: unset;
+        }
+      }
     }
   }
 

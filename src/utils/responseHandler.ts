@@ -18,6 +18,7 @@ export default function responseHandler() {
   ) =>
     new Promise(async (resolve: (data: any) => void, reject: (data: ResError) => void) => {
       if (response.statusCode !== 200) {
+        Taro.hideLoading();
         if (response.statusCode === 401) {
           Taro.removeStorageSync('userInfo');
           Taro.removeStorageSync('openId');

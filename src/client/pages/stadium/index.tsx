@@ -6,6 +6,7 @@ import requestData from '@/utils/requestData';
 
 import * as LoginService from '@/services/loginService';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
+import AuthorizePhoneBtn from '@/components/authorizePhoneBtn';
 import dayjs from 'dayjs';
 import * as currency from 'currency.js';
 
@@ -936,14 +937,24 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 </View>
               )}
             </View>
-            <View
-              onClick={this.handleThrottle(this.handleSubmit)}
-              className={selectList.length ? 'btn' : 'btn disabled'}
-            >
-              {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
-                ? '已满员'
-                : `${orderId ? '追加' : '立即'}报名`}
-            </View>
+            {this.state.userId ? (
+              <View className={selectList.length ? 'btn' : 'btn disabled'}>
+                <AuthorizePhoneBtn>
+                  {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
+                    ? '已满员'
+                    : `${orderId ? '追加' : '立即'}报名`}
+                </AuthorizePhoneBtn>
+              </View>
+            ) : (
+              <View
+                onClick={this.handleThrottle(this.handleSubmit)}
+                className={selectList.length ? 'btn' : 'btn disabled'}
+              >
+                {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
+                  ? '已满员'
+                  : `${orderId ? '追加' : '立即'}报名`}
+              </View>
+            )}
           </View>
         )}
 
