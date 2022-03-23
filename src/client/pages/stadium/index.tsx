@@ -538,12 +538,21 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         params: {
           orderId,
           status: 3,
+          refundType: 2,
         },
       }).catch(async () => await Taro.hideLoading());
       await Taro.showToast({
         icon: 'none',
-        title: '月卡订单取消成功，请在订单中查看。',
+        title: `订单取消成功，请在订单中查看。`,
       });
+      requestData({
+        method: 'POST',
+        api: '/wx/wechatyBotNotice',
+        params: {
+          orderId,
+          url: 'refundNotice',
+        },
+      }).then(() => {});
       await this.handleRefundSuccess();
       return;
     }
@@ -555,6 +564,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         refundAmount,
         refundId,
         payAmount,
+        refundType: 2,
       },
     })
       .then(async () => {
@@ -969,9 +979,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                     为防止部分用户报名后恶意取消，导致场次解散，影响队友的组队体验，特制定以下规则:
                   </View>
                   <View className="row">1、关于用户主动取消的退款规则：</View>
-                  <View className="row sub">距开场小于1小时，无法退款;</View>
-                  <View className="row sub">距开场大于1小时，小于2小时，退款80%;</View>
-                  <View className="row sub">距开场大于2小时，可全额退款。</View>
+                  <View className="row sub">距开场小于2小时，退款0;</View>
+                  <View className="row sub">距开场大于2小时，小于4小时，退款50%;</View>
+                  <View className="row sub">距开场大于4小时，小于8小时，退款80%;</View>
+                  <View className="row sub">距开场大于8小时，可全额退款。</View>
                   <View className="row">2、月卡用户可随时无责取消订单，但不支持退款。</View>
                 </View>
                 <View className="btn-list">
