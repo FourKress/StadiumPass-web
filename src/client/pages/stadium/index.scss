@@ -663,7 +663,7 @@ page {
 
     .panel {
       width: 620px;
-      height: 604px;
+      height: 644px;
       background-color: #fff;
       border-radius: 32px;
       position: absolute;
@@ -680,7 +680,8 @@ page {
         top: 0;
         transform: translateX(-50%) translateY(-50%);
         border-radius: 50%;
-        background-color: red;
+        background: url('../../../assets/icons/refund-icon.png') no-repeat;
+        background-size: 100% 100%;
       }
 
       .dialog-body {
