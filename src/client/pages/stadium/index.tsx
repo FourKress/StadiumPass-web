@@ -44,6 +44,7 @@ interface IState {
   refundInfo: any;
   spaceId?: string;
   matchId?: string;
+  userInfo: any;
 }
 
 interface InjectStoreProps {
@@ -58,7 +59,7 @@ const currentDay = () => dayjs().format('YYYY-MM-DD');
 class StadiumPage extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
-    this.state = { ...this.initData(), headerPosition: {} };
+    this.state = { ...this.initData(), headerPosition: {}, userInfo: {} };
   }
 
   get inject() {
@@ -123,12 +124,14 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     const orderId = pageParams?.orderId;
     const runDate = pageParams?.runDate;
     const spaceId = pageParams?.spaceId;
+    const userInfo = Taro.getStorageSync('userInfo') || {};
     await this.setState({
       ...this.initData(),
       stadiumId: id,
       orderId,
       spaceId,
       matchId,
+      userInfo,
     });
     if (!id) return;
     this.getStadiumInfo(id);
@@ -146,7 +149,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     } else {
       this.getOrderMatch(matchId);
     }
-    const userId = Taro.getStorageSync('userInfo').id || '';
+    const userId = userInfo?.id || '';
     if (userId) {
       this.loginInit(userId);
     } else {
@@ -406,6 +409,16 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         selectList: selectList.filter((d) => d !== index),
       });
     }
+  }
+
+  async handlePhoneAuthSuccess() {
+    const userInfo = Taro.getStorageSync('userInfo') || '';
+    this.setState({
+      userInfo: {
+        ...userInfo,
+      },
+    });
+    await this.handleSubmit();
   }
 
   handleThrottle = (fun) =>
@@ -672,6 +685,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       headerPosition,
       cancelDialog,
       refundInfo,
+      userInfo,
     } = this.state;
 
     const {
@@ -680,8 +694,6 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     if (userId) {
       this.loginInit(userId);
     }
-
-    const phoneNum = Taro.getStorageSync('userInfo')?.phoneNum || '';
 
     const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
     const stadiumUrls = stadiumInfo?.stadiumUrls || [];
@@ -949,9 +961,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 </View>
               )}
             </View>
-            {phoneNum ? (
+            {this.state.userId && !userInfo?.phoneNum ? (
               <View className={selectList.length ? 'btn' : 'btn disabled'}>
-                <AuthorizePhoneBtn onAuthSuccess={this.handleThrottle(this.handleSubmit)}>
+                <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
                   {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                     ? '已满员'
                     : `${orderId ? '追加' : '立即'}报名`}

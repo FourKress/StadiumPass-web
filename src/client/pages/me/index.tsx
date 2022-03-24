@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { View, Text, Image, Button } from '@tarojs/components';
-import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction, AtBadge, AtInput } from 'taro-ui';
+import { AtIcon, AtModal, AtModalHeader, AtModalContent, AtModalAction, AtBadge } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 import * as LoginService from '@/services/loginService';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
-import { validateRegular } from '@/utils/validateRule';
+import AuthorizePhoneBtn from '@/components/authorizePhoneBtn';
 
 import './index.scss';
 
@@ -20,8 +20,6 @@ interface IState {
   isOpened: boolean;
   authorize: boolean;
   orderCount: IOrderCount;
-  showPhoneModal: boolean;
-  phoneNum: any;
 }
 
 class MePage extends Component<{}, IState> {
@@ -31,13 +29,11 @@ class MePage extends Component<{}, IState> {
       userInfo: {},
       isOpened: false,
       authorize: false,
-      showPhoneModal: false,
       orderCount: {
         payCount: 0,
         startCount: 0,
         allCount: 0,
       },
-      phoneNum: '',
     };
   }
 
@@ -79,83 +75,37 @@ class MePage extends Component<{}, IState> {
     });
   }
 
-  checkLogin() {
+  async checkLogin() {
     const token = Taro.getStorageSync('token');
     if (!token) {
-      Taro.showToast({
+      await Taro.showToast({
         title: '请先登录',
         icon: 'none',
         duration: 2000,
       });
+      return false;
     }
     return token;
   }
 
-  jumpOrder(index) {
-    if (!this.checkLogin()) return;
-    Taro.navigateTo({
+  async jumpOrder(index) {
+    if (!(await this.checkLogin())) return;
+    await Taro.navigateTo({
       url: `/client/pages/order/index?index=${index}`,
     });
   }
 
-  jumpMonthlyCard() {
-    if (!this.checkLogin()) return;
-    Taro.navigateTo({
+  async jumpMonthlyCard() {
+    if (!(await this.checkLogin())) return;
+    await Taro.navigateTo({
       url: `/client/pages/monthlyCard/index`,
     });
   }
 
-  jumpMyWatch() {
-    if (!this.checkLogin()) return;
-    Taro.navigateTo({
+  async jumpMyWatch() {
+    if (!(await this.checkLogin())) return;
+    await Taro.navigateTo({
       url: `/client/pages/myWatch/index`,
-    });
-  }
-
-  handlePhoneModal(status) {
-    if (status) {
-      if (!this.checkLogin()) return;
-      this.setState({
-        phoneNum: this.state.userInfo.phoneNum,
-      });
-    }
-    this.setState({
-      showPhoneModal: status,
-    });
-  }
-
-  changePhoneNum() {
-    const { userInfo, phoneNum } = this.state;
-    if (!validateRegular.phone.test(phoneNum)) {
-      Taro.showToast({
-        title: '请输入正确的手机号码',
-        icon: 'none',
-        duration: 2000,
-      });
-      return;
-    }
-    requestData({
-      method: 'POST',
-      api: '/user/modify',
-      params: {
-        phoneNum,
-        bossPhoneNum: userInfo?.bossPhoneNum || phoneNum,
-      },
-    }).then((res) => {
-      this.setState({
-        userInfo: {
-          ...userInfo,
-          phoneNum,
-        },
-      });
-      Taro.setStorageSync('userInfo', res);
-      this.handlePhoneModal(false);
-    });
-  }
-
-  handlePhoneNum(value) {
-    this.setState({
-      phoneNum: value,
     });
   }
 
@@ -186,7 +136,7 @@ class MePage extends Component<{}, IState> {
   }
 
   async changeIdentity(status) {
-    if (!this.checkLogin()) return;
+    if (!(await this.checkLogin())) return;
     const { userInfo } = this.state;
     if (!userInfo.phoneNum) {
       await Taro.showToast({
@@ -228,8 +178,18 @@ class MePage extends Component<{}, IState> {
     });
   }
 
+  async handlePhoneAuthSuccess() {
+    const userInfo = Taro.getStorageSync('userInfo') || '';
+    this.setState({
+      userInfo: {
+        ...userInfo,
+      },
+    });
+    await this.changeIdentity(true);
+  }
+
   render() {
-    const { userInfo, isOpened, orderCount, authorize, showPhoneModal, phoneNum } = this.state;
+    const { userInfo, isOpened, orderCount, authorize } = this.state;
 
     return (
       <View className="mePage">
@@ -309,25 +269,22 @@ class MePage extends Component<{}, IState> {
                   <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
                 </View>
               </View>
-              <View className="item" onClick={() => this.handlePhoneModal(true)}>
-                <View className="icon">
-                  <AtIcon value="iphone" color="#A4AAAE" size="24"></AtIcon>
-                </View>
-                <Text className="label">联系电话</Text>
-                <View className="info">
-                  <Text className="name">{userInfo.phoneNum}</Text>
-                  <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
-                </View>
-              </View>
             </View>
           </View>
         </View>
 
         <View className="footer-btn">
-          <View className="btn" onClick={() => this.changeIdentity(true)}>
-            <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-            {userInfo?.bossId ? '我是场主' : '申请成为场主'}
-          </View>
+          {userInfo?.id && !userInfo?.phoneNum ? (
+            <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
+              <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
+              {userInfo?.bossId ? '我是场主' : '申请成为场主'}
+            </AuthorizePhoneBtn>
+          ) : (
+            <View className="btn" onClick={() => this.changeIdentity(true)}>
+              <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
+              {userInfo?.bossId ? '我是场主' : '申请成为场主'}
+            </View>
+          )}
         </View>
 
         <AtModal isOpened={isOpened}>
@@ -348,28 +305,6 @@ class MePage extends Component<{}, IState> {
           <AtModalAction>
             <Button onClick={() => this.changeIdentity(false)}>取消</Button>
             <Button onClick={() => this.handleConfirm()}>确定</Button>
-          </AtModalAction>
-        </AtModal>
-
-        <AtModal isOpened={showPhoneModal}>
-          <AtModalHeader>提示</AtModalHeader>
-          <AtModalContent>
-            {showPhoneModal && (
-              <AtInput
-                className="phoneNum"
-                name="value"
-                title="联系电话"
-                type="number"
-                maxlength={11}
-                placeholder="请输入联系电话"
-                value={phoneNum}
-                onChange={(value) => this.handlePhoneNum(value)}
-              />
-            )}
-          </AtModalContent>
-          <AtModalAction>
-            <Button onClick={() => this.handlePhoneModal(false)}>取消</Button>
-            <Button onClick={() => this.changePhoneNum()}>确定</Button>
           </AtModalAction>
         </AtModal>
 

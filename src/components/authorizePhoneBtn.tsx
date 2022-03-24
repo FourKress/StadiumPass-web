@@ -49,6 +49,7 @@ class AuthorizePhoneBtn extends Component<IProps> {
           Taro.showToast({
             icon: 'none',
             title: '授权获取手机号码失败，请重新点击授权',
+            duration: 2000,
           });
         });
     }
@@ -57,7 +58,7 @@ class AuthorizePhoneBtn extends Component<IProps> {
   render() {
     return (
       <View>
-        <Button className="phoneBtn" openType="getPhoneNumber" onGetPhoneNumber={(e) => this.getPhoneNumber(e)}>
+        <Button className="phone-auth-btn" openType="getPhoneNumber" onGetPhoneNumber={(e) => this.getPhoneNumber(e)}>
           {this.props.children}
         </Button>
       </View>

@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
-import { View, Text, Image, Button } from '@tarojs/components';
-import { AtIcon, AtInput, AtModal, AtModalAction, AtModalContent, AtModalHeader } from 'taro-ui';
+import { View, Text, Image } from '@tarojs/components';
+import { AtIcon } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 import * as LoginService from '@/services/loginService';
 
 import './index.scss';
 
-import { validateRegular } from '@/utils/validateRule';
-
 interface IState {
   userInfo: any;
   stadiumList: Array<any>;
-  bossPhoneNum: string;
-  showPhoneModal: boolean;
 }
 
 class BossMePage extends Component<any, IState> {
@@ -21,8 +17,6 @@ class BossMePage extends Component<any, IState> {
     super(props);
     this.state = {
       userInfo: {},
-      bossPhoneNum: '',
-      showPhoneModal: false,
       stadiumList: [],
     };
   }
@@ -86,55 +80,8 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
-  handlePhoneModal(status) {
-    if (status) {
-      if (!this.checkLogin()) return;
-      this.setState({
-        bossPhoneNum: this.state.userInfo.bossPhoneNum,
-      });
-    }
-    this.setState({
-      showPhoneModal: status,
-    });
-  }
-
-  changePhoneNum() {
-    const { userInfo, bossPhoneNum } = this.state;
-    if (!validateRegular.phone.test(bossPhoneNum)) {
-      Taro.showToast({
-        title: '请输入正确的手机号码',
-        icon: 'none',
-        duration: 2000,
-      });
-      return;
-    }
-    requestData({
-      method: 'POST',
-      api: '/user/modify',
-      params: {
-        bossPhoneNum,
-        phoneNum: userInfo?.phoneNum || bossPhoneNum,
-      },
-    }).then((res) => {
-      this.setState({
-        userInfo: {
-          ...userInfo,
-          bossPhoneNum,
-        },
-      });
-      Taro.setStorageSync('userInfo', res);
-      this.handlePhoneModal(false);
-    });
-  }
-
-  handlePhoneNum(value) {
-    this.setState({
-      bossPhoneNum: value,
-    });
-  }
-
   render() {
-    const { userInfo, stadiumList, bossPhoneNum, showPhoneModal } = this.state;
+    const { userInfo, stadiumList } = this.state;
 
     return (
       <View className="bossPage">
@@ -183,18 +130,6 @@ class BossMePage extends Component<any, IState> {
                 <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
               </View>
             </View>
-            <View className="panel">
-              <View className="item" onClick={() => this.handlePhoneModal(true)}>
-                <View className="icon">
-                  <AtIcon value="iphone" color="#A4AAAE" size="24"></AtIcon>
-                </View>
-                <Text className="label">联系电话</Text>
-                <View className="info">
-                  <Text className="name">{userInfo.bossPhoneNum}</Text>
-                  <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
-                </View>
-              </View>
-            </View>
           </View>
         </View>
 
@@ -204,28 +139,6 @@ class BossMePage extends Component<any, IState> {
             切换为用户
           </View>
         </View>
-
-        <AtModal isOpened={showPhoneModal}>
-          <AtModalHeader>提示</AtModalHeader>
-          <AtModalContent>
-            {showPhoneModal && (
-              <AtInput
-                className="phoneNum"
-                name="value"
-                title="联系电话"
-                type="number"
-                maxlength={11}
-                placeholder="请输入联系电话"
-                value={bossPhoneNum}
-                onChange={(value) => this.handlePhoneNum(value)}
-              />
-            )}
-          </AtModalContent>
-          <AtModalAction>
-            <Button onClick={() => this.handlePhoneModal(false)}>取消</Button>
-            <Button onClick={() => this.changePhoneNum()}>确定</Button>
-          </AtModalAction>
-        </AtModal>
       </View>
     );
   }

@@ -23,6 +23,7 @@ page {
 
       .box {
         position: relative;
+
         .member {
           position: absolute;
           top: 0;
@@ -124,6 +125,7 @@ page {
           align-items: center;
           justify-content: space-between;
           padding: 28px 0;
+
           &:last-child {
             border-top: 1px solid #f8f8f8;
           }
@@ -164,7 +166,19 @@ page {
     width: 100%;
     text-align: center;
 
-    .btn {
+    .phone-auth-btn {
+      background-color: transparent;
+      border-radius: unset;
+      font-size: 28px;
+
+      &::after {
+        border: none;
+        border-radius: unset;
+      }
+    }
+
+    .btn,
+    .phone-auth-btn {
       display: flex;
       align-items: center;
       justify-content: center;
