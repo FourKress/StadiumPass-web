@@ -961,7 +961,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 </View>
               )}
             </View>
-            {this.state.userId && !userInfo?.phoneNum ? (
+            {selectList.length && this.state.userId && !userInfo?.phoneNum ? (
               <View className={selectList.length ? 'btn' : 'btn disabled'}>
                 <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
                   {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
