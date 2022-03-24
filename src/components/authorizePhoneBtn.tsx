@@ -3,39 +3,54 @@ import { Button, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
-class AuthorizePhoneBtn extends Component {
+interface IProps {
+  onAuthSuccess: () => void;
+}
+
+class AuthorizePhoneBtn extends Component<IProps> {
   constructor(props) {
     super(props);
   }
 
   async getPhoneNumber(e) {
-    const { errMsg, iv, encryptedData } = e.detail;
+    console.log(e.detail.code);
+    const userInfo = Taro.getStorageSync('userInfo') || '';
+    if (!userInfo?.id) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请先登录!',
+      });
+      return;
+    }
+    const { errMsg, code } = e.detail;
     if (errMsg.includes('getPhoneNumber:fail')) {
-      if (errMsg.includes('user cancel')) {
-        await Taro.showToast({
-          icon: 'none',
-          title: '请不要重复点击、以免取消微信授权',
-        });
-      } else {
-        await Taro.showToast({
-          icon: 'none',
-          title: '允许授权将获得更好的服务',
-        });
-      }
+      await Taro.showToast({
+        icon: 'none',
+        title: '为响应疫情管控要求，团体活动需提供人员联系电话',
+      });
     } else {
       await requestData({
         method: 'POST',
-        api: 'wx/getPhoneNum',
+        api: '/wx/getPhoneNumber',
         params: {
-          code: '',
-          iv,
-          encryptedData,
+          code,
+          userId: userInfo.id,
         },
       })
-        .then((res) => {
-          console.log(res);
+        .then(async (res) => {
+          await Taro.setStorageSync('userInfo', {
+            ...userInfo,
+            phoneNum: res,
+            bossPhoneNum: res,
+          });
+          this.props.onAuthSuccess();
         })
-        .catch(() => {});
+        .catch(() => {
+          Taro.showToast({
+            icon: 'none',
+            title: '授权获取手机号码失败，请重新点击授权',
+          });
+        });
     }
   }
 

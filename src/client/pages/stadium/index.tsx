@@ -681,6 +681,8 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       this.loginInit(userId);
     }
 
+    const phoneNum = Taro.getStorageSync('userInfo')?.phoneNum || '';
+
     const isNow = !dayjs().startOf('day').diff(dayjs(spaceDate));
     const stadiumUrls = stadiumInfo?.stadiumUrls || [];
 
@@ -947,9 +949,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 </View>
               )}
             </View>
-            {this.state.userId ? (
+            {phoneNum ? (
               <View className={selectList.length ? 'btn' : 'btn disabled'}>
-                <AuthorizePhoneBtn>
+                <AuthorizePhoneBtn onAuthSuccess={this.handleThrottle(this.handleSubmit)}>
                   {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                     ? '已满员'
                     : `${orderId ? '追加' : '立即'}报名`}
