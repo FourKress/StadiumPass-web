@@ -302,7 +302,7 @@ class OrderPayPage extends Component<{}, IState> {
             取消订单
           </View>
           <View className="btn" onClick={this.handleThrottle(this.handleOrderPay)}>
-            立即支付 ￥{payAmount.toFixed(2)}
+            {orderInfo.chargeModel === 1 ? '平摊模式支付' : '立即支付'} ￥{payAmount.toFixed(2)}
           </View>
         </View>
       </View>

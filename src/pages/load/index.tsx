@@ -25,7 +25,7 @@ class LoadPage extends Component<{}, IState> {
       userInfo = await LoginService.login();
     }
 
-    const isBoss = userInfo?.bossId || false;
+    const isBoss = (userInfo?.bossId && userInfo?.phoneNum) || false;
     let url;
     let auth;
     if (isBoss) {

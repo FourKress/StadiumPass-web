@@ -592,6 +592,25 @@ page {
       flex: 1;
       display: flex;
       align-items: center;
+
+      .left-text {
+        display: flex;
+        align-items: center;
+        text-align: left;
+
+        .row-left {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: space-around;
+        }
+
+        .pre {
+          font-weight: bold;
+          color: #ff9502;
+        }
+      }
+
       .money {
         display: flex;
         flex-direction: column;

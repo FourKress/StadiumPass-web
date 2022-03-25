@@ -298,16 +298,26 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       const { matchId } = this.state;
       const openIndex = res.findIndex((d) => (matchId ? d.id === matchId : !d.isDone && !d.isCancel));
       const openList = res.map(() => false);
+      const currentMatch = res[openIndex] || res.reverse()[0];
       openList[openIndex] = true;
       this.setState({
         matchList: res,
         openList,
         spaceActive: index,
-        currentMatch: res[openIndex] || res.reverse()[0],
+        currentMatch,
         selectList: [],
         matchId: '',
       });
-      await this.getPeoPelList(res[openIndex]);
+
+      if (currentMatch.chargeModel === 1) {
+        await Taro.showModal({
+          title: '报名提示',
+          content: '该场次收费模式为平摊模式，报名实际金额在场次结束时动态计算，多支付的金额将原路退回。',
+          showCancel: false,
+        });
+      }
+
+      await this.getPeoPelList(currentMatch);
     });
   }
 
@@ -922,10 +932,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
             <View className="warp">
               {selectList.length > 0 ? (
                 <View className="info">
-                  <View className="text">
-                    已选人数：
-                    <Text style="font-weight： bold;">{selectList.length}</Text>
-                    ，共：
+                  <View className="text left-text">
+                    <View className="row-left">
+                      <Text>
+                        已选人数：
+                        <Text style="font-weight： bold;">{selectList.length}</Text>，
+                      </Text>
+                      {currentMatch.chargeModel === 1 && <Text className="pre">本次预支付</Text>}
+                    </View>
+                    <View className="row-right">共：</View>
                   </View>
                   <View className="money">
                     <View className="new">
@@ -966,7 +981,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
                   {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                     ? '已满员'
-                    : `${orderId ? '追加' : '立即'}报名`}
+                    : `${orderId ? '追加' : `${currentMatch.chargeModel === 1 ? '平摊模式' : '立即'}`}报名`}
                 </AuthorizePhoneBtn>
               </View>
             ) : (
@@ -976,7 +991,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
               >
                 {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
                   ? '已满员'
-                  : `${orderId ? '追加' : '立即'}报名`}
+                  : `${orderId ? '追加' : `${currentMatch.chargeModel === 1 ? '平摊模式' : '立即'}`}报名`}
               </View>
             )}
           </View>
