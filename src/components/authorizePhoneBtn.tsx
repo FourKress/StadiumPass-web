@@ -7,9 +7,23 @@ interface IProps {
   onAuthSuccess: () => void;
 }
 
-class AuthorizePhoneBtn extends Component<IProps> {
+interface IState {
+  versionFlag: boolean;
+}
+
+class AuthorizePhoneBtn extends Component<IProps, IState> {
   constructor(props) {
     super(props);
+    this.state = {
+      versionFlag: true,
+    };
+  }
+
+  componentDidMount() {
+    // const versionFlag = this.checkVersion();
+    this.setState({
+      versionFlag: true,
+    });
   }
 
   compareVersion(v1, v2) {
@@ -38,22 +52,22 @@ class AuthorizePhoneBtn extends Component<IProps> {
     return 0;
   }
 
-  async checkVersion() {
+  checkVersion() {
     const version = Taro.getSystemInfoSync().SDKVersion;
-    console.log(version);
     if (this.compareVersion(version, '2.21.2') >= 0) {
       return true;
     }
+    return false;
+  }
+
+  async versionUpdate() {
     await Taro.showModal({
       title: '提示',
       content: '当前微信版本过低，无法使用该功能，请升级到最新微信版本后重试。',
     });
-    return false;
   }
 
   async getPhoneNumber(e) {
-    console.log(await this.checkVersion());
-
     const userInfo = Taro.getStorageSync('userInfo') || '';
     if (!userInfo?.id) {
       await Taro.showToast({
@@ -98,11 +112,19 @@ class AuthorizePhoneBtn extends Component<IProps> {
   }
 
   render() {
+    const { versionFlag } = this.state;
+
     return (
       <View>
-        <Button className="phone-auth-btn" openType="getPhoneNumber" onGetPhoneNumber={(e) => this.getPhoneNumber(e)}>
-          {this.props.children}
-        </Button>
+        {versionFlag ? (
+          <Button className="phone-auth-btn" openType="getPhoneNumber" onGetPhoneNumber={(e) => this.getPhoneNumber(e)}>
+            {this.props.children}
+          </Button>
+        ) : (
+          <Button className="phone-auth-btn" onClick={() => this.versionUpdate()}>
+            {this.props.children}
+          </Button>
+        )}
       </View>
     );
   }
