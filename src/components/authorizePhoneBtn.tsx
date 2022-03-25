@@ -67,6 +67,14 @@ class AuthorizePhoneBtn extends Component<IProps, IState> {
     });
   }
 
+  async handleError() {
+    await Taro.showToast({
+      icon: 'none',
+      title: '授权获取手机号码失败，请重新点击授权',
+      duration: 2000,
+    });
+  }
+
   async getPhoneNumber(e) {
     const userInfo = Taro.getStorageSync('userInfo') || '';
     if (!userInfo?.id) {
@@ -77,8 +85,8 @@ class AuthorizePhoneBtn extends Component<IProps, IState> {
       return;
     }
     const { errMsg, code = '', iv = '', encryptedData = '' } = e.detail;
-    console.log(e.detail.code);
-    const data = code ? { code } : { iv, encryptedData };
+    const sessionKey = Taro.getStorageSync('sessionKey');
+    const data = code ? { code } : { sessionKey, iv, encryptedData };
     if (errMsg.includes('getPhoneNumber:fail')) {
       await Taro.showToast({
         icon: 'none',
@@ -93,7 +101,11 @@ class AuthorizePhoneBtn extends Component<IProps, IState> {
           userId: userInfo.id,
         },
       })
-        .then(async (res) => {
+        .then(async (res: any) => {
+          if (!res) {
+            await this.handleError();
+            return;
+          }
           await Taro.setStorageSync('userInfo', {
             ...userInfo,
             phoneNum: res,
@@ -102,11 +114,7 @@ class AuthorizePhoneBtn extends Component<IProps, IState> {
           this.props.onAuthSuccess();
         })
         .catch(() => {
-          Taro.showToast({
-            icon: 'none',
-            title: '授权获取手机号码失败，请重新点击授权',
-            duration: 2000,
-          });
+          this.handleError();
         });
     }
   }

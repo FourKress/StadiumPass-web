@@ -16,6 +16,7 @@ const login = () => {
         }
       })
       .then((res: any) => {
+        Taro.setStorageSync('sessionKey', res.session_key);
         Taro.setStorageSync('openId', res.openid);
         return checkFirstLogin(res.openid);
       })
