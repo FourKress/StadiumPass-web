@@ -307,6 +307,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         currentMatch,
         selectList: [],
         matchId: '',
+        openIndex,
       });
 
       if (currentMatch.chargeModel === 1) {
