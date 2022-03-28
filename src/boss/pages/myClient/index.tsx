@@ -9,24 +9,38 @@ import dayjs from 'dayjs';
 
 const typeList = [
   {
-    label: '按报名次数',
+    label: '踢球次数',
     value: '0',
   },
   {
-    label: '按报名时间',
+    label: '报名时间',
     value: '1',
   },
+];
+
+const clientTypes = [
   {
-    label: '按月卡',
-    value: '2',
+    label: '全部',
+    value: 0,
+    key: 0,
+  },
+  {
+    label: '月卡',
+    value: 0,
+    key: 1,
+  },
+  {
+    label: '黑名单',
+    value: 0,
+    key: 2,
   },
 ];
 
 interface IState {
   clientList: any[];
-  clientTotal: number;
-  monthlyCardCount: number;
   type: string;
+  clientTypeKey: number;
+  clientTypes: any[];
 }
 
 class MyClientPage extends Component<{}, IState> {
@@ -34,9 +48,9 @@ class MyClientPage extends Component<{}, IState> {
     super(props);
     this.state = {
       clientList: [],
-      clientTotal: 0,
-      monthlyCardCount: 0,
       type: '0',
+      clientTypeKey: 0,
+      clientTypes,
     };
   }
 
@@ -52,10 +66,12 @@ class MyClientPage extends Component<{}, IState> {
         type,
       },
     }).then((res: any) => {
+      const clientTypes = this.state.clientTypes;
+      clientTypes[0].value = res.length;
+      clientTypes[1].value = res.filter((d) => d.isMonthlyCard).length;
       this.setState({
         clientList: res,
-        clientTotal: res.length,
-        monthlyCardCount: res.filter((d) => d.isMonthlyCard).length,
+        clientTypes: [...clientTypes],
       });
     });
   }
@@ -69,16 +85,34 @@ class MyClientPage extends Component<{}, IState> {
     this.getClientList(value);
   }
 
+  handleClientTypeChange(type) {
+    const key = type.key;
+    this.setState({
+      clientTypeKey: key,
+    });
+    if (key === 1) {
+      this.getClientList(2);
+    }
+  }
+
   render() {
-    const { clientList, clientTotal, monthlyCardCount, type } = this.state;
+    const { clientList, type, clientTypeKey } = this.state;
 
     return (
       <View className="my-client-page">
         <View className="search-panel">
           <View className="left">
-            <Text>
-              共{clientTotal}位顾客，{monthlyCardCount}位月卡顾客
-            </Text>
+            {clientTypes.map((type) => {
+              return (
+                <View
+                  className={clientTypeKey === type.key ? 'btn active' : 'btn'}
+                  onClick={() => this.handleClientTypeChange(type)}
+                >
+                  <Text>{type.label}</Text>
+                  <Text className="count">（{type.value}）</Text>
+                </View>
+              );
+            })}
           </View>
           <View className="right">
             <Picker

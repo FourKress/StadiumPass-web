@@ -24,6 +24,27 @@ page {
     .left {
       font-size: 28px;
       color: #93a7b6;
+      display: flex;
+      align-items: center;
+
+      .btn {
+        display: flex;
+        align-items: center;
+        font-size: 34px;
+        margin-right: 48px;
+
+        &.active {
+          color: #0080ff;
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        .count {
+          font-size: 28px;
+        }
+      }
     }
 
     .right {

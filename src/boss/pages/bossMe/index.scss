@@ -72,6 +72,14 @@ page {
         padding: 0 32px 0 32px;
 
         &.stadium-panel {
+
+          .icon {
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin-right: 16px;
+          }
+
           &:nth-child(odd) {
             .icon {
               background: url("../../../assets/icons/flag-1.png") no-repeat;
@@ -104,8 +112,8 @@ page {
 
           .icon {
             display: block;
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             margin-right: 16px;
           }
 
