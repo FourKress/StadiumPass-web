@@ -168,10 +168,10 @@ class MatchEditPage extends Component<{}, IState> {
         form.rebate = parseFloat(((Number(form.rebatePrice) / Number(form.price)) * 10).toFixed(2));
       }
     }
-    if (form.rebatePrice && form.minPeople) {
-      form.matchTotalAmt = (Number(form.rebatePrice) * Number(form.minPeople)).toFixed(2);
-    } else {
-      form.matchTotalAmt = '';
+    if ((key === 'matchTotalAmt' && form.minPeople) || (key === 'minPeople' && form.matchTotalAmt)) {
+      const price = value ? (Number(form.matchTotalAmt) / Number(form.minPeople)).toFixed(2) : '';
+      form.rebatePrice = price;
+      form.price = price;
     }
 
     this.setState({
@@ -193,12 +193,9 @@ class MatchEditPage extends Component<{}, IState> {
         form.runDate = value === 1 ? '' : dateNow();
       }
       if (key === 'chargeModel') {
-        if (value === 1) {
-          form.matchTotalAmt =
-            form.rebatePrice && form.minPeople ? (Number(form.rebatePrice) * Number(form.minPeople)).toFixed(2) : '';
-        } else {
-          form.matchTotalAmt = '';
-        }
+        form.rebatePrice = '';
+        form.price = '';
+        form.matchTotalAmt = '';
       }
     }
     form[key] = value;
@@ -480,18 +477,22 @@ class MatchEditPage extends Component<{}, IState> {
               name="price"
               title="单人原价"
               type="text"
+              disabled={form.chargeModel === 1}
               placeholder="请输入单人原价"
               value={form.price}
               onChange={(value) => this.handleChange(value, 'price')}
             />
-            <AtInput
-              name="rebatePrice"
-              title="单人折扣价"
-              type="text"
-              placeholder="请输入单人折扣价"
-              value={form.rebatePrice}
-              onChange={(value) => this.handleChange(value, 'rebatePrice')}
-            />
+            {form.chargeModel === 2 && (
+              <AtInput
+                name="rebatePrice"
+                title="单人折扣价"
+                type="text"
+                placeholder="请输入单人折扣价"
+                value={form.rebatePrice}
+                onChange={(value) => this.handleChange(value, 'rebatePrice')}
+              />
+            )}
+
             <Picker
               mode="selector"
               range={chargeModelList}
@@ -512,9 +513,8 @@ class MatchEditPage extends Component<{}, IState> {
                 title="场次总价"
                 type="text"
                 placeholder="请输入场次总价"
-                disabled
                 value={form.matchTotalAmt}
-                onChange={() => {}}
+                onChange={(value) => this.handleChange(value, 'matchTotalAmt')}
               />
             )}
           </AtForm>
