@@ -313,7 +313,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       if (currentMatch.chargeModel === 1) {
         await Taro.showModal({
           title: '报名提示',
-          content: '该场次收费模式为平摊模式，报名实际金额在场次结束时动态计算，多支付的金额将原路退回。',
+          content: '平摊球费 多交多退',
           showCancel: false,
         });
       }
