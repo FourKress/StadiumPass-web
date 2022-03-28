@@ -378,8 +378,6 @@ class MatchEditPage extends Component<{}, IState> {
       matchTotalAmt: Number(matchTotalAmt),
     };
 
-    console.log(params);
-    return;
     requestData({
       method: 'POST',
       api: matchId ? '/match/modify' : '/match/add',
@@ -550,7 +548,7 @@ class MatchEditPage extends Component<{}, IState> {
 
             {form.chargeModel === 2 && (
               <AtSwitch
-                title="支持月卡"
+                title="是否打折"
                 color="#00E36A"
                 checked={rebateStatus}
                 onChange={(value) => this.handleRebateStatus(value)}
@@ -562,7 +560,7 @@ class MatchEditPage extends Component<{}, IState> {
                 name="rebatePrice"
                 title="单人折扣价"
                 type="text"
-                placeholder="无需打折填原价"
+                placeholder="请输入单人折扣价"
                 value={form.rebatePrice}
                 onChange={(value) => this.handleChange(value, 'rebatePrice')}
               />

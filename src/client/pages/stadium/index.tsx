@@ -312,7 +312,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
       if (currentMatch.chargeModel === 1) {
         await Taro.showModal({
-          title: '报名提示',
+          title: '平摊收费',
           content: '平摊球费 多交多退',
           showCancel: false,
         });
