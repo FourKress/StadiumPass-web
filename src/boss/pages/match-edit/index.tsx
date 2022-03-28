@@ -312,13 +312,15 @@ class MatchEditPage extends Component<{}, IState> {
       if (!repeatWeek.includes(week ? week : 7)) {
         const stepArr = repeatWeek.map((d) => d - (week || 7));
         const stepPre: any = [];
-        const stepNext = stepArr.filter((d) => {
-          if (d > 0) {
-            return true;
-          } else {
-            stepPre.push(d);
-          }
-        });
+        const stepNext = stepArr
+          .filter((d) => {
+            if (d > 0) {
+              return true;
+            } else {
+              stepPre.push(d);
+            }
+          })
+          .sort((a, b) => b - a);
         if (stepNext?.length) {
           realDate = dayjs().add(stepNext.reverse()[0], 'day').format('YYYY-MM-DD');
         } else {
@@ -471,27 +473,8 @@ class MatchEditPage extends Component<{}, IState> {
               <View className="name">价格设置</View>
               <View className="tips">1、设置原价和折扣价后，系统将自动计算折扣。</View>
               <View className="tips">2、折扣价必须小于等于原价（相等则视为无折扣）。</View>
-              <View className="tips">3、场次总价 = 最少开场人数 * 单人折扣价, 系统自动计算。</View>
+              <View className="tips">3、平摊模式下 单价 = 场次总价 / 最少人数, 系统自动计算。</View>
             </View>
-            <AtInput
-              name="price"
-              title="单人原价"
-              type="text"
-              disabled={form.chargeModel === 1}
-              placeholder="请输入单人原价"
-              value={form.price}
-              onChange={(value) => this.handleChange(value, 'price')}
-            />
-            {form.chargeModel === 2 && (
-              <AtInput
-                name="rebatePrice"
-                title="单人折扣价"
-                type="text"
-                placeholder="请输入单人折扣价"
-                value={form.rebatePrice}
-                onChange={(value) => this.handleChange(value, 'rebatePrice')}
-              />
-            )}
 
             <Picker
               mode="selector"
@@ -515,6 +498,29 @@ class MatchEditPage extends Component<{}, IState> {
                 placeholder="请输入场次总价"
                 value={form.matchTotalAmt}
                 onChange={(value) => this.handleChange(value, 'matchTotalAmt')}
+              />
+            )}
+
+            {form.chargeModel && (
+              <AtInput
+                name="price"
+                title="单人原价"
+                type="text"
+                disabled={form.chargeModel === 1}
+                placeholder={form.chargeModel === 1 ? '系统自动计算' : '请输入单人原价'}
+                value={form.price}
+                onChange={(value) => this.handleChange(value, 'price')}
+              />
+            )}
+
+            {form.chargeModel && form.chargeModel === 2 && (
+              <AtInput
+                name="rebatePrice"
+                title="单人折扣价"
+                type="text"
+                placeholder="请输入单人折扣价"
+                value={form.rebatePrice}
+                onChange={(value) => this.handleChange(value, 'rebatePrice')}
               />
             )}
           </AtForm>
