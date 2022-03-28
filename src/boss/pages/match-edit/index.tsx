@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Picker } from '@tarojs/components';
-import { AtForm, AtInput, AtList, AtListItem, AtCheckbox } from 'taro-ui';
+import { AtForm, AtInput, AtList, AtListItem, AtCheckbox, AtSwitch } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import './index.scss';
 import requestData from '@/utils/requestData';
@@ -33,6 +33,7 @@ interface IState {
   weekList: Array<any>;
   repeatModelList: Array<any>;
   chargeModelList: Array<any>;
+  rebateStatus: boolean;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
@@ -67,6 +68,7 @@ class MatchEditPage extends Component<{}, IState> {
       weekList: [],
       repeatModelList: [],
       chargeModelList,
+      rebateStatus: false,
     };
   }
 
@@ -103,7 +105,7 @@ class MatchEditPage extends Component<{}, IState> {
         id: this.state.matchId,
       },
     }).then((res: any) => {
-      const { repeatWeek } = res;
+      const { repeatWeek, rebate } = res;
       const { form } = this.state;
       const tempForm = {};
       Object.keys(form).map((k) => {
@@ -118,6 +120,7 @@ class MatchEditPage extends Component<{}, IState> {
           rebate: res.rebate,
           id: res.id,
         },
+        rebateStatus: rebate !== 10,
       });
     });
   }
@@ -161,12 +164,18 @@ class MatchEditPage extends Component<{}, IState> {
   handleChange(value, key) {
     const form = this.state.form;
     form[key] = value;
-    if (form.rebatePrice && form.price) {
-      if (!this.checkPrice(form.rebatePrice, form.price)) {
-        form[key] = '';
-      } else {
-        form.rebate = parseFloat(((Number(form.rebatePrice) / Number(form.price)) * 10).toFixed(2));
+
+    if (this.state.rebateStatus) {
+      if (form.rebatePrice && form.price) {
+        if (!this.checkPrice(form.rebatePrice, form.price)) {
+          form[key] = '';
+        } else {
+          form.rebate = parseFloat(((Number(form.rebatePrice) / Number(form.price)) * 10).toFixed(2));
+        }
       }
+    } else {
+      form.rebatePrice = value;
+      form.rebate = 10;
     }
     if ((key === 'matchTotalAmt' && form.minPeople) || (key === 'minPeople' && form.matchTotalAmt)) {
       const price = value ? (Number(form.matchTotalAmt) / Number(form.minPeople)).toFixed(2) : '';
@@ -202,6 +211,30 @@ class MatchEditPage extends Component<{}, IState> {
     this.setState({
       form: {
         ...form,
+      },
+    });
+  }
+
+  handleRebateStatus(value) {
+    const form = this.state.form;
+    let realForm;
+    if (value) {
+      realForm = {
+        ...form,
+        rebatePrice: '',
+        rebate: '',
+      };
+    } else {
+      realForm = {
+        ...form,
+        rebatePrice: form.price,
+        rebate: 10,
+      };
+    }
+    this.setState({
+      rebateStatus: value,
+      form: {
+        ...realForm,
       },
     });
   }
@@ -345,6 +378,8 @@ class MatchEditPage extends Component<{}, IState> {
       matchTotalAmt: Number(matchTotalAmt),
     };
 
+    console.log(params);
+    return;
     requestData({
       method: 'POST',
       api: matchId ? '/match/modify' : '/match/add',
@@ -370,7 +405,7 @@ class MatchEditPage extends Component<{}, IState> {
   }
 
   render() {
-    const { spaceList, repeatModelList, form, weekList } = this.state;
+    const { spaceList, repeatModelList, form, weekList, rebateStatus } = this.state;
     return (
       <View className="match-edit-page">
         <View className="scroll-wrap">
@@ -513,12 +548,21 @@ class MatchEditPage extends Component<{}, IState> {
               />
             )}
 
-            {form.chargeModel && form.chargeModel === 2 && (
+            {form.chargeModel === 2 && (
+              <AtSwitch
+                title="支持月卡"
+                color="#00E36A"
+                checked={rebateStatus}
+                onChange={(value) => this.handleRebateStatus(value)}
+              />
+            )}
+
+            {form.chargeModel && form.chargeModel === 2 && rebateStatus && (
               <AtInput
                 name="rebatePrice"
                 title="单人折扣价"
                 type="text"
-                placeholder="请输入单人折扣价"
+                placeholder="无需打折填原价"
                 value={form.rebatePrice}
                 onChange={(value) => this.handleChange(value, 'rebatePrice')}
               />
