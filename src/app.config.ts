@@ -3,6 +3,7 @@ import { Config } from '@tarojs/taro';
 const config: Config = {
   pages: [
     'boss/pages/myClient/index',
+    'boss/pages/client-detail/index',
 
     'pages/load/index',
     'pages/userCenter/index',
@@ -14,6 +15,7 @@ const config: Config = {
     'boss/pages/revenue-details/index',
     'boss/pages/stadium-details/index',
     'boss/pages/statistics/index',
+
     'client/pages/community/index',
     'client/pages/monthlyCard/index',
     'client/pages/myWatch/index',

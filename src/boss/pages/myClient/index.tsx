@@ -5,6 +5,7 @@ import requestData from '@/utils/requestData';
 // import Taro from '@tarojs/taro';
 
 import './index.scss';
+import Taro from '@tarojs/taro';
 // import dayjs from 'dayjs';
 
 const typeList = [
@@ -103,6 +104,13 @@ class MyClientPage extends Component<{}, IState> {
 
   handleSearchChange() {}
 
+  async jumpClientDetail(user) {
+    console.log(user);
+    await Taro.navigateTo({
+      url: `/boss/pages/client-detail/index`,
+    });
+  }
+
   render() {
     const { clientList, type, clientTypeKey, keywords } = this.state;
 
@@ -156,7 +164,7 @@ class MyClientPage extends Component<{}, IState> {
             <View className="scroll-warp">
               {clientList.map((item, index) => {
                 return (
-                  <View className="item">
+                  <View className="item" onClick={() => this.jumpClientDetail(item)}>
                     <View className="index">{index + 1}</View>
                     <View className="img">
                       <Image src={item.avatarUrl}></Image>
