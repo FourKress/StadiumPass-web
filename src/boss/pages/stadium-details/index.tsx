@@ -243,14 +243,14 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   async saveStadium() {
     const { stadiumInfo, spaceList, files } = this.state;
-    const { wxGroup, address, longitude, latitude } = stadiumInfo;
-    if (!wxGroup) {
-      await Taro.showToast({
-        icon: 'none',
-        title: '请设置关联的微信群！',
-      });
-      return;
-    }
+    const { address, longitude, latitude } = stadiumInfo;
+    // if (!wxGroup) {
+    //   await Taro.showToast({
+    //     icon: 'none',
+    //     title: '请设置关联的微信群！',
+    //   });
+    //   return;
+    // }
     if (!(address && longitude && latitude)) {
       await Taro.showToast({
         icon: 'none',

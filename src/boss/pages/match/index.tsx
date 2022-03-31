@@ -86,7 +86,8 @@ class MatchPage extends Component<InjectStoreProps, IState> {
   componentDidShow() {
     const { stadiumInfo } = this.state;
     if (stadiumInfo?.id) {
-      this.getMatchList(stadiumInfo.id, dateNow());
+      const { year, month, day } = this.state.selectDate;
+      this.getMatchList(stadiumInfo.id, `${year}-${month}-${day}`);
     }
   }
 

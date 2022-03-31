@@ -133,7 +133,10 @@ class MatchDetailsPage extends Component<{}, IState> {
                 <View>
                   <View className="item">
                     <Image className="img" src={target.avatarUrl}></Image>
-                    <Text className="name">{target.nickName}</Text>
+                    <View className="name">
+                      <View>{target.nickName}</View>
+                      <View>{target.phoneNum}</View>
+                    </View>
                     <View className="info">
                       <Text className="count">{target.orderStatus}</Text>
                       <Text className="tips">本月第{target.stadiumTempCount}次报名</Text>

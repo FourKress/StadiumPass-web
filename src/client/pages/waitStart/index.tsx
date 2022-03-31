@@ -525,56 +525,62 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
           </View>
 
           <View className="stadium-list">
-            {userLocation ? (
-              showList?.length ? (
-                showList.map((item) => {
-                  const distance = this.calcDistance(longitude, latitude, item.longitude, item.latitude);
-                  return (
-                    <View className="item">
-                      <View
-                        className="logo"
-                        onClick={() => {
-                          this.onImageClick(true, item.stadiumUrls);
-                        }}
-                      >
-                        <Image
-                          src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0]?.path}`}
-                          className="img"
-                        />
-                        <View className="count">{item.stadiumUrls.length}</View>
-                      </View>
-                      <View className="info" onClick={() => this.jumpStadium(item.id)}>
-                        <View className="name">{item.name}</View>
-                        <View onClick={(e) => this.showMap(e, item)}>
-                          <Text className="address">[{item.district}]</Text>
-                          <Text className="num">
-                            {distance >= 1000 ? `${(distance / 1000).toFixed(2)}km` : `${distance}m`}
-                          </Text>
-                          <AtIcon value="map-pin" size="14" color="#666"></AtIcon>
+            <View className="scroll-warp">
+              {userLocation ? (
+                showList?.length ? (
+                  showList.map((item) => {
+                    const distance = this.calcDistance(longitude, latitude, item.longitude, item.latitude);
+                    return (
+                      <View className="item">
+                        <View
+                          className="logo"
+                          onClick={() => {
+                            this.onImageClick(true, item.stadiumUrls);
+                          }}
+                        >
+                          <Image
+                            src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0]?.path}`}
+                            className="img"
+                          />
+                          <View className="count">{item.stadiumUrls.length}</View>
+                        </View>
+                        <View className="info" onClick={() => this.jumpStadium(item.id)}>
+                          <View className="name">{item.name}</View>
+                          <View onClick={(e) => this.showMap(e, item)}>
+                            <Text className="address">[{item.district}]</Text>
+                            <Text className="num">
+                              {distance >= 1000 ? `${(distance / 1000).toFixed(2)}km` : `${distance}m`}
+                            </Text>
+                            <AtIcon value="map-pin" size="14" color="#666"></AtIcon>
+                          </View>
+                        </View>
+                        <View className="money" onClick={() => this.jumpStadium(item.id)}>
+                          <View className="new">{item?.matchInfo?.rebatePrice}</View>
+                          <View className="old">
+                            <View className="price">{item?.matchInfo?.price}</View>
+                            {item?.matchInfo?.rebate && item?.matchInfo?.rebate !== 10 && (
+                              <View className="tips">折</View>
+                            )}
+                          </View>
                         </View>
                       </View>
-                      <View className="money" onClick={() => this.jumpStadium(item.id)}>
-                        <View className="new">{item?.matchInfo?.rebatePrice}</View>
-                        <View className="old">
-                          <View className="price">{item?.matchInfo?.price}</View>
-                          {item?.matchInfo?.rebate && item?.matchInfo?.rebate !== 10 && (
-                            <View className="tips">折</View>
-                          )}
-                        </View>
-                      </View>
-                    </View>
-                  );
-                })
+                    );
+                  })
+                ) : (
+                  <View className="not-data" style="margin-top: 16px">
+                    暂无数据
+                  </View>
+                )
               ) : (
-                <View className="not-data" style="margin-top: 16px">
-                  暂无数据
+                <View
+                  className="not-data authorize-local"
+                  style="margin-top: 24px"
+                  onClick={() => this.authorizeLocal()}
+                >
+                  授权获取位置信息，查看您附近的场馆
                 </View>
-              )
-            ) : (
-              <View className="not-data authorize-local" style="margin-top: 24px" onClick={() => this.authorizeLocal()}>
-                授权获取位置信息，查看您附近的场馆
-              </View>
-            )}
+              )}
+            </View>
           </View>
         </View>
 

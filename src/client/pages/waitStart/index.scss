@@ -7,7 +7,7 @@ page {
 }
 
 .wait-start-page {
-  height: calc(100vh - 146px - env(safe-area-inset-bottom));
+  height: calc(100vh - 124px - env(safe-area-inset-bottom));
 
   .page-header {
     width: 100vw;
@@ -270,6 +270,15 @@ page {
 
   .stadium-list {
     width: 100%;
+    height: calc(100vh - 566px - env(safe-area-inset-bottom));
+    overflow: hidden;
+
+    .scroll-warp {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
 
     .item {
       width: 100%;
