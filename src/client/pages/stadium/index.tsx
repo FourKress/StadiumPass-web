@@ -866,7 +866,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                                       <AtIcon value="check" size="24" color="#0092FF"></AtIcon>
                                     </View>
                                   )}
-                                  {flag && <View className="tips">满{currentMatch.minPeople}人即可开赛</View>}
+                                  {flag && (
+                                    <View className="tips">满{currentMatch.minPeople}人即可开赛，人数不足自动退款</View>
+                                  )}
                                 </View>
                               );
                             })}

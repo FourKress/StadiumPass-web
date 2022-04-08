@@ -124,7 +124,7 @@ class MatchDetailsPage extends Component<{}, IState> {
               const target = peopleList[index];
               const isMinPeople = (
                 <View className="tips-panel">
-                  <View className="tips">满{matchInfo.minPeople}人即可开赛</View>
+                  <View className="tips">满{matchInfo.minPeople}人即可开赛，人数不足自动退款</View>
                   <View className="line"></View>
                 </View>
               );
