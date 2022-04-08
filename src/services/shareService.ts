@@ -1,6 +1,7 @@
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 import { SERVER_PROTOCOL, SERVER_DOMAIN } from '@/src/config';
+import dayjs from 'dayjs';
 
 const setShareMenu = async () => {
   await Taro.showShareMenu({
@@ -64,8 +65,21 @@ const handleShare = async (state) => {
   const imageUrl = `${Taro.env.USER_DATA_PATH}/${Date.now()}.jpg`;
   fs.writeFileSync(imageUrl, imageData, 'base64');
 
+  const isNowDay = dayjs().format('YYYY-MM-DD') === runDate;
+  const weekMap = {
+    0: '周日',
+    1: '周一',
+    2: '周二',
+    3: '周三',
+    4: '周四',
+    5: '周五',
+    6: '周六',
+  };
+
   const shareObj = {
-    title: `${stadium.name}/${space.name}/${runDate.substring(5, 10)} ${startAt}-${endAt}`,
+    title: `${isNowDay ? '今日' : runDate.substring(5, 10)}(${weekMap[dayjs(runDate).day()]}) / ${startAt}-${endAt} / ${
+      space.name
+    } / ${stadium.name}`,
     path: `/client/pages/stadium/index?stadiumId=${stadium.id}&runDate=${runDate}&spaceId=${space.id}&matchId=${matchInfo.id}`,
     imageUrl,
   };
