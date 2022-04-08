@@ -382,7 +382,7 @@ class MatchEditPage extends Component<{}, IState> {
       method: 'POST',
       api: matchId ? '/match/modify' : '/match/add',
       params,
-    }).then(() => {
+    }).then(async () => {
       let message = '';
       if (matchId) {
         message = '场次保存成功';
@@ -392,10 +392,10 @@ class MatchEditPage extends Component<{}, IState> {
       } else {
         message = '场次新建成功';
       }
-      Taro.navigateBack({
+      await Taro.navigateBack({
         delta: -1,
       });
-      Taro.showToast({
+      await Taro.showToast({
         icon: 'none',
         title: message,
       });
