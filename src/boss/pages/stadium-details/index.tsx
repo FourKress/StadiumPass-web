@@ -460,10 +460,19 @@ class StadiumDetailsPage extends Component<{}, IState> {
       });
   }
 
-  fileChange(val) {
+  async fileChange(val) {
     const files = val?.length > 5 ? val.slice(0, 5) : val;
+    const filter = files.filter((f) => !f?.file?.size || f?.file?.size < 4194304);
+
+    if (files.length !== filter.length) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '图片大小超过5M，请重新选择图片',
+      });
+    }
+
     this.setState({
-      files,
+      files: filter,
     });
   }
 
