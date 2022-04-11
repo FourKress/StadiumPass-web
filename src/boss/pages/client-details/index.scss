@@ -1,0 +1,106 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+.client-detail-page {
+  width: 100vw;
+  height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  .top {
+    width: 100%;
+    height: 324px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    .avatar {
+      display: block;
+      width: 160px;
+      height: 160px;
+      background-color: red;
+      border-radius: 50%;
+    }
+
+    .name {
+      margin: 16px 0 8px 0;
+      font-weight: bold;
+      color: #333;
+      font-size: 48px;
+    }
+
+    .tag {
+      width: 120px;
+      height: 42px;
+      background: url('../../../assets/icons/card-tag.png') no-repeat;
+      background-size: 100% 100%;
+    }
+  }
+
+  .title-row {
+    width: 100%;
+    height: 80px;
+    line-height: 80px;
+    background-color: #f5f5f5;
+    padding: 0 32px;
+    color: #999;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .row-panel {
+    min-height: 100px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 32px;
+
+    .wrap {
+      height: 100%;
+      padding-right: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      &.border {
+        border-bottom: 1px solid #ccc;
+      }
+
+      .at-input {
+        width: 100%;
+        margin-left: 0;
+
+        .at-input--disabled {
+          opacity: 1;
+        }
+
+        .at-input__title {
+          color: #333;
+          font-size: 32px;
+        }
+      }
+
+      .info {
+        flex: 1;
+        height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-right: 16px;
+        padding: 32px 0;
+        box-sizing: border-box;
+
+        .mark {
+          font-weight: bold;
+          color: #333;
+          font-size: 32px;
+        }
+
+        .time {
+          color: #999;
+        }
+      }
+    }
+  }
+}

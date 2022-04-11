@@ -1,0 +1,78 @@
+import React, { Component } from 'react';
+import { View, Text } from '@tarojs/components';
+// import Taro from '@tarojs/taro';
+import requestData from '@/utils/requestData';
+
+import './index.scss';
+// import dayjs from 'dayjs';
+
+interface IState {
+  recordList: Array<any>;
+}
+
+class MonthlyCardDetailsPage extends Component<{}, IState> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      recordList: [{}],
+    };
+  }
+
+  componentDidShow() {
+    this.getRecordList();
+  }
+
+  getRecordList() {
+    requestData({
+      method: 'POST',
+      api: '/order/listByStatus',
+      params: {
+        status: undefined,
+      },
+    }).then((res: any) => {
+      this.setState({
+        recordList: res,
+      });
+    });
+  }
+
+  render() {
+    const { recordList } = this.state;
+
+    return (
+      <View className="monthlyCard-details">
+        <View className="list">
+          {recordList.length ? (
+            recordList.map((item) => {
+              console.log(item);
+              return (
+                <View className="item">
+                  <View className="row">
+                    <Text className="label">购买时间：</Text>
+                    <Text className="text">2022-22-22 12:22:22</Text>
+                  </View>
+                  <View className="row">
+                    <Text className="label">有效期：</Text>
+                    <Text className="text">2022-22-22 - 2022-22-22</Text>
+                  </View>
+                  <View className="row">
+                    <Text className="label">购买费用：</Text>
+                    <Text className="text">￥25.00</Text>
+                  </View>
+                  <View className="row">
+                    <Text className="label">月卡状态：</Text>
+                    <Text className="text success fail">有效</Text>
+                  </View>
+                </View>
+              );
+            })
+          ) : (
+            <View className="not-data">暂无数据</View>
+          )}
+        </View>
+      </View>
+    );
+  }
+}
+
+export default MonthlyCardDetailsPage;
