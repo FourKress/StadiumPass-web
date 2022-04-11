@@ -55,18 +55,51 @@
     box-sizing: border-box;
     padding-left: 32px;
 
-    &.row-panel + .row-panel {
-      .wrap {
-        border-top: 1px solid #ccc;
-      }
-    }
-
     .wrap {
       height: 100%;
       padding-right: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      &.border {
+        border-bottom: 1px solid #ccc;
+      }
 
       .at-input {
+        width: 100%;
         margin-left: 0;
+
+        .at-input--disabled {
+          opacity: 1;
+        }
+
+        .at-input__title {
+          color: #333;
+          font-size: 32px;
+        }
+      }
+
+      .info {
+        flex: 1;
+        height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-right: 16px;
+        padding: 32px 0;
+        box-sizing: border-box;
+
+        .mark {
+          font-weight: bold;
+          color: #333;
+          font-size: 32px;
+        }
+
+        .time {
+          color: #999;
+        }
       }
     }
   }

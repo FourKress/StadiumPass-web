@@ -35,6 +35,7 @@ page {
 
         &.active {
           color: #0080ff;
+          font-weight: bold;
         }
 
         &:last-child {
@@ -58,7 +59,7 @@ page {
 
       .type {
         font-size: 28px;
-        color: #444444;
+        color: #444;
       }
     }
   }
