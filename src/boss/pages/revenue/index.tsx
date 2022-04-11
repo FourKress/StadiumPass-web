@@ -155,6 +155,10 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  handleWithdraw() {
+    console.log(123);
+  }
+
   render() {
     const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo } = this.state;
 
@@ -179,6 +183,9 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             <View className="item">
               <View className="title">钱包余额</View>
               <View className="text">{summary.balanceAmt}</View>
+              <View className="right-btn" onClick={() => this.handleWithdraw()}>
+                提现
+              </View>
             </View>
           </View>
         </View>
