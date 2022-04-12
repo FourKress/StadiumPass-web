@@ -270,6 +270,18 @@ class MePage extends Component<{}, IState> {
                 </View>
               </View>
             </View>
+
+            <View className="panel">
+              <View className="item" onClick={() => this.jumpMyWatch()}>
+                <View className="icon">
+                  <AtIcon value="star-2" color="#A4AAAE" size="24"></AtIcon>
+                </View>
+                <Text className="label">更新用户信息</Text>
+                <View className="info">
+                  <Text className="name"></Text>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
 
