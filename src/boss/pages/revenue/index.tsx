@@ -182,7 +182,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     }
     if (parseInt(withdrawAmt) > 2000) {
       await Taro.showToast({
-        title: '单次提现金额不能超过2000元',
+        title: '单日、单次提现金额不能超过2000元',
         icon: 'none',
         duration: 2000,
       });
@@ -208,16 +208,8 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const {
-      summary,
-      showDrawer,
-      stadiumList,
-      stadiumId,
-      runDate,
-      revenueInfo,
-      showWithdrawModal,
-      withdrawAmt,
-    } = this.state;
+    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo, showWithdrawModal, withdrawAmt } =
+      this.state;
 
     return (
       <View className="indexPage">
