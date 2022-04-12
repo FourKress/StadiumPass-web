@@ -38,20 +38,8 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
-  checkLogin() {
-    const token = Taro.getStorageSync('token');
-    if (!token) {
-      Taro.showToast({
-        title: '请先登录',
-        icon: 'none',
-        duration: 2000,
-      });
-    }
-    return token;
-  }
-
   jumpDetails(id) {
-    if (!this.checkLogin()) return;
+    if (!LoginService.checkLogin()) return;
     Taro.navigateTo({
       url: `/boss/pages/stadium-details/index?id=${id}`,
     });

@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { View, Text, Picker } from '@tarojs/components';
+import { View, Text, Picker, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { AtIcon, AtDrawer, AtInput } from 'taro-ui';
+import { AtIcon, AtInput, AtModal, AtModalAction, AtModalContent, AtModalHeader, AtDrawer } from 'taro-ui';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
 import dayjs from 'dayjs';
 
+import { validateRegular } from '@/utils/validateRule';
+import { checkLogin } from '@/services/loginService';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
 
@@ -21,6 +23,8 @@ interface IState {
   stadiumId: string;
   runDate: string;
   revenueInfo: any;
+  withdrawAmt: string;
+  showWithdrawModal: boolean;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
@@ -37,6 +41,8 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       stadiumId: '',
       runDate: dateNow(),
       revenueInfo: {},
+      withdrawAmt: '',
+      showWithdrawModal: false,
     };
   }
 
@@ -155,12 +161,63 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  handleWithdraw() {
-    console.log(123);
+  handleWithdrawModal(status) {
+    if (status) {
+      if (!checkLogin()) return;
+    }
+    this.setState({
+      showWithdrawModal: status,
+    });
+  }
+
+  async sendWithdrawRequest() {
+    const { withdrawAmt } = this.state;
+    if (!validateRegular.number.test(withdrawAmt)) {
+      await Taro.showToast({
+        title: '请输入正确的数字',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
+    if (parseInt(withdrawAmt) > 2000) {
+      await Taro.showToast({
+        title: '单次提现金额不能超过2000元',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
+    console.log(withdrawAmt);
+    return;
+    requestData({
+      method: 'POST',
+      api: '/user/modify',
+      params: {
+        withdrawAmt,
+      },
+    }).then(() => {
+      this.getMonthAndAayStatistics();
+    });
+  }
+
+  getWithdrawValue(value) {
+    this.setState({
+      withdrawAmt: value,
+    });
   }
 
   render() {
-    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo } = this.state;
+    const {
+      summary,
+      showDrawer,
+      stadiumList,
+      stadiumId,
+      runDate,
+      revenueInfo,
+      showWithdrawModal,
+      withdrawAmt,
+    } = this.state;
 
     return (
       <View className="indexPage">
@@ -183,9 +240,9 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             <View className="item">
               <View className="title">钱包余额</View>
               <View className="text">{summary.balanceAmt}</View>
-              <View className="right-btn" onClick={() => this.handleWithdraw()}>
-                提现
-              </View>
+            </View>
+            <View className="right-btn" onClick={() => this.handleWithdrawModal(true)}>
+              提现
             </View>
           </View>
         </View>
@@ -313,6 +370,29 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             </View>
           </View>
         </AtDrawer>
+
+        <AtModal isOpened={showWithdrawModal}>
+          <AtModalHeader>提示</AtModalHeader>
+          <AtModalContent>
+            <View className="withdraw-tips">单日提现次数不能超过10次</View>
+            <View className="withdraw-tips">单日提现金额不能超过2000元</View>
+            {showWithdrawModal && (
+              <AtInput
+                className="withdrawAmt"
+                name="value"
+                title="提现金额"
+                type="number"
+                placeholder="请输入提现金额"
+                value={withdrawAmt}
+                onChange={(value) => this.getWithdrawValue(value)}
+              />
+            )}
+          </AtModalContent>
+          <AtModalAction>
+            <Button onClick={() => this.handleWithdrawModal(false)}>取消</Button>
+            <Button onClick={() => this.sendWithdrawRequest()}>确定</Button>
+          </AtModalAction>
+        </AtModal>
       </View>
     );
   }
