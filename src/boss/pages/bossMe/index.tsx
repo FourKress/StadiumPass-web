@@ -6,10 +6,13 @@ import requestData from '@/utils/requestData';
 import * as LoginService from '@/services/loginService';
 
 import './index.scss';
+import AuthorizeUserBtn from '@/components/authorizeUserModal';
 
 interface IState {
   userInfo: any;
   stadiumList: Array<any>;
+  authorize: boolean;
+  isUpload: boolean;
 }
 
 class BossMePage extends Component<any, IState> {
@@ -18,6 +21,8 @@ class BossMePage extends Component<any, IState> {
     this.state = {
       userInfo: {},
       stadiumList: [],
+      authorize: false,
+      isUpload: false,
     };
   }
 
@@ -80,8 +85,34 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
+  showUploadModel() {
+    this.setState({
+      authorize: true,
+      isUpload: true,
+    });
+  }
+
+  async handleUploadUser(status) {
+    this.setState(
+      {
+        authorize: false,
+      },
+      () => {
+        this.setState({
+          isUpload: false,
+        });
+      }
+    );
+    if (status) {
+      const userInfo = await LoginService.handleAuthorize();
+      this.setState({
+        userInfo,
+      });
+    }
+  }
+
   render() {
-    const { userInfo, stadiumList } = this.state;
+    const { userInfo, stadiumList, authorize, isUpload } = this.state;
 
     return (
       <View className="bossPage">
@@ -131,6 +162,20 @@ class BossMePage extends Component<any, IState> {
               </View>
             </View>
           </View>
+
+          <View className="nav-list" style="margin-top: 16px;">
+            <View className="panel">
+              <View className="item" onClick={() => this.showUploadModel()}>
+                <View className="icon">
+                  <AtIcon value="reload" color="#A4AAAE" size="24"></AtIcon>
+                </View>
+                <Text className="label">更新用户信息</Text>
+                <View className="info">
+                  <Text className="name"></Text>
+                </View>
+              </View>
+            </View>
+          </View>
         </View>
 
         <View className="footer-btn">
@@ -139,6 +184,12 @@ class BossMePage extends Component<any, IState> {
             切换为用户
           </View>
         </View>
+
+        <AuthorizeUserBtn
+          authorize={authorize}
+          upload={isUpload}
+          onUpload={(value) => this.handleUploadUser(value)}
+        ></AuthorizeUserBtn>
       </View>
     );
   }

@@ -4,7 +4,7 @@ import { AtModal, AtModalAction, AtModalContent, AtModalHeader } from 'taro-ui';
 
 interface IProps {
   authorize: boolean;
-  onChange: (value) => void;
+  onChange?: (value) => void;
   upload?: boolean;
   onUpload?: (value) => void;
 }
@@ -15,7 +15,9 @@ class AuthorizeUserBtn extends Component<IProps> {
   }
 
   handleOnChange(status) {
-    this.props.onChange(status);
+    if (this.props.onChange) {
+      this.props.onChange(status);
+    }
   }
 
   handleOnUpload(status) {
