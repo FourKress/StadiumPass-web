@@ -56,17 +56,7 @@ class OrderPayPage extends Component<{}, IState> {
         id: orderId,
       },
     }).then((res: any) => {
-      const {
-        monthlyCardStatus,
-        monthlyCardPrice,
-        totalPrice,
-        countdown,
-        price,
-        monthlyCardPayStatus,
-        prepayInfo = null,
-        payMethod = null,
-        payAmount = 0,
-      } = res;
+      const { totalPrice, countdown, prepayInfo = null, payMethod = null, payAmount = 0 } = res;
       let state;
       if (prepayInfo && payAmount) {
         state = {
@@ -74,14 +64,6 @@ class OrderPayPage extends Component<{}, IState> {
           payAmount,
           payMethod: payMethod === 2 ? 'monthlyCard' : 'wechat',
           hasMonthlyCardAmount: payMethod === 2 ? payAmount : 0,
-        };
-      } else if (monthlyCardStatus && monthlyCardPayStatus) {
-        const diffPrice = totalPrice - price;
-        const hasMonthlyCardAmount = res.isMonthlyCard ? diffPrice : monthlyCardPrice + diffPrice;
-        state = {
-          hasMonthlyCardAmount,
-          payAmount: hasMonthlyCardAmount,
-          payMethod: 'monthlyCard',
         };
       } else {
         state = {
