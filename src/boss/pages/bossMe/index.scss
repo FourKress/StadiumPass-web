@@ -29,7 +29,7 @@ page {
           right: 0;
           width: 40px;
           height: 40px;
-          background: url("../../../assets/icons/user-tag.png") no-repeat;
+          background: url('../../../assets/icons/user-tag.png') no-repeat;
           background-size: 100% 100%;
         }
       }
@@ -74,7 +74,7 @@ page {
         &.stadium-panel {
           &:nth-child(odd) {
             .icon {
-              background: url("../../../assets/icons/flag-1.png") no-repeat;
+              background: url('../../../assets/icons/flag-1.png') no-repeat;
               background-size: 100% 100%;
               transform: translateY(4px);
             }
@@ -82,7 +82,7 @@ page {
 
           &:nth-child(even) {
             .icon {
-              background: url("../../../assets/icons/flag-2.png") no-repeat;
+              background: url('../../../assets/icons/flag-2.png') no-repeat;
               background-size: 100% 100%;
               transform: translateY(4px);
             }
@@ -107,6 +107,12 @@ page {
             width: 40px;
             height: 40px;
             margin-right: 16px;
+
+            &.client,
+            &.reload {
+              width: 48px;
+              height: 48px;
+            }
           }
 
           .at-icon {

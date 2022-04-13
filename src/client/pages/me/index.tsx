@@ -20,6 +20,7 @@ interface IState {
   isOpened: boolean;
   authorize: boolean;
   orderCount: IOrderCount;
+  isUpload: boolean;
 }
 
 class MePage extends Component<{}, IState> {
@@ -29,6 +30,7 @@ class MePage extends Component<{}, IState> {
       userInfo: {},
       isOpened: false,
       authorize: false,
+      isUpload: false,
       orderCount: {
         payCount: 0,
         startCount: 0,
@@ -169,6 +171,11 @@ class MePage extends Component<{}, IState> {
       this.setState({
         authorize: status,
       });
+      setTimeout(() => {
+        this.setState({
+          isUpload: status,
+        });
+      }, 200);
       return;
     }
     const userInfo = await LoginService.handleAuthorize();
@@ -188,8 +195,28 @@ class MePage extends Component<{}, IState> {
     await this.changeIdentity(true);
   }
 
+  showUploadModel() {
+    this.setState({
+      authorize: true,
+      isUpload: true,
+    });
+  }
+
+  async handleUploadUser(status) {
+    this.setState({
+      authorize: false,
+    });
+    if (status) {
+      const userInfo = await LoginService.handleAuthorize(false);
+      this.setState({
+        userInfo,
+        isUpload: false,
+      });
+    }
+  }
+
   render() {
-    const { userInfo, isOpened, orderCount, authorize } = this.state;
+    const { userInfo, isOpened, orderCount, authorize, isUpload } = this.state;
 
     return (
       <View className="mePage">
@@ -270,6 +297,18 @@ class MePage extends Component<{}, IState> {
                 </View>
               </View>
             </View>
+
+            <View className="panel">
+              <View className="item" onClick={() => this.showUploadModel()}>
+                <View className="icon">
+                  <AtIcon value="reload" color="#A4AAAE" size="24"></AtIcon>
+                </View>
+                <Text className="label">更新用户信息</Text>
+                <View className="info">
+                  <Text className="name"></Text>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
 
@@ -308,7 +347,12 @@ class MePage extends Component<{}, IState> {
           </AtModalAction>
         </AtModal>
 
-        <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
+        <AuthorizeUserBtn
+          authorize={authorize}
+          upload={isUpload}
+          onChange={(value) => this.handleAuthorize(value)}
+          onUpload={(value) => this.handleUploadUser(value)}
+        ></AuthorizeUserBtn>
       </View>
     );
   }

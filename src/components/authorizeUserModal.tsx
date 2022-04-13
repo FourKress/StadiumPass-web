@@ -4,7 +4,9 @@ import { AtModal, AtModalAction, AtModalContent, AtModalHeader } from 'taro-ui';
 
 interface IProps {
   authorize: boolean;
-  onChange: (value) => void;
+  onChange?: (value) => void;
+  upload?: boolean;
+  onUpload?: (value) => void;
 }
 
 class AuthorizeUserBtn extends Component<IProps> {
@@ -13,23 +15,35 @@ class AuthorizeUserBtn extends Component<IProps> {
   }
 
   handleOnChange(status) {
-    this.props.onChange(status);
+    if (this.props.onChange) {
+      this.props.onChange(status);
+    }
+  }
+
+  handleOnUpload(status) {
+    if (this.props.onUpload) {
+      this.props.onUpload(status);
+    }
   }
 
   render() {
-    const { authorize } = this.props;
+    const { authorize, upload } = this.props;
 
     return (
       <AtModal isOpened={authorize}>
-        <AtModalHeader>登陆提示</AtModalHeader>
+        <AtModalHeader>{upload ? '更新' : '登录'}提示</AtModalHeader>
         <AtModalContent>
           <View>
-            <View className="row">当前是您第一次登录，为了给你更好的体验，请授权完善用户信息。</View>
+            <View className="row">
+              {upload
+                ? '更新需要微信授权，为了给你更好的体验，请授权获取用户信息。'
+                : '当前是您第一次登录，为了给你更好的体验，请授权完善用户信息。'}
+            </View>
           </View>
         </AtModalContent>
         <AtModalAction>
           <Button onClick={() => this.handleOnChange(false)}>取消</Button>
-          <Button onClick={() => this.handleOnChange(true)}>授权</Button>
+          <Button onClick={() => (upload ? this.handleOnUpload(true) : this.handleOnChange(true))}>授权</Button>
         </AtModalAction>
       </AtModal>
     );
