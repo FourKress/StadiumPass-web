@@ -93,21 +93,21 @@ class BossMePage extends Component<any, IState> {
   }
 
   async handleUploadUser(status) {
-    this.setState(
-      {
-        authorize: false,
-      },
-      () => {
+    this.setState({
+      authorize: false,
+    });
+    if (status) {
+      const userInfo = await LoginService.handleAuthorize(false);
+      this.setState({
+        userInfo,
+        isUpload: false,
+      });
+    } else {
+      setTimeout(() => {
         this.setState({
           isUpload: false,
         });
-      }
-    );
-    if (status) {
-      const userInfo = await LoginService.handleAuthorize();
-      this.setState({
-        userInfo,
-      });
+      }, 200);
     }
   }
 
@@ -154,7 +154,7 @@ class BossMePage extends Component<any, IState> {
           <View className="nav-list" style="margin-top: 16px;">
             <View className="panel">
               <View className="item" onClick={() => this.jumpCustomer()}>
-                <View className="icon">
+                <View className="icon client">
                   <AtIcon value="star-2" color="#A4AAAE" size="24"></AtIcon>
                 </View>
                 <Text className="label">我的顾客</Text>
@@ -166,7 +166,7 @@ class BossMePage extends Component<any, IState> {
           <View className="nav-list" style="margin-top: 16px;">
             <View className="panel">
               <View className="item" onClick={() => this.showUploadModel()}>
-                <View className="icon">
+                <View className="icon reload">
                   <AtIcon value="reload" color="#A4AAAE" size="24"></AtIcon>
                 </View>
                 <Text className="label">更新用户信息</Text>
@@ -188,6 +188,7 @@ class BossMePage extends Component<any, IState> {
         <AuthorizeUserBtn
           authorize={authorize}
           upload={isUpload}
+          onChange={(value) => this.handleUploadUser(value)}
           onUpload={(value) => this.handleUploadUser(value)}
         ></AuthorizeUserBtn>
       </View>

@@ -171,6 +171,11 @@ class MePage extends Component<{}, IState> {
       this.setState({
         authorize: status,
       });
+      setTimeout(() => {
+        this.setState({
+          isUpload: status,
+        });
+      }, 200);
       return;
     }
     const userInfo = await LoginService.handleAuthorize();
@@ -198,20 +203,14 @@ class MePage extends Component<{}, IState> {
   }
 
   async handleUploadUser(status) {
-    this.setState(
-      {
-        authorize: false,
-      },
-      () => {
-        this.setState({
-          isUpload: false,
-        });
-      }
-    );
+    this.setState({
+      authorize: false,
+    });
     if (status) {
-      const userInfo = await LoginService.handleAuthorize();
+      const userInfo = await LoginService.handleAuthorize(false);
       this.setState({
         userInfo,
+        isUpload: false,
       });
     }
   }
