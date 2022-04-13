@@ -87,16 +87,16 @@ const saveUserInfo = (res) => {
   return res.userInfo;
 };
 
-const handleAuthorize = () => {
+const handleAuthorize = (isLogin = true) => {
   return new Promise((resolve, reject) => {
     Taro.getUserProfile({
-      desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
+      desc: `用于${isLogin ? '完善' : '更新'}会员资料`, // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
       lang: 'zh_CN',
     })
       .then(async (res) => {
         const openId = Taro.getStorageSync('openId');
         await Taro.showLoading({
-          title: '快捷登陆中',
+          title: `${isLogin ? '快捷登陆中' : '更新中'}`,
         });
         return sendLogin(openId, res.userInfo);
       })
