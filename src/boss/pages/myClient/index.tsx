@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import { Text, View, Picker, Image } from '@tarojs/components';
 import { AtIcon, AtInput } from 'taro-ui';
 import requestData from '@/utils/requestData';
-// import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 
 import './index.scss';
-import Taro from '@tarojs/taro';
-// import dayjs from 'dayjs';
 
 const typeList = [
   {
@@ -30,15 +28,11 @@ const clientTypes = [
     value: 0,
     key: 1,
   },
-  {
-    label: '黑名单',
-    value: 0,
-    key: 2,
-  },
 ];
 
 interface IState {
   clientList: any[];
+  allClientList: any[];
   type: string;
   clientTypeKey: number;
   clientTypes: any[];
@@ -50,6 +44,7 @@ class MyClientPage extends Component<{}, IState> {
     super(props);
     this.state = {
       clientList: [],
+      allClientList: [],
       type: '0',
       clientTypeKey: 0,
       clientTypes,
@@ -58,24 +53,41 @@ class MyClientPage extends Component<{}, IState> {
   }
 
   componentDidShow() {
-    this.getClientList(this.state.type);
+    this.getClientList(this.state.type, this.state.keywords);
   }
 
-  getClientList(type) {
+  getClientList(type, keywords) {
+    const params: any = {
+      type,
+    };
+    if (keywords) {
+      params.keywords = keywords;
+    }
     requestData({
       method: 'GET',
       api: '/order/userList',
       params: {
-        type,
+        ...params,
       },
     }).then((res: any) => {
       const clientTypes = this.state.clientTypes;
       clientTypes[0].value = res.length;
       clientTypes[1].value = res.filter((d) => d.isMonthlyCard).length;
       this.setState({
-        clientList: res,
+        allClientList: res,
         clientTypes: [...clientTypes],
       });
+      this.serCurrentClientList(res, this.state.clientTypeKey);
+    });
+  }
+
+  serCurrentClientList(list, key) {
+    let clientList = list;
+    if (key === 1) {
+      clientList = list.filter((d) => d.isMonthlyCard);
+    }
+    this.setState({
+      clientList,
     });
   }
 
@@ -85,7 +97,7 @@ class MyClientPage extends Component<{}, IState> {
     this.setState({
       type: value,
     });
-    this.getClientList(value);
+    this.getClientList(value, this.state.keywords);
   }
 
   handleClientTypeChange(type) {
@@ -93,21 +105,23 @@ class MyClientPage extends Component<{}, IState> {
     this.setState({
       clientTypeKey: key,
     });
-    if (key === 1) {
-      this.getClientList(2);
-    }
+    this.serCurrentClientList(this.state.allClientList, key);
   }
 
   setSearchValue(value) {
-    console.log(value);
+    this.setState({
+      keywords: value,
+    });
   }
 
-  handleSearchChange() {}
+  handleSearchChange() {
+    const { type, keywords } = this.state;
+    this.getClientList(type, keywords);
+  }
 
   async jumpClientDetail(user) {
-    console.log(user);
     await Taro.navigateTo({
-      url: `/boss/pages/client-details/index`,
+      url: `/boss/pages/client-details/index?userId=${user.id}`,
     });
   }
 

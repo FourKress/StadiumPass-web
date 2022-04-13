@@ -1,27 +1,48 @@
 import React, { Component } from 'react';
 import { Image, Text, View } from '@tarojs/components';
-// import { AtIcon, AtInput } from 'taro-ui';
-// import requestData from '@/utils/requestData';
+import { AtIcon, AtInput } from 'taro-ui';
+import requestData from '@/utils/requestData';
 // import Taro from '@tarojs/taro';
 
 import './index.scss';
-import { AtIcon, AtInput } from 'taro-ui';
 import Taro from '@tarojs/taro';
 // import dayjs from 'dayjs';
 
 interface IState {
-  clientList: any[];
+  userId: string;
+  userInfo: any;
 }
 
 class ClientDetailsPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      clientList: [],
+      userId: '',
+      userInfo: {},
     };
   }
 
-  componentDidShow() {}
+  componentDidShow() {
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const userId = (pageParams.userId + '').toString();
+    this.getUserInfo(userId);
+    this.setState({ userId });
+  }
+
+  getUserInfo(userId) {
+    requestData({
+      method: 'GET',
+      api: '/user/findOneById',
+      params: {
+        userId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        userInfo: res,
+      });
+    });
+  }
 
   async jumpApplyDetails() {
     await Taro.navigateTo({
@@ -36,12 +57,14 @@ class ClientDetailsPage extends Component<{}, IState> {
   }
 
   render() {
+    const { userInfo } = this.state;
+
     return (
       <View className="client-detail-page">
         <View className="top">
-          <Image className="avatar" src=""></Image>
-          <View className="name">白龙马不是马</View>
-          <View className="tag"></View>
+          <Image className="avatar" src={userInfo.avatarUrl}></Image>
+          <View className="name">{userInfo.nickName}</View>
+          {userInfo.monthlyCardCount > 0 && <View className="tag"></View>}
         </View>
 
         <View className="title-row">个人信息</View>
