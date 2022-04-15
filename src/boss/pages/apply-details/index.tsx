@@ -5,65 +5,59 @@ import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
-// import dayjs from 'dayjs';
-
-interface IApplyCount {
-  successCount: number;
-  errorCount: number;
-  allCount: number;
-}
+import dayjs from 'dayjs';
 
 interface IState {
   applyList: Array<any>;
-  applyCount: IApplyCount;
+  orderInfo: any;
   tabValue: number;
+  userId: string;
 }
 
 class ApplyDetailsPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      applyList: [{}],
-      applyCount: {
-        successCount: 0,
-        errorCount: 0,
-        allCount: 0,
+      applyList: [],
+      orderInfo: {
+        success: 0,
+        error: 0,
       },
       tabValue: 0,
+      userId: '',
     };
   }
 
   componentDidShow() {
-    this.getApplyCount();
     // @ts-ignore
-    const index = Number(Taro.getCurrentInstance().router.params.index);
-    this.getApplyList(index);
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const userId = (pageParams.userId + '').toString();
+    this.getApplyList(userId);
     this.setState({
-      tabValue: index,
+      userId,
     });
   }
 
-  getApplyCount() {
-    requestData({
-      method: 'GET',
-      api: '/order/listCount',
-    }).then((res: any) => {
-      this.setState({
-        applyCount: res,
-      });
-    });
-  }
-
-  getApplyList(status) {
+  getApplyList(userId) {
     requestData({
       method: 'POST',
-      api: '/order/listByStatus',
+      api: '/order/infoByUserId',
       params: {
-        status: status === 2 ? undefined : status,
+        userId,
       },
     }).then((res: any) => {
+      const tabValue = this.state.tabValue;
+      let applyList;
+      if (tabValue === 0) {
+        applyList = res.all;
+      } else if (tabValue === 1) {
+        applyList = res.success;
+      } else {
+        applyList = res.error;
+      }
       this.setState({
-        applyList: res,
+        orderInfo: res,
+        applyList,
       });
     });
   }
@@ -72,20 +66,19 @@ class ApplyDetailsPage extends Component<{}, IState> {
     this.setState({
       tabValue: value,
     });
-    this.getApplyCount();
-    this.getApplyList(value);
+    this.getApplyList(this.state.userId);
   }
 
   render() {
-    const { tabValue, applyCount, applyList } = this.state;
+    const { tabValue, applyList, orderInfo } = this.state;
 
     return (
       <View className="apply-page">
         <AtTabBar
           tabList={[
-            { title: '全部', text: applyCount.allCount || undefined },
-            { title: '成功', text: applyCount.successCount || undefined },
-            { title: '失败', text: applyCount.errorCount || undefined },
+            { title: '全部', text: orderInfo.success?.length + orderInfo.error?.length || undefined },
+            { title: '成功', text: orderInfo.success?.length || undefined },
+            { title: '失败', text: orderInfo.error?.length || undefined },
           ]}
           onClick={(value) => this.handleTabClick(value)}
           current={tabValue}
@@ -94,24 +87,36 @@ class ApplyDetailsPage extends Component<{}, IState> {
         <View className="list">
           {applyList.length ? (
             applyList.map((item) => {
-              console.log(item);
               return (
                 <View className="item">
                   <View className="row">
                     <Text className="label">报名时间：</Text>
-                    <Text className="text">2022-22-22 12:22:22</Text>
+                    <Text className="text">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
                   </View>
                   <View className="row">
                     <Text className="label">报名场次：</Text>
-                    <Text className="text">2022-22-22 / 10:00-21:00 / 一号场地</Text>
+                    <Text className="text">
+                      {dayjs(item?.matchId?.runDate).format('YYYY-MM-DD')} / {item?.matchId?.startAt}-
+                      {item?.matchId?.endAt} / 一号场地
+                    </Text>
                   </View>
                   <View className="row">
                     <Text className="label">报名费用：</Text>
-                    <Text className="text">￥25.00</Text>
+                    <Text className="text">￥{item.payAmount}</Text>
                   </View>
                   <View className="row">
                     <Text className="label">报名状态：</Text>
-                    <Text className="text success fail refund">组队成功</Text>
+                    <Text
+                      className={
+                        item.status === 2 ? 'text success' : item.refundType === 1 ? 'text fail' : 'text refund'
+                      }
+                    >
+                      {item.status === 2
+                        ? '组队成功'
+                        : item.refundType === 1
+                        ? `组队失败：已退款￥${item.refundAmount}`
+                        : `手动退款：已退款￥${item.refundAmount}`}
+                    </Text>
                   </View>
                 </View>
               );
