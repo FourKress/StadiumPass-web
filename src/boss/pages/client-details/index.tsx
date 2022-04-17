@@ -108,7 +108,6 @@ class ClientDetailsPage extends Component<{}, IState> {
               name="phoneNum"
               title="联系电话"
               type="text"
-              placeholder="请输入联系电话"
               value={userInfo.phoneNum}
               disabled
               onChange={() => {}}
