@@ -132,7 +132,9 @@ class ClientDetailsPage extends Component<{}, IState> {
             <Text className="at-input__title">月卡</Text>
             <View className="info">
               <View className="mark">购买{monthlyCardInfo.count}次</View>
-              <View className="time">有效期至：{dayjs(monthlyCardInfo.time).format('YYYY-MM-DD')}</View>
+              {monthlyCardInfo.count > 0 && (
+                <View className="time">有效期至：{dayjs(monthlyCardInfo.time).format('YYYY-MM-DD')}</View>
+              )}
             </View>
             <AtIcon value="chevron-right" size="20" color="#D8D8D8"></AtIcon>
           </View>
