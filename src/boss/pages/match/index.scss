@@ -63,6 +63,7 @@ page {
         width: 67px;
         min-width: 67px;
         margin-right: 48px;
+        position: relative;
 
         &:last-child {
           padding-right: 32px;
@@ -96,6 +97,10 @@ page {
           width: 32px;
           height: 4px;
           background-color: #fff;
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
         }
       }
     }

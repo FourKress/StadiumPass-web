@@ -133,7 +133,7 @@ page {
 
       .at-tabs__item-underline {
         transform: translateX(-50%) scaleX(0);
-        width: 40rpx;
+        width: 40px;
         left: 50%;
         height: 8px;
         border-radius: 8px;
@@ -368,7 +368,7 @@ page {
             border: 2px solid #fff;
 
             &.odd-line {
-              margin: 0 50% 88rpx 0;
+              margin: 0 50% 88px 0;
               position: relative;
               &:after {
                 left: 0;
@@ -381,7 +381,7 @@ page {
 
             &.even-line,
             &.pre-line {
-              margin-bottom: 88rpx;
+              margin-bottom: 88px;
               position: relative;
             }
 
@@ -402,17 +402,17 @@ page {
                 height: 0;
                 border: 1px dashed #ccc;
                 position: absolute;
-                bottom: -48rpx;
+                bottom: -48px;
               }
               .tips {
                 position: absolute;
                 color: #ccc;
                 width: 150%;
                 text-align: center;
-                bottom: -62rpx;
+                bottom: -62px;
                 background-color: #f2f4f2;
                 z-index: 3;
-                padding: 0 10rpx;
+                padding: 0 10px;
               }
             }
 
