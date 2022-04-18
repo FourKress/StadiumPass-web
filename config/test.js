@@ -1,6 +1,6 @@
 module.exports = {
   env: {
-    NODE_ENV: '"server"',
+    NODE_ENV: '"test"',
   },
   defineConstants: {},
   mini: {},

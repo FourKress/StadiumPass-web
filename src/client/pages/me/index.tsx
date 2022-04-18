@@ -303,7 +303,7 @@ class MePage extends Component<{}, IState> {
                 <View className="icon">
                   <AtIcon value="reload" color="#A4AAAE" size="24"></AtIcon>
                 </View>
-                <Text className="label">更新用户信息</Text>
+                <Text className="label">更新昵称和头像</Text>
                 <View className="info">
                   <Text className="name"></Text>
                 </View>
