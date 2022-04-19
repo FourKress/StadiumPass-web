@@ -230,9 +230,16 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   setSearchValue(value) {
-    this.setState({
-      searchValue: value,
-    });
+    this.setState(
+      {
+        searchValue: value,
+      },
+      () => {
+        if (!value) {
+          this.handleSearchChange();
+        }
+      }
+    );
   }
 
   async handleSelectType(type, flag) {

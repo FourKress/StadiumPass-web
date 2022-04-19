@@ -109,9 +109,16 @@ class MyClientPage extends Component<{}, IState> {
   }
 
   setSearchValue(value) {
-    this.setState({
-      keywords: value,
-    });
+    this.setState(
+      {
+        keywords: value,
+      },
+      () => {
+        if (!value) {
+          this.handleSearchChange();
+        }
+      }
+    );
   }
 
   handleSearchChange() {
