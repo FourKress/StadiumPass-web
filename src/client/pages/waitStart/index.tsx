@@ -32,7 +32,6 @@ interface IState {
   longitude: number | '';
   previewImage: boolean;
   files: any[];
-  searchList: any[];
 }
 
 interface InjectStoreProps {
@@ -68,7 +67,6 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       longitude: '',
       previewImage: false,
       files: [],
-      searchList: [],
     };
   }
 
@@ -180,15 +178,31 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     if (!this.state.userLocation) {
       return;
     }
-    const { userId, isRecommend } = this.state;
+    const { userId, isRecommend, searchValue } = this.state;
     requestData({
       method: 'POST',
       api: '/stadium/waitStartList',
       params: {
         type,
         userId,
+        keywords: searchValue || undefined,
       },
-    }).then((res: any) => {
+    }).then(async (res: any) => {
+      if (searchValue && !res?.length) {
+        await Taro.showToast({
+          icon: 'none',
+          title: '暂无搜索的场馆',
+        });
+        this.setState(
+          {
+            searchValue: '',
+          },
+          async () => {
+            await this.handleSelectType(1, false, true);
+          }
+        );
+        return;
+      }
       const sortList = this.handleStadiumSort(res);
       const stadiumListSort = isRecommend ? this.handleStadiumSortMatch(this.handleStadiumSort(res)) : sortList;
       this.setState({
@@ -197,58 +211,32 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  handleSearchChange() {
-    const { searchValue } = this.state;
-    if (!searchValue) {
-      this.setState({
-        searchList: [],
-      });
-      return;
-    }
-    requestData({
-      method: 'POST',
-      api: '/stadium/findByName',
-      params: {
-        stadiumName: searchValue,
-      },
-    }).then(async (res: any) => {
-      if (!res?.length) {
-        await Taro.showToast({
-          icon: 'none',
-          title: '暂无搜索的场馆',
-        });
-        this.setState({
-          searchValue: '',
-        });
-        return;
-      }
-      const searchList = this.handleStadiumSortMatch(this.handleStadiumSort(res));
-      this.setState({
-        searchList: searchList,
-      });
+  async handleSearchChange() {
+    this.setState({
+      isWatch: false,
+      isRecommend: true,
     });
+    await this.handleSelectType(1, false, true);
   }
 
   setSearchValue(value) {
+    if (this.state.searchValue === value) return;
     this.setState(
       {
         searchValue: value,
       },
-      () => {
+      async () => {
         if (!value) {
-          this.handleSearchChange();
+          await this.handleSearchChange();
         }
       }
     );
   }
 
-  async handleSelectType(type, flag) {
-    const { isWatch, isRecommend, userId, stadiumList, searchValue } = this.state;
-    if (searchValue) {
-      this.setSearchValue('');
-    }
+  async handleSelectType(type, flag, isSearch = false) {
+    const { isWatch, isRecommend, userId, stadiumList } = this.state;
     if (type === 1) {
-      if (!isWatch && !userId) {
+      if (flag && !userId) {
         await Taro.showModal({
           title: '提示',
           content: '您当前未登录，请先登录。',
@@ -268,7 +256,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                 },
                 () => {
                   this.getWaitStartList();
-                  this.handleSelectType(type, false);
+                  this.handleSelectType(type, flag);
                 }
               );
             }
@@ -276,18 +264,17 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         });
         return;
       }
-      if (flag === isWatch) return;
+      if (!isSearch && flag === isWatch) return;
       this.setState({
-        isWatch: !isWatch,
-        searchList: [],
+        isWatch: flag,
       });
-      this.getStadium(isWatch ? 1 : 2);
+      this.getStadium(flag ? 2 : 1);
     } else if (type === 2) {
+      if (flag === isRecommend) return;
       const sortList = this.handleStadiumSort(stadiumList);
       const stadiumListSort = flag ? this.handleStadiumSortMatch(sortList) : sortList;
       this.setState({
-        isRecommend: !isRecommend,
-        searchList: [],
+        isRecommend: flag,
         stadiumList: stadiumListSort,
       });
     }
@@ -420,10 +407,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
       longitude,
       previewImage,
       files,
-      searchList,
     } = this.state;
-
-    const showList = searchList.length ? searchList : stadiumList;
 
     const {
       loginStore: { userId },
@@ -534,8 +518,8 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
           <View className="stadium-list">
             <View className="scroll-warp">
               {userLocation ? (
-                showList?.length ? (
-                  showList.map((item) => {
+                stadiumList?.length ? (
+                  stadiumList.map((item) => {
                     const distance = this.calcDistance(longitude, latitude, item.longitude, item.latitude);
                     return (
                       <View className="item">
