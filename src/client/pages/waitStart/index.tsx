@@ -178,7 +178,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     if (!this.state.userLocation) {
       return;
     }
-    const { userId, isRecommend, searchValue } = this.state;
+    const { userId, isRecommend, searchValue, isWatch } = this.state;
     requestData({
       method: 'POST',
       api: '/stadium/waitStartList',
@@ -188,7 +188,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         keywords: searchValue || undefined,
       },
     }).then(async (res: any) => {
-      if (searchValue && !res?.length) {
+      if (searchValue && !res?.length && !isWatch) {
         await Taro.showToast({
           icon: 'none',
           title: '暂无搜索的场馆',
@@ -265,10 +265,14 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
         return;
       }
       if (!isSearch && flag === isWatch) return;
-      this.setState({
-        isWatch: flag,
-      });
-      this.getStadium(flag ? 2 : 1);
+      this.setState(
+        {
+          isWatch: flag,
+        },
+        () => {
+          this.getStadium(flag ? 2 : 1);
+        }
+      );
     } else if (type === 2) {
       if (flag === isRecommend) return;
       const sortList = this.handleStadiumSort(stadiumList);

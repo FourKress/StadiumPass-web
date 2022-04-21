@@ -34,7 +34,7 @@ interface IState {
   files: any[];
   previewImage: boolean;
   previewIndex: number;
-  authFail: boolean;
+  openBot: any;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -54,7 +54,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       files: [],
       previewImage: false,
       previewIndex: 0,
-      authFail: true,
+      openBot: false,
     };
   }
 
@@ -134,6 +134,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }).then((res: any) => {
       this.setState({
         stadiumInfo: res,
+        openBot: res?.wxGroup && res?.wxGroupId,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
           return {
@@ -206,6 +207,30 @@ class StadiumDetailsPage extends Component<{}, IState> {
         ...stadiumInfo,
       },
     });
+  }
+
+  async handleChangeBotStatus(value) {
+    this.setState({
+      openBot: value,
+    });
+    if (!value) {
+      this.handleChange('', 'wxGroup');
+      this.handleChange('', 'wxGroupId');
+    } else {
+      await Taro.showModal({
+        title: '提示',
+        content: '开启微信机器人需要向申请，确定申请使用微信机器人吗?',
+        success: async (res) => {
+          if (res.confirm) {
+            this.setState({
+              openBot: true,
+            });
+          } else {
+            await this.handleChangeBotStatus(false);
+          }
+        },
+      });
+    }
   }
 
   addSpace(spaceInfo, spaceIndex) {
@@ -281,6 +306,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
           path,
         };
       });
+
     requestData({
       method: 'POST',
       api: '/stadium/modify',
@@ -496,6 +522,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       files,
       previewImage,
       previewIndex,
+      openBot,
     } = this.state;
 
     return (
@@ -570,17 +597,29 @@ class StadiumDetailsPage extends Component<{}, IState> {
             <View className="scroll-warp">
               <AtForm className="form">
                 <View className="title">
-                  <View className="name">微信群设置</View>
+                  <View className="name">微信机器人设置</View>
                 </View>
-                <AtInput
-                  name="wxGroup"
-                  title="关联微信群"
-                  type="text"
-                  placeholder="请输入关联微信群名称"
-                  value={stadiumInfo.wxGroup}
+
+                <AtSwitch
+                  title="开启机器人"
+                  color="#00E36A"
+                  checked={openBot}
                   disabled={stadiumInfo.wxGroupId}
-                  onChange={(value) => this.handleChange(value, 'wxGroup')}
+                  onChange={(value) => this.handleChangeBotStatus(value)}
                 />
+
+                {openBot && (
+                  <AtInput
+                    name="wxGroup"
+                    title="关联微信群"
+                    type="text"
+                    placeholder="请输入关联微信群名称"
+                    value={stadiumInfo.wxGroup}
+                    disabled={stadiumInfo.wxGroupId}
+                    onChange={(value) => this.handleChange(value, 'wxGroup')}
+                  />
+                )}
+
                 {/*<AtInput*/}
                 {/*  name="welcomeWords"*/}
                 {/*  title="新人欢迎语"*/}
