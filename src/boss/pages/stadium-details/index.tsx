@@ -134,7 +134,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }).then((res: any) => {
       this.setState({
         stadiumInfo: res,
-        openBot: res?.wxGroup && res?.wxGroupId,
+        openBot: (res?.wxGroup && res?.wxGroupId) || res?.applyBot,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
           return {
@@ -222,15 +222,27 @@ class StadiumDetailsPage extends Component<{}, IState> {
         content: '开启微信机器人需要向申请，确定申请使用微信机器人吗?',
         success: async (res) => {
           if (res.confirm) {
-            this.setState({
-              openBot: true,
-            });
+            await this.applyWechatyBot();
           } else {
             await this.handleChangeBotStatus(false);
           }
         },
       });
     }
+  }
+
+  async applyWechatyBot() {
+    requestData({
+      method: 'GET',
+      api: '/wx/applyWechatyBot',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then(() => {
+      this.setState({
+        openBot: true,
+      });
+    });
   }
 
   addSpace(spaceInfo, spaceIndex) {
