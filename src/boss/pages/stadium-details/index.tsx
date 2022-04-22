@@ -35,6 +35,7 @@ interface IState {
   previewImage: boolean;
   previewIndex: number;
   openBot: any;
+  applyBot: any;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -55,6 +56,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       previewImage: false,
       previewIndex: 0,
       openBot: false,
+      applyBot: false,
     };
   }
 
@@ -132,9 +134,11 @@ class StadiumDetailsPage extends Component<{}, IState> {
         id: this.state.stadiumId,
       },
     }).then((res: any) => {
+      const openBot = (res?.wxGroup && res?.wxGroupId) || res?.applyBot;
       this.setState({
         stadiumInfo: res,
-        openBot: (res?.wxGroup && res?.wxGroupId) || res?.applyBot,
+        openBot,
+        applyBot: openBot,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
           return {
@@ -216,7 +220,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     if (!value) {
       this.handleChange('', 'wxGroup');
       this.handleChange('', 'wxGroupId');
-    } else {
+    } else if (!this.state.applyBot) {
       await Taro.showModal({
         title: '提示',
         content: '开启微信机器人需要向申请，确定申请使用微信机器人吗?',
