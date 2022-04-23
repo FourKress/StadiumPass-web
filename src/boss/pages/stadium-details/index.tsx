@@ -223,7 +223,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     } else if (!this.state.applyBot) {
       await Taro.showModal({
         title: '提示',
-        content: '开启微信机器人需要向申请，确定申请使用微信机器人吗?',
+        content: '开启微信机器人需要申请，申请后会有工作人员电话联系您，请注意接听电话！确定申请使用微信机器人吗？',
         success: async (res) => {
           if (res.confirm) {
             await this.applyWechatyBot();
@@ -245,7 +245,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }).then(() => {
       this.setState({
         openBot: true,
-        applyBot: true,
       });
     });
   }
