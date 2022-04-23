@@ -35,7 +35,8 @@ interface IState {
   previewImage: boolean;
   previewIndex: number;
   openBot: any;
-  applyBot: any;
+  applyBot: boolean;
+  botStatus: boolean;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -57,6 +58,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       previewIndex: 0,
       openBot: false,
       applyBot: false,
+      botStatus: false,
     };
   }
 
@@ -134,11 +136,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
         id: this.state.stadiumId,
       },
     }).then((res: any) => {
-      const openBot = (res?.wxGroup && res?.wxGroupId) || res?.applyBot;
+      const openBot = (res?.wxGroup && res?.wxGroupId) || res?.botStatus;
       this.setState({
         stadiumInfo: res,
         openBot,
         applyBot: openBot,
+        botStatus: res?.botStatus,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
           return {
@@ -217,15 +220,36 @@ class StadiumDetailsPage extends Component<{}, IState> {
     this.setState({
       openBot: value,
     });
+    const applyBot = this.state.applyBot;
     if (!value) {
-      this.handleChange('', 'wxGroup');
-      this.handleChange('', 'wxGroupId');
-    } else if (!this.state.applyBot) {
+      if (applyBot) {
+        await Taro.showModal({
+          title: '提示',
+          content: '关闭微信机器人将立即生效，关闭后需要重新申请，确定关闭微信机器人吗？',
+          success: async (res) => {
+            if (res.confirm) {
+              await this.changeBotStatus();
+              this.setState({
+                applyBot: false,
+                botStatus: false,
+              });
+              this.handleChange('', 'wxGroup');
+              this.handleChange('', 'wxGroupId');
+            } else {
+              this.setState({
+                openBot: true,
+              });
+            }
+          },
+        });
+      }
+    } else if (!applyBot) {
       await Taro.showModal({
         title: '提示',
         content: '开启微信机器人需要申请，申请后会有工作人员电话联系您，请注意接听电话！确定申请使用微信机器人吗？',
         success: async (res) => {
           if (res.confirm) {
+            this.setState({ openBot: false });
             await this.applyWechatyBot();
           } else {
             await this.handleChangeBotStatus(false);
@@ -235,17 +259,24 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }
   }
 
+  async changeBotStatus() {
+    await requestData({
+      method: 'POST',
+      api: '/stadium/changeBotStatus',
+      params: {
+        stadiumId: this.state.stadiumId,
+        botStatus: false,
+      },
+    });
+  }
+
   async applyWechatyBot() {
-    requestData({
+    await requestData({
       method: 'GET',
       api: '/wx/applyWechatyBot',
       params: {
         stadiumId: this.state.stadiumId,
       },
-    }).then(() => {
-      this.setState({
-        openBot: true,
-      });
     });
   }
 
@@ -539,6 +570,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       previewImage,
       previewIndex,
       openBot,
+      botStatus,
     } = this.state;
 
     return (
@@ -620,11 +652,10 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   title="开启机器人"
                   color="#00E36A"
                   checked={openBot}
-                  disabled={stadiumInfo.wxGroupId}
                   onChange={(value) => this.handleChangeBotStatus(value)}
                 />
 
-                {openBot && (
+                {botStatus && (
                   <AtInput
                     name="wxGroup"
                     title="关联微信群"
