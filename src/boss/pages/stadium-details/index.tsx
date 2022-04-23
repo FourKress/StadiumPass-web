@@ -245,6 +245,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     }).then(() => {
       this.setState({
         openBot: true,
+        applyBot: true,
       });
     });
   }
