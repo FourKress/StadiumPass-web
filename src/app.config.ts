@@ -13,6 +13,7 @@ const config: Config = {
     'boss/pages/stadium-details/index',
     'boss/pages/statistics/index',
     'boss/pages/myClient/index',
+    'boss/pages/withdraw/index',
     'client/pages/community/index',
     'client/pages/monthlyCard/index',
     'client/pages/myWatch/index',

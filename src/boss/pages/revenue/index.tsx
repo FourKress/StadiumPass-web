@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, Picker, Button } from '@tarojs/components';
+import { View, Text, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { AtIcon, AtInput, AtModal, AtModalAction, AtModalContent, AtModalHeader, AtDrawer } from 'taro-ui';
+import { AtIcon, AtInput, AtDrawer } from 'taro-ui';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
 import dayjs from 'dayjs';
 
-import { validateRegular } from '@/utils/validateRule';
 import { checkLogin } from '@/services/loginService';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
@@ -24,7 +23,6 @@ interface IState {
   runDate: string;
   revenueInfo: any;
   withdrawAmt: string;
-  showWithdrawModal: boolean;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
@@ -42,7 +40,6 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       runDate: dateNow(),
       revenueInfo: {},
       withdrawAmt: '',
-      showWithdrawModal: false,
     };
   }
 
@@ -161,80 +158,43 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  handleWithdrawModal(status) {
-    if (status) {
-      if (!checkLogin()) return;
-    }
-    this.setState({
-      showWithdrawModal: status,
-    });
-  }
-
-  async sendWithdrawRequest() {
-    const { withdrawAmt } = this.state;
-    if (!validateRegular.number.test(withdrawAmt)) {
-      await Taro.showToast({
-        title: '请输入正确的数字',
-        icon: 'none',
-        duration: 2000,
-      });
-      return;
-    }
-    if (parseInt(withdrawAmt) > 2000) {
-      await Taro.showToast({
-        title: '单日、单次提现金额不能超过2000元',
-        icon: 'none',
-        duration: 2000,
-      });
-      return;
-    }
-    console.log(withdrawAmt);
-    return;
-    requestData({
-      method: 'POST',
-      api: '/user/modify',
-      params: {
-        withdrawAmt,
-      },
-    }).then(() => {
-      this.getMonthAndAayStatistics();
-    });
-  }
-
-  getWithdrawValue(value) {
-    this.setState({
-      withdrawAmt: value,
+  handleWithdraw() {
+    if (!checkLogin()) return;
+    Taro.navigateTo({
+      url: `/boss/pages/withdraw/index`,
     });
   }
 
   render() {
-    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo, showWithdrawModal, withdrawAmt } =
-      this.state;
+    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo } = this.state;
 
     return (
       <View className="indexPage">
         <View className="top-info">
           <View className="top">
             <View className="left">
-              <View className="title">今日总收入</View>
-              <View className="total">{summary.dayCount}</View>
+              <View className="title">钱包余额</View>
+              <View className="total">{summary.balanceAmt}</View>
             </View>
-            <View className="right" onClick={() => this.showTotal()}>
-              <Text>统计</Text>
-              <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
+            <View className="right">
+              <View className="btn" onClick={() => this.showTotal()}>
+                <Text>统计</Text>
+                <AtIcon value="chevron-right" size="20" color="#0080FF"></AtIcon>
+              </View>
+              <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
+                <Text>提现</Text>
+                <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
+              </View>
             </View>
           </View>
           <View className="banner">
             <View className="item">
-              <View className="title">本月总收入</View>
-              <View className="text">{summary.monthCount}</View>
+              <View className="title">今日总收入</View>
+              <View className="text">{summary.dayCount}</View>
             </View>
             <View className="item">
-              <View className="title">钱包余额</View>
+              <View className="title">本月总收入</View>
               <View className="text">{summary.balanceAmt}</View>
-            </View>
-            <View className="right-btn" onClick={() => this.handleWithdrawModal(true)}>
-              提现
             </View>
           </View>
         </View>
@@ -362,29 +322,6 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             </View>
           </View>
         </AtDrawer>
-
-        <AtModal isOpened={showWithdrawModal}>
-          <AtModalHeader>提示</AtModalHeader>
-          <AtModalContent>
-            <View className="withdraw-tips">单日提现次数不能超过10次</View>
-            <View className="withdraw-tips">单日提现金额不能超过2000元</View>
-            {showWithdrawModal && (
-              <AtInput
-                className="withdrawAmt"
-                name="value"
-                title="提现金额"
-                type="number"
-                placeholder="请输入提现金额"
-                value={withdrawAmt}
-                onChange={(value) => this.getWithdrawValue(value)}
-              />
-            )}
-          </AtModalContent>
-          <AtModalAction>
-            <Button onClick={() => this.handleWithdrawModal(false)}>取消</Button>
-            <Button onClick={() => this.sendWithdrawRequest()}>确定</Button>
-          </AtModalAction>
-        </AtModal>
       </View>
     );
   }
