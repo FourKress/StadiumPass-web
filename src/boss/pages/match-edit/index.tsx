@@ -165,7 +165,9 @@ class MatchEditPage extends Component<{}, IState> {
     const form = this.state.form;
     form[key] = value;
 
-    if (this.state.rebateStatus) {
+    const { rebateStatus } = this.state;
+
+    if (rebateStatus) {
       if (form.rebatePrice && form.price) {
         if (!this.checkPrice(form.rebatePrice, form.price)) {
           form[key] = '';
@@ -174,7 +176,7 @@ class MatchEditPage extends Component<{}, IState> {
         }
       }
     } else {
-      form.rebatePrice = value;
+      form.rebatePrice = form.price;
       form.rebate = 10;
     }
     if ((key === 'matchTotalAmt' && form.minPeople) || (key === 'minPeople' && form.matchTotalAmt)) {
