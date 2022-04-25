@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View } from '@tarojs/components';
+import { View, Image } from '@tarojs/components';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
@@ -49,6 +49,19 @@ class WithdrawPage extends Component<{}, IState> {
   }
 
   setWithdraw(value) {
+    let withdrawAmt = String(this.state.withdrawAmt) + String(value);
+    if (!/^\d+(?:\.\d{0,2})?$/.test(withdrawAmt)) {
+      const regExp = /(\d+)(.)(\d{2})\d*/;
+      withdrawAmt = withdrawAmt.replace(regExp, '$1$2$3');
+    }
+    this.setState({
+      withdrawAmt,
+    });
+  }
+
+  removeWithdraw() {
+    const withdrawAmt = this.state.withdrawAmt;
+    const value = withdrawAmt.slice(0, -1);
     this.setState({
       withdrawAmt: value,
     });
@@ -115,6 +128,36 @@ class WithdrawPage extends Component<{}, IState> {
           </View>
           <View className="tips">因微信支付限制，请知悉：</View>
           <View className="tips">单日提现金额：≤2000元；单日提现次数：≤10次。</View>
+        </View>
+
+        <View className="keyboard">
+          <View className="left">
+            <View className="wrap">
+              {Array.from({ length: 9 }, (_item, index) => index + 1).map((d) => {
+                return (
+                  <View className="btn" onClick={() => this.setWithdraw(d)}>
+                    {d}
+                  </View>
+                );
+              })}
+            </View>
+            <View className="row">
+              <View className="btn zero" onClick={() => this.setWithdraw(0)}>
+                0
+              </View>
+              <View className="btn point" onClick={() => this.setWithdraw('.')}>
+                .
+              </View>
+            </View>
+          </View>
+          <View className="right">
+            <View className="btn clear" onClick={() => this.removeWithdraw()}>
+              <Image className="img" src={require('../../../assets/icons/clear-btn.png')} />
+            </View>
+            <View className="btn submit" onClick={() => this.sendWithdrawRequest()}>
+              提现
+            </View>
+          </View>
         </View>
       </View>
     );
