@@ -223,7 +223,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                         <Text>
                           {item.startAt} — {item.endAt}
                         </Text>
-                        <Text className="index">{item.space.name}</Text>
+                        <Text className="index">{item.space?.name}</Text>
                       </View>
                       <View className="right">
                         {item.selectPeople < item.minPeople ? (

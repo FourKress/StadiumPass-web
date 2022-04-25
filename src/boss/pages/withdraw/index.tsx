@@ -48,20 +48,25 @@ class WithdrawPage extends Component<{}, IState> {
     });
   }
 
-  setWithdraw(value) {
+  async setWithdraw(value) {
     let withdrawAmt = String(this.state.withdrawAmt) + String(value);
     if (!/^\d+(?:\.\d{0,2})?$/.test(withdrawAmt)) {
       const regExp = /(\d+)(.)(\d{2})\d*/;
       withdrawAmt = withdrawAmt.replace(regExp, '$1$2$3');
+    }
+    await Taro.vibrateShort({ complete: () => {} });
+    if (withdrawAmt?.length > 7) {
+      withdrawAmt = withdrawAmt.substring(0, 7);
     }
     this.setState({
       withdrawAmt,
     });
   }
 
-  removeWithdraw() {
+  async removeWithdraw() {
     const withdrawAmt = this.state.withdrawAmt;
     const value = withdrawAmt.slice(0, -1);
+    await Taro.vibrateShort({ complete: () => {} });
     this.setState({
       withdrawAmt: value,
     });
@@ -98,6 +103,12 @@ class WithdrawPage extends Component<{}, IState> {
     });
   }
 
+  changeTab(value) {
+    this.setState({
+      tabActive: value,
+    });
+  }
+
   render() {
     const { tabActive, withdrawAmt, withdrawTotalAmt } = this.state;
 
@@ -106,59 +117,71 @@ class WithdrawPage extends Component<{}, IState> {
         <View className="top">
           {tabList.map((item, index) => {
             return (
-              <View className={index === tabActive ? 'btn active' : 'btn'} key={item.value}>
+              <View
+                className={index === tabActive ? 'btn active' : 'btn'}
+                key={item.value}
+                onClick={() => this.changeTab(item.value)}
+              >
                 {item.label}
               </View>
             );
           })}
         </View>
-        <View className="panel">
-          <View className="title">提现金额</View>
-          <View className="row">
-            <View className="amount">{withdrawAmt}</View>
-          </View>
-        </View>
 
-        <View className="info">
-          <View className="row">
-            <View>当前可用余额¥{withdrawTotalAmt}元，</View>
-            <View className="btn" onClick={() => this.setWithdraw(withdrawTotalAmt)}>
-              全部提现
-            </View>
-          </View>
-          <View className="tips">因微信支付限制，请知悉：</View>
-          <View className="tips">单日提现金额：≤2000元；单日提现次数：≤10次。</View>
-        </View>
-
-        <View className="keyboard">
-          <View className="left">
-            <View className="wrap">
-              {Array.from({ length: 9 }, (_item, index) => index + 1).map((d) => {
-                return (
-                  <View className="btn" onClick={() => this.setWithdraw(d)}>
-                    {d}
-                  </View>
-                );
-              })}
-            </View>
-            <View className="row">
-              <View className="btn zero" onClick={() => this.setWithdraw(0)}>
-                0
-              </View>
-              <View className="btn point" onClick={() => this.setWithdraw('.')}>
-                .
+        {tabActive === 0 ? (
+          <View>
+            <View className="panel">
+              <View className="title">提现金额</View>
+              <View className="row">
+                <View className="amount">{withdrawAmt}</View>
               </View>
             </View>
-          </View>
-          <View className="right">
-            <View className="btn clear" onClick={() => this.removeWithdraw()}>
-              <Image className="img" src={require('../../../assets/icons/clear-btn.png')} />
+            <View className="info">
+              <View className="row">
+                <View>当前可用余额¥{withdrawTotalAmt}元，</View>
+                <View className="btn" onClick={() => this.setState({ withdrawAmt: String(withdrawTotalAmt) })}>
+                  全部提现
+                </View>
+              </View>
+              <View className="tips">因微信支付限制，请知悉：</View>
+              <View className="tips">单日提现金额：≤2000元；单日提现次数：≤10次。</View>
             </View>
-            <View className="btn submit" onClick={() => this.sendWithdrawRequest()}>
-              提现
+          </View>
+        ) : (
+          <View className="records">dsaa</View>
+        )}
+
+        {tabActive === 0 && (
+          <View className="keyboard">
+            <View className="left">
+              <View className="wrap">
+                {Array.from({ length: 9 }, (_item, index) => index + 1).map((d) => {
+                  return (
+                    <View className="btn" onClick={() => this.setWithdraw(d)}>
+                      {d}
+                    </View>
+                  );
+                })}
+              </View>
+              <View className="row">
+                <View className="btn zero" onClick={() => this.setWithdraw(0)}>
+                  0
+                </View>
+                <View className="btn point" onClick={() => this.setWithdraw('.')}>
+                  .
+                </View>
+              </View>
+            </View>
+            <View className="right">
+              <View className="btn clear" onClick={() => this.removeWithdraw()}>
+                <Image className="img" src={require('../../../assets/icons/clear-btn.png')} />
+              </View>
+              <View className="btn submit" onClick={() => this.sendWithdrawRequest()}>
+                提现
+              </View>
             </View>
           </View>
-        </View>
+        )}
       </View>
     );
   }
