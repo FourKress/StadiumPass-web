@@ -91,6 +91,14 @@ class WithdrawPage extends Component<{}, IState> {
       });
       return;
     }
+    if (Number(withdrawAmt) < 1) {
+      await Taro.showToast({
+        title: '提现金额不能小于1元',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
     if (parseInt(withdrawAmt) > 2000) {
       await Taro.showToast({
         title: '单日、单次提现金额不能超过2000元',
