@@ -148,7 +148,33 @@ class WithdrawPage extends Component<{}, IState> {
             </View>
           </View>
         ) : (
-          <View className="records">dsaa</View>
+          <View className="records">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((d) => {
+              console.log(d);
+              return (
+                <View className="item">
+                  <View className="top">
+                    <View className="left">2022年4月</View>
+                    <View className="right">收入¥4,435.00</View>
+                  </View>
+                  <View className="list">
+                    {[1, 2, 3, 4, 7, 8].map((d) => {
+                      console.log(d);
+                      return (
+                        <View className="row">
+                          <View className="left">
+                            <View className="title">提现-到微信零钱</View>
+                            <View className="time">4月20日 21:32</View>
+                          </View>
+                          <View className="right">¥1032.50</View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
         )}
 
         {tabActive === 0 && (
