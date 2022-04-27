@@ -167,7 +167,7 @@ class WithdrawPage extends Component<{}, IState> {
               <View className="tips">单日提现金额：≤2000元；单日提现次数：≤10次。</View>
             </View>
           </View>
-        ) : (
+        ) : withdrawRecords.length > 0 ? (
           <View className="records">
             {withdrawRecords.map((d) => {
               return (
@@ -192,6 +192,10 @@ class WithdrawPage extends Component<{}, IState> {
                 </View>
               );
             })}
+          </View>
+        ) : (
+          <View className="not-data" style="margin-top: 16px">
+            暂无数据
           </View>
         )}
 
