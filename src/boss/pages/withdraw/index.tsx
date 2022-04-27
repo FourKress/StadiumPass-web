@@ -10,6 +10,7 @@ interface IState {
   tabActive: number;
   withdrawAmt: string;
   withdrawTotalAmt: number;
+  withdrawRecords: any[];
 }
 
 const tabList = [
@@ -30,6 +31,7 @@ class WithdrawPage extends Component<{}, IState> {
       tabActive: 0,
       withdrawAmt: '',
       withdrawTotalAmt: 0,
+      withdrawRecords: [],
     };
   }
 
@@ -90,27 +92,45 @@ class WithdrawPage extends Component<{}, IState> {
       });
       return;
     }
-    console.log(withdrawAmt);
-    return;
     requestData({
       method: 'POST',
-      api: '/user/modify',
+      api: '/withdraw/create',
       params: {
         withdrawAmt,
       },
     }).then(() => {
-      this.getMonthAndAayStatistics();
+      Taro.navigateBack({
+        delta: -1,
+      });
+      Taro.showToast({
+        icon: 'none',
+        title: '提现成功!',
+      });
+    });
+  }
+
+  getWithdrawRecords() {
+    requestData({
+      method: 'GET',
+      api: '/withdraw/records',
+    }).then((res: any) => {
+      this.setState({
+        withdrawRecords: res,
+      });
     });
   }
 
   changeTab(value) {
+    if (value === 1) {
+      this.getWithdrawRecords();
+    }
     this.setState({
       tabActive: value,
     });
   }
 
   render() {
-    const { tabActive, withdrawAmt, withdrawTotalAmt } = this.state;
+    const { tabActive, withdrawAmt, withdrawTotalAmt, withdrawRecords } = this.state;
 
     return (
       <View className="withdraw-page">
@@ -149,24 +169,22 @@ class WithdrawPage extends Component<{}, IState> {
           </View>
         ) : (
           <View className="records">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((d) => {
-              console.log(d);
+            {withdrawRecords.map((d) => {
               return (
                 <View className="item">
                   <View className="top">
-                    <View className="left">2022年4月</View>
-                    <View className="right">收入¥4,435.00</View>
+                    <View className="left">{d.monthName}</View>
+                    <View className="right">收入¥{d.totalAmt.toFixed(2)}</View>
                   </View>
                   <View className="list">
-                    {[1, 2, 3, 4, 7, 8].map((d) => {
-                      console.log(d);
+                    {d.list.map((r) => {
                       return (
                         <View className="row">
                           <View className="left">
                             <View className="title">提现-到微信零钱</View>
-                            <View className="time">4月20日 21:32</View>
+                            <View className="time">{r.time}</View>
                           </View>
-                          <View className="right">¥1032.50</View>
+                          <View className="right">¥{r.withdrawAmt.toFixed(2)}</View>
                         </View>
                       );
                     })}
