@@ -81,7 +81,7 @@ class WithdrawPage extends Component<{}, IState> {
       trailing: false,
     });
 
-  async sendWithdrawRequest() {
+  sendWithdrawRequest = async () => {
     const { withdrawAmt } = this.state;
     if (!validateRegular.number.test(withdrawAmt)) {
       await Taro.showToast({
@@ -103,6 +103,7 @@ class WithdrawPage extends Component<{}, IState> {
       title: '处理中...',
       mask: true,
     });
+    return;
     requestData({
       method: 'POST',
       api: '/withdraw/create',
@@ -119,7 +120,7 @@ class WithdrawPage extends Component<{}, IState> {
         title: '提现成功!',
       });
     });
-  }
+  };
 
   getWithdrawRecords() {
     requestData({
