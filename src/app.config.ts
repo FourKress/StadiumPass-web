@@ -16,6 +16,7 @@ const config: Config = {
     'boss/pages/client-details/index',
     'boss/pages/apply-details/index',
     'boss/pages/monthlyCard-details/index',
+    'boss/pages/withdraw/index',
     'client/pages/community/index',
     'client/pages/monthlyCard/index',
     'client/pages/myWatch/index',

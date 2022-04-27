@@ -22,20 +22,37 @@
       background-color: #303043;
 
       .right {
-        width: 160px;
+        width: 272px;
         height: 64px;
-        box-sizing: border-box;
-        padding-left: 20px;
-        border-radius: 16px;
-        background-color: #d9c071;
-        color: #fff;
         font-size: 32px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
+        transform: translateY(16px);
 
-        .at-icon {
-          transform: translateY(2px);
+        .btn {
+          width: 128px;
+          height: 64px;
+          box-sizing: border-box;
+          padding-left: 20px;
+          border-radius: 8px;
+          background-color: transparent;
+          color: #0080ff;
+          font-size: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #0080ff;
+
+          &.withdraw-btn {
+            background-color: #0080ff;
+            color: #fff;
+            margin-left: 16px;
+          }
+
+          .at-icon {
+            transform: translateY(2px);
+          }
         }
       }
 
@@ -70,6 +87,7 @@
       padding: 36px 0 40px 0;
       box-sizing: border-box;
       background-color: #262636;
+      position: relative;
 
       .item {
         display: flex;
@@ -357,6 +375,16 @@
         border-radius: 88px;
         color: #fff;
       }
+    }
+  }
+
+  .withdraw-tips {
+    color: #93a7b6;
+    padding-left: 32px;
+    font-size: 32px;
+
+    & + .withdraw-tips {
+      margin: 10px 0 24px 0;
     }
   }
 }

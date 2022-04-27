@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { View, Text, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { AtIcon, AtDrawer, AtInput } from 'taro-ui';
+import { AtIcon, AtInput, AtDrawer } from 'taro-ui';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
 import dayjs from 'dayjs';
 
+import { checkLogin } from '@/services/loginService';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
 
@@ -21,6 +22,7 @@ interface IState {
   stadiumId: string;
   runDate: string;
   revenueInfo: any;
+  withdrawAmt: string;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
@@ -37,6 +39,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       stadiumId: '',
       runDate: dateNow(),
       revenueInfo: {},
+      withdrawAmt: '',
     };
   }
 
@@ -155,6 +158,13 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  handleWithdraw() {
+    if (!checkLogin()) return;
+    Taro.navigateTo({
+      url: `/boss/pages/withdraw/index`,
+    });
+  }
+
   render() {
     const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo } = this.state;
 
@@ -163,21 +173,27 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
         <View className="top-info">
           <View className="top">
             <View className="left">
-              <View className="title">今日总收入</View>
-              <View className="total">{summary.dayCount}</View>
+              <View className="title">钱包余额</View>
+              <View className="total">{summary.balanceAmt}</View>
             </View>
-            <View className="right" onClick={() => this.showTotal()}>
-              <Text>统计</Text>
-              <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
+            <View className="right">
+              <View className="btn" onClick={() => this.showTotal()}>
+                <Text>统计</Text>
+                <AtIcon value="chevron-right" size="20" color="#0080FF"></AtIcon>
+              </View>
+              <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
+                <Text>提现</Text>
+                <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
+              </View>
             </View>
           </View>
           <View className="banner">
             <View className="item">
-              <View className="title">本月总收入</View>
-              <View className="text">{summary.monthCount}</View>
+              <View className="title">今日总收入</View>
+              <View className="text">{summary.dayCount}</View>
             </View>
             <View className="item">
-              <View className="title">钱包余额</View>
+              <View className="title">本月总收入</View>
               <View className="text">{summary.balanceAmt}</View>
             </View>
           </View>
@@ -207,7 +223,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                         <Text>
                           {item.startAt} — {item.endAt}
                         </Text>
-                        <Text className="index">{item.space.name}</Text>
+                        <Text className="index">{item.space?.name}</Text>
                       </View>
                       <View className="right">
                         {item.selectPeople < item.minPeople ? (

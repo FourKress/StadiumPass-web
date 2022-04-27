@@ -115,4 +115,16 @@ const handleAuthorize = (isLogin = true) => {
   });
 };
 
-export { login, handleAuthorize };
+const checkLogin = async () => {
+  const token = Taro.getStorageSync('token');
+  if (!token) {
+    await Taro.showToast({
+      title: '请先登录',
+      icon: 'none',
+      duration: 2000,
+    });
+  }
+  return token;
+};
+
+export { login, handleAuthorize, checkLogin };

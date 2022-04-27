@@ -77,35 +77,22 @@ class MePage extends Component<{}, IState> {
     });
   }
 
-  async checkLogin() {
-    const token = Taro.getStorageSync('token');
-    if (!token) {
-      await Taro.showToast({
-        title: '请先登录',
-        icon: 'none',
-        duration: 2000,
-      });
-      return false;
-    }
-    return token;
-  }
-
   async jumpOrder(index) {
-    if (!(await this.checkLogin())) return;
+    if (!(await LoginService.checkLogin())) return;
     await Taro.navigateTo({
       url: `/client/pages/order/index?index=${index}`,
     });
   }
 
   async jumpMonthlyCard() {
-    if (!(await this.checkLogin())) return;
+    if (!(await LoginService.checkLogin())) return;
     await Taro.navigateTo({
       url: `/client/pages/monthlyCard/index`,
     });
   }
 
   async jumpMyWatch() {
-    if (!(await this.checkLogin())) return;
+    if (!(await LoginService.checkLogin())) return;
     await Taro.navigateTo({
       url: `/client/pages/myWatch/index`,
     });
@@ -138,7 +125,7 @@ class MePage extends Component<{}, IState> {
   }
 
   async changeIdentity(status) {
-    if (!(await this.checkLogin())) return;
+    if (!(await LoginService.checkLogin())) return;
     const { userInfo } = this.state;
     if (!userInfo.phoneNum) {
       await Taro.showToast({
