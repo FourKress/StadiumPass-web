@@ -103,7 +103,6 @@ class WithdrawPage extends Component<{}, IState> {
       title: '处理中...',
       mask: true,
     });
-    return;
     requestData({
       method: 'POST',
       api: '/withdraw/create',
