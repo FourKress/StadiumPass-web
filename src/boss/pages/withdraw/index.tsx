@@ -5,6 +5,7 @@ import requestData from '@/utils/requestData';
 import './index.scss';
 import { validateRegular } from '@/utils/validateRule';
 import Taro from '@tarojs/taro';
+import { throttle } from 'lodash';
 
 interface IState {
   tabActive: number;
@@ -74,6 +75,12 @@ class WithdrawPage extends Component<{}, IState> {
     });
   }
 
+  handleThrottle = (fun) =>
+    throttle(fun, 1000, {
+      leading: true,
+      trailing: false,
+    });
+
   async sendWithdrawRequest() {
     const { withdrawAmt } = this.state;
     if (!validateRegular.number.test(withdrawAmt)) {
@@ -92,17 +99,22 @@ class WithdrawPage extends Component<{}, IState> {
       });
       return;
     }
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
     requestData({
       method: 'POST',
       api: '/withdraw/create',
       params: {
         withdrawAmt,
       },
-    }).then(() => {
-      Taro.navigateBack({
+    }).then(async () => {
+      await Taro.hideLoading();
+      await Taro.navigateBack({
         delta: -1,
       });
-      Taro.showToast({
+      await Taro.showToast({
         icon: 'none',
         title: '提现成功!',
       });
@@ -224,7 +236,7 @@ class WithdrawPage extends Component<{}, IState> {
               <View className="btn clear" onClick={() => this.removeWithdraw()}>
                 <Image className="img" src={require('../../../assets/icons/clear-btn.png')} />
               </View>
-              <View className="btn submit" onClick={() => this.sendWithdrawRequest()}>
+              <View className="btn submit" onClick={this.handleThrottle(this.sendWithdrawRequest)}>
                 提现
               </View>
             </View>
