@@ -51,7 +51,7 @@ export default function responseHandler() {
         }
         await Taro.showToast({
           icon: 'none',
-          title: response.data.message || '网络异常，请检查网络',
+          title: response.data.message || '系统繁忙，请稍后再试。',
         });
         return reject({
           code: response.statusCode,

@@ -61,6 +61,10 @@ class WithdrawPage extends Component<{}, IState> {
     if (withdrawAmt?.length > 7) {
       withdrawAmt = withdrawAmt.substring(0, 7);
     }
+    const { withdrawTotalAmt } = this.state;
+    if (Number(withdrawAmt) > withdrawTotalAmt) {
+      withdrawAmt = String(withdrawTotalAmt);
+    }
     this.setState({
       withdrawAmt,
     });
@@ -82,7 +86,7 @@ class WithdrawPage extends Component<{}, IState> {
     });
 
   sendWithdrawRequest = async () => {
-    const { withdrawAmt } = this.state;
+    const { withdrawAmt, withdrawTotalAmt } = this.state;
     if (!validateRegular.number.test(withdrawAmt)) {
       await Taro.showToast({
         title: '请输入正确的数字',
@@ -94,6 +98,14 @@ class WithdrawPage extends Component<{}, IState> {
     if (Number(withdrawAmt) < 1) {
       await Taro.showToast({
         title: '提现金额不能小于1元',
+        icon: 'none',
+        duration: 2000,
+      });
+      return;
+    }
+    if (Number(withdrawAmt) > withdrawTotalAmt) {
+      await Taro.showToast({
+        title: '提现金额不能超过可用余额',
         icon: 'none',
         duration: 2000,
       });
