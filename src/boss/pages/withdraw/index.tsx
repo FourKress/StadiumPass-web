@@ -46,7 +46,7 @@ class WithdrawPage extends Component<{}, IState> {
       api: '/order/monthAndAayStatistics',
     }).then((res: any) => {
       this.setState({
-        withdrawTotalAmt: res?.balanceAmt ?? 0,
+        withdrawTotalAmt: res?.balanceAmt || 0,
       });
     });
   }
@@ -119,25 +119,34 @@ class WithdrawPage extends Component<{}, IState> {
       });
       return;
     }
-    await Taro.showLoading({
-      title: '处理中...',
-      mask: true,
-    });
-    requestData({
-      method: 'POST',
-      api: '/withdraw/create',
-      params: {
-        withdrawAmt,
+
+    await Taro.showModal({
+      title: '提示',
+      content: '确认发起提现吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          await Taro.showLoading({
+            title: '处理中...',
+            mask: true,
+          });
+          requestData({
+            method: 'POST',
+            api: '/withdraw/create',
+            params: {
+              withdrawAmt,
+            },
+          }).then(async () => {
+            await Taro.hideLoading();
+            await Taro.navigateBack({
+              delta: -1,
+            });
+            await Taro.showToast({
+              icon: 'none',
+              title: '提现成功!',
+            });
+          });
+        }
       },
-    }).then(async () => {
-      await Taro.hideLoading();
-      await Taro.navigateBack({
-        delta: -1,
-      });
-      await Taro.showToast({
-        icon: 'none',
-        title: '提现成功!',
-      });
     });
   };
 
