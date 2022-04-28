@@ -315,7 +315,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   async saveStadium() {
     const { stadiumInfo, spaceList, files } = this.state;
-    const { address, longitude, latitude } = stadiumInfo;
+    const { address, longitude, latitude, monthlyCardPrice, monthlyCardStatus } = stadiumInfo;
     // if (!wxGroup) {
     //   await Taro.showToast({
     //     icon: 'none',
@@ -323,6 +323,14 @@ class StadiumDetailsPage extends Component<{}, IState> {
     //   });
     //   return;
     // }
+
+    if (monthlyCardStatus && monthlyCardPrice <= 0) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '月卡金额不能小于等于0！',
+      });
+      return;
+    }
     if (!(address && longitude && latitude)) {
       await Taro.showToast({
         icon: 'none',
