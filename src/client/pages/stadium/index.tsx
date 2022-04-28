@@ -853,11 +853,16 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                                     )}
                                   </View>
                                   {item.nickName ? (
-                                    <View className="name">{item.nickName}</View>
+                                    <View className="name-wrap">
+                                      <View className="name">{item.nickName}</View>
+                                      {item.isMonthlyCard && <View className="tag"></View>}
+                                    </View>
                                   ) : (
                                     !selectList.includes(index) && (
-                                      <View className="name default">
-                                        {match.isCancel ? '组队失败' : match.isDone ? '已结束' : '点击报名'}
+                                      <View className="name-wrap">
+                                        <View className="name default">
+                                          {match.isCancel ? '组队失败' : match.isDone ? '已结束' : '点击报名'}
+                                        </View>
                                       </View>
                                     )
                                   )}
