@@ -39,16 +39,18 @@ const handleShare = async (state) => {
         isCancel,
       };
       if (target) {
-        const { avatarUrl, nickName } = target;
+        const { avatarUrl, nickName, isMonthlyCardPay = false } = target;
         return {
           avatarUrl,
           nickName,
+          isMonthlyCardPay,
           ...data,
         };
       }
       return {
         ...d,
         ...data,
+        isMonthlyCardPay: false,
       };
     });
 

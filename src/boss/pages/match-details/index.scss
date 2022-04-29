@@ -60,7 +60,7 @@ page {
           background-color: #f1f4f1;
         }
 
-        .name {
+        .left {
           flex: 1;
           margin-left: 16px;
           text-align: left;
@@ -70,6 +70,25 @@ page {
           flex-direction: column;
           justify-content: space-between;
           align-items: flex-start;
+          overflow: hidden;
+
+          .name {
+            width: 350px;
+            max-width: 350px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            .tag {
+              display: inline-block;
+              width: 80px;
+              height: 30px;
+              background: url('../../../assets/icons/card-tag.png') no-repeat;
+              background-size: 100% 100%;
+              margin-right: 16px;
+              transform: translateY(4px);
+            }
+          }
         }
 
         .info {
