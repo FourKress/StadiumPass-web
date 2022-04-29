@@ -133,8 +133,11 @@ class MatchDetailsPage extends Component<{}, IState> {
                 <View>
                   <View className="item">
                     <Image className="img" src={target.avatarUrl}></Image>
-                    <View className="name">
-                      <View>{target.nickName}</View>
+                    <View className="left">
+                      <View className="name">
+                        {target.isMonthlyCardPay && <Text className="tag"></Text>}
+                        {target.nickName}
+                      </View>
                       <View>{target.phoneNum}</View>
                     </View>
                     <View className="info">
@@ -149,7 +152,7 @@ class MatchDetailsPage extends Component<{}, IState> {
                   <View className="item">
                     <Text className="img"></Text>
                     <Text className="index">{index}</Text>
-                    <Text className="name" style="color: #DEDEDD;">
+                    <Text className="left" style="color: #DEDEDD;">
                       {matchInfo.isCancel ? '组队失败' : matchInfo.isDone ? '已结束' : '等待报名'}
                     </Text>
                   </View>
