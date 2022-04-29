@@ -52,12 +52,12 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     this.inject.tabBarStore.setSelected(0);
     this.getMonthAndAayStatistics();
     await this.getStadiumList();
-    const { stadiumId } = this.state;
+    const { stadiumId, runDate } = this.state;
     if (!stadiumId) {
       return;
     }
     this.getRevenueInfo({
-      runDate: dateNow(),
+      runDate: runDate || dateNow(),
       stadiumId,
     });
   }
