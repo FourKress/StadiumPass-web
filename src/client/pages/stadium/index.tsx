@@ -855,7 +855,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                                   {item.nickName ? (
                                     <View className="name-wrap">
                                       <View className="name">{item.nickName}</View>
-                                      {item.isMonthlyCard && <View className="tag"></View>}
+                                      {item.isMonthlyCardPay && <View className="tag"></View>}
                                     </View>
                                   ) : (
                                     !selectList.includes(index) && (
