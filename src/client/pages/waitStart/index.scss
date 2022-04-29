@@ -119,6 +119,11 @@ page {
           .sub {
             font-size: 28px;
             color: #6a6a7d;
+            height: 32px;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
       }
