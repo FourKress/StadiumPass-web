@@ -27,6 +27,10 @@ interface IState {
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
 
+const {
+  miniProgram: { envVersion },
+} = Taro.getAccountInfoSync();
+
 @inject('tabBarStore')
 @observer
 class RevenuePage extends Component<InjectStoreProps, IState> {
@@ -181,10 +185,12 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                 <Text>统计</Text>
                 <AtIcon value="chevron-right" size="20" color="#0080FF"></AtIcon>
               </View>
-              <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
-                <Text>提现</Text>
-                <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
-              </View>
+              {(envVersion === 'trial' || stadiumList[0]?.bossId === '623014323423f91f1465239d') && (
+                <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
+                  <Text>提现</Text>
+                  <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
+                </View>
+              )}
             </View>
           </View>
           <View className="banner">
