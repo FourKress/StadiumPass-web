@@ -185,7 +185,10 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                 <Text>统计</Text>
                 <AtIcon value="chevron-right" size="20" color="#0080FF"></AtIcon>
               </View>
-              {(envVersion === 'trial' || stadiumList[0]?.bossId === '623014323423f91f1465239d') && (
+              {(envVersion === 'trial' ||
+                ['6215a4728e111c301d91689c', '623014323423f91f1465239d', '6214ed704389e820c372a671'].includes(
+                  stadiumList[0]?.bossId
+                )) && (
                 <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
                   <Text>提现</Text>
                   <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
