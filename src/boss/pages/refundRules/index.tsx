@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { View, Picker } from '@tarojs/components';
-import { AtSwitch } from 'taro-ui';
+import { AtIcon, AtSwitch } from 'taro-ui';
 // import requestData from '@/utils/requestData';
 // import Taro from '@tarojs/taro';
 
 import './index.scss';
 
 const timeList = Array.from(new Array(24).keys()).map((d) => {
+  const value = d + 1;
   return {
-    label: d + 1,
-    value: d + 1,
+    label: value,
+    value,
   };
 });
 
@@ -93,6 +94,30 @@ class RefundRulesPage extends Component<{}, IState> {
     });
   }
 
+  clearRule(index) {
+    const refundRules = this.state.refundRules;
+    if (refundRules?.length <= 1) {
+      this.setState({
+        refundStatus: false,
+      });
+    }
+    refundRules.splice(index, 1);
+    this.setState({
+      refundRules,
+    });
+  }
+
+  addRule() {
+    const refundRules = this.state.refundRules;
+    refundRules.push({
+      refundTime: '',
+      refundRatio: '',
+    });
+    this.setState({
+      refundRules,
+    });
+  }
+
   render() {
     const { refundStatus, refundRules } = this.state;
 
@@ -110,40 +135,52 @@ class RefundRulesPage extends Component<{}, IState> {
             return (
               <View className="item">
                 <View>距开场</View>
-                <View className="time">
-                  <Picker
-                    mode="selector"
-                    range={timeList}
-                    rangeKey="label"
-                    onChange={(event) => this.handleSelectChange(event, 'refundTime', index)}
-                  >
+                <Picker
+                  mode="selector"
+                  range={timeList}
+                  rangeKey="label"
+                  onChange={(event) => this.handleSelectChange(event, 'refundTime', index)}
+                >
+                  <View className="time">
                     {item.refundTime ? (
-                      <View>{timeList.find((d) => d.value === item.refundTime)?.label}</View>
+                      <View className="wrap">{timeList.find((d) => d.value === item.refundTime)?.label}</View>
                     ) : (
-                      <View>请选择</View>
+                      <View className="placeholder wrap">请选择</View>
                     )}
-                  </Picker>
-                </View>
-                <View>小时</View>
-                <View>，可退款</View>
-                <View className="ratio">
-                  <Picker
-                    mode="selector"
-                    range={ratioTypes}
-                    rangeKey="label"
-                    onChange={(event) => this.handleSelectChange(event, 'refundRatio', index)}
-                  >
+                    <AtIcon value="chevron-down" size="20" color="#101010"></AtIcon>
+                  </View>
+                </Picker>
+                <View>小时，可退款</View>
+                <Picker
+                  mode="selector"
+                  range={ratioTypes}
+                  rangeKey="label"
+                  onChange={(event) => this.handleSelectChange(event, 'refundRatio', index)}
+                >
+                  <View className="ratio">
                     {item.refundRatio ? (
-                      <View>{ratioTypes.find((d) => d.value === item.refundRatio)?.label}</View>
+                      <View className="wrap">{ratioTypes.find((d) => d.value === item.refundRatio)?.label}</View>
                     ) : (
-                      <View>请选择</View>
+                      <View className="placeholder wrap">请选择</View>
                     )}
-                  </Picker>
-                </View>
-                <View className="icon"></View>
+                    <AtIcon value="chevron-down" size="20" color="#101010"></AtIcon>
+                  </View>
+                </Picker>
+                <AtIcon
+                  className="clear-btn"
+                  value="close"
+                  size="20"
+                  color="#f00"
+                  onClick={() => this.clearRule(index)}
+                ></AtIcon>
               </View>
             );
           })}
+          <View className="item">
+            <View className="add-btn" onClick={() => this.addRule()}>
+              <AtIcon value="add" size="14" color="#0092ff"></AtIcon>新增规则
+            </View>
+          </View>
         </View>
       </View>
     );
