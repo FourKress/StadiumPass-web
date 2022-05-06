@@ -2,6 +2,7 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
+    'boss/pages/refundRules/index',
     'pages/load/index',
     'pages/userCenter/index',
     'boss/pages/fail-stadium/index',

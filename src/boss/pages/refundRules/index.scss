@@ -1,0 +1,22 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+page {
+  background-color: #f2f2f2;
+}
+
+.refund-rules-page {
+  width: 100vw;
+  height: 100vh;
+
+  .list {
+    width: 100%;
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
