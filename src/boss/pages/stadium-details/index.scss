@@ -179,6 +179,14 @@ page {
       .at-input__input {
         padding-right: 0;
       }
+
+      &.refundRules {
+        padding-right: 0;
+
+        .at-icon-chevron-right {
+          padding-left: 0;
+        }
+      }
     }
 
     .at-input--disabled {

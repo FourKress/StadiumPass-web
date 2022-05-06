@@ -37,6 +37,7 @@ interface IState {
   openBot: any;
   applyBot: boolean;
   botStatus: boolean;
+  refundRulesStatus: boolean;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -59,6 +60,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       openBot: false,
       applyBot: false,
       botStatus: false,
+      refundRulesStatus: false,
     };
   }
 
@@ -564,6 +566,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  async jumpRefundRules() {
+    await Taro.navigateTo({
+      url: '/boss/pages/refundRules/index',
+      events: {
+        refundRulesStatus: (status) => {
+          console.log(status);
+          this.setState({
+            refundRulesStatus: true,
+          });
+        },
+      },
+    });
+  }
+
   render() {
     const {
       current,
@@ -579,6 +595,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       previewIndex,
       openBot,
       botStatus,
+      refundRulesStatus,
     } = this.state;
 
     return (
@@ -724,6 +741,23 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   value={stadiumInfo.monthlyCardPrice}
                   onChange={(value) => this.handleChange(value, 'monthlyCardPrice')}
                 />
+
+                <View className="title">
+                  <View className="name">退款规则</View>
+                </View>
+                <AtInput
+                  className="refundRules"
+                  name="refundRules"
+                  title="场次退款规则"
+                  type="text"
+                  value={refundRulesStatus ? '开启退款' : '关闭退款'}
+                  editable={false}
+                  onChange={() => {}}
+                  onClick={() => this.jumpRefundRules()}
+                >
+                  <AtIcon value="chevron-right" size="20" color="#101010"></AtIcon>
+                </AtInput>
+
                 <View className="title">
                   <View className="name">场馆介绍</View>
                 </View>

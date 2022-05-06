@@ -2,7 +2,6 @@ import { Config } from '@tarojs/taro';
 
 const config: Config = {
   pages: [
-    'boss/pages/refundRules/index',
     'pages/load/index',
     'pages/userCenter/index',
     'boss/pages/fail-stadium/index',
@@ -18,6 +17,7 @@ const config: Config = {
     'boss/pages/apply-details/index',
     'boss/pages/monthlyCard-details/index',
     'boss/pages/withdraw/index',
+    'boss/pages/refundRules/index',
     'client/pages/community/index',
     'client/pages/monthlyCard/index',
     'client/pages/myWatch/index',

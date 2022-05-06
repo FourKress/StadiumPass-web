@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Picker } from '@tarojs/components';
 import { AtIcon, AtSwitch } from 'taro-ui';
 // import requestData from '@/utils/requestData';
-// import Taro from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 
 import './index.scss';
 
@@ -66,20 +66,44 @@ class RefundRulesPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      refundStatus: false,
+      refundStatus: true,
       refundRules: [{}],
     };
   }
 
   componentDidShow() {}
 
-  handleChangeRefundStatus(value) {
+  async handleChangeRefundStatus(value) {
     this.setState({
       refundStatus: value,
     });
+    if (!value) {
+      await this.handleCloseRefundRules();
+    } else {
+      this.addRule();
+    }
   }
 
-  handleSelectChange(event, key: string, index) {
+  async handleCloseRefundRules() {
+    await Taro.showModal({
+      title: '提示',
+      content: '确定要关闭退款规则吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          this.setState({
+            refundStatus: false,
+            refundRules: [],
+          });
+        } else {
+          this.setState({
+            refundStatus: true,
+          });
+        }
+      },
+    });
+  }
+
+  async handleSelectChange(event, key: string, index) {
     const selectIndex = event.detail.value;
     const refundRules = this.state.refundRules;
     let value;
@@ -88,18 +112,20 @@ class RefundRulesPage extends Component<{}, IState> {
     } else if (key === 'refundTime') {
       value = timeList[selectIndex].value;
     }
+    if (!(await this.checkRulesValid(value, key))) {
+      return;
+    }
     refundRules[index][key] = value;
     this.setState({
       refundRules,
     });
   }
 
-  clearRule(index) {
+  async clearRule(index) {
     const refundRules = this.state.refundRules;
     if (refundRules?.length <= 1) {
-      this.setState({
-        refundStatus: false,
-      });
+      await this.handleCloseRefundRules();
+      return;
     }
     refundRules.splice(index, 1);
     this.setState({
@@ -108,6 +134,9 @@ class RefundRulesPage extends Component<{}, IState> {
   }
 
   addRule() {
+    const eventChannel = Taro.getCurrentPages()[Taro.getCurrentPages().length - 1].getOpenerEventChannel();
+    eventChannel.emit('refundRulesStatus', { data: 'test' });
+
     const refundRules = this.state.refundRules;
     refundRules.push({
       refundTime: '',
@@ -115,7 +144,25 @@ class RefundRulesPage extends Component<{}, IState> {
     });
     this.setState({
       refundRules,
+      refundStatus: true,
     });
+  }
+
+  async checkRulesValid(value, type) {
+    const { refundRules } = this.state;
+    const checkMap = {
+      refundTime: () => refundRules.some((d) => d.refundTime === value),
+      refundRatio: () => refundRules.some((d) => d.refundRatio === value),
+    };
+    const flag = checkMap[type]();
+    if (flag) {
+      await Taro.showToast({
+        title: `${type === 'refundTime' ? '距开场时间' : '可退款比例'}不可重复`,
+        icon: 'none',
+      });
+      return false;
+    }
+    return true;
   }
 
   render() {
@@ -176,11 +223,13 @@ class RefundRulesPage extends Component<{}, IState> {
               </View>
             );
           })}
-          <View className="item">
-            <View className="add-btn" onClick={() => this.addRule()}>
-              <AtIcon value="add" size="14" color="#0092ff"></AtIcon>新增规则
+          {refundRules?.length < 3 && refundRules?.length > 0 && (
+            <View className="item">
+              <View className="add-btn" onClick={() => this.addRule()}>
+                <AtIcon value="add" size="14" color="#0092ff"></AtIcon>新增规则
+              </View>
             </View>
-          </View>
+          )}
         </View>
       </View>
     );
