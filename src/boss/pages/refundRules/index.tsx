@@ -6,7 +6,7 @@ import Taro from '@tarojs/taro';
 
 import './index.scss';
 
-const timeList = Array.from(new Array(24).keys()).map((d) => {
+const timeListSources = Array.from(new Array(24).keys()).map((d) => {
   const value = d + 1;
   return {
     label: value,
@@ -14,7 +14,7 @@ const timeList = Array.from(new Array(24).keys()).map((d) => {
   };
 });
 
-const ratioTypes = [
+const ratioTypesSources = [
   {
     label: '100%',
     value: 1,
@@ -60,18 +60,33 @@ const ratioTypes = [
 interface IState {
   refundStatus: boolean;
   refundRules: any[];
+  timeList: any[];
+  ratioTypes: any[];
 }
 
 class RefundRulesPage extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      refundStatus: true,
-      refundRules: [{}],
+      refundStatus: false,
+      timeList: [],
+      ratioTypes: [],
+      refundRules: [],
     };
   }
 
-  componentDidShow() {}
+  componentDidShow() {
+    const refundRules = [
+      { refundRatio: 0.9, refundTime: 3 },
+      { refundRatio: 0.8, refundTime: 2 },
+      { refundRatio: 0.7, refundTime: 1 },
+    ];
+    this.changeSelectList(refundRules);
+    this.setState({
+      refundRules,
+      refundStatus: true,
+    });
+  }
 
   async handleChangeRefundStatus(value) {
     this.setState({
@@ -105,19 +120,34 @@ class RefundRulesPage extends Component<{}, IState> {
 
   async handleSelectChange(event, key: string, index) {
     const selectIndex = event.detail.value;
-    const refundRules = this.state.refundRules;
+    const { refundRules, timeList, ratioTypes } = this.state;
     let value;
     if (key === 'refundRatio') {
       value = ratioTypes[selectIndex].value;
     } else if (key === 'refundTime') {
       value = timeList[selectIndex].value;
     }
-    if (!(await this.checkRulesValid(value, key))) {
+    if (!(await this.checkRulesValid(value, key, index))) {
       return;
     }
     refundRules[index][key] = value;
+    this.changeSelectList(refundRules);
     this.setState({
       refundRules,
+    });
+  }
+
+  changeSelectList(refundRules) {
+    const times: number[] = [];
+    const ratios: number[] = [];
+    refundRules.forEach((d) => {
+      times.push(d.refundTime);
+      ratios.push(d.refundRatio);
+    });
+    this.setState({
+      refundRules,
+      timeList: timeListSources.filter((d) => !times.includes(d.value)),
+      ratioTypes: ratioTypesSources.filter((d) => !ratios.includes(d.value)),
     });
   }
 
@@ -128,36 +158,47 @@ class RefundRulesPage extends Component<{}, IState> {
       return;
     }
     refundRules.splice(index, 1);
+    this.changeSelectList(refundRules);
     this.setState({
       refundRules,
     });
   }
 
   addRule() {
-    const eventChannel = Taro.getCurrentPages()[Taro.getCurrentPages().length - 1].getOpenerEventChannel();
-    eventChannel.emit('refundRulesStatus', { data: 'test' });
-
     const refundRules = this.state.refundRules;
     refundRules.push({
       refundTime: '',
       refundRatio: '',
     });
+    this.changeSelectList(refundRules);
     this.setState({
       refundRules,
       refundStatus: true,
     });
   }
 
-  async checkRulesValid(value, type) {
+  async checkRulesValid(value, type, index) {
     const { refundRules } = this.state;
     const checkMap = {
-      refundTime: () => refundRules.some((d) => d.refundTime === value),
-      refundRatio: () => refundRules.some((d) => d.refundRatio === value),
+      refundTime: () =>
+        refundRules.some((d) => d.refundTime === value) ||
+        (refundRules[index].refundRatio &&
+          (refundRules
+            .filter((d) => d.refundRatio > refundRules[index].refundRatio)
+            .some((d) => d.refundTime < value) ||
+            refundRules
+              .filter((d) => d.refundRatio < refundRules[index].refundRatio)
+              .some((d) => d.refundTime > value))),
+      refundRatio: () =>
+        refundRules.some((d) => d.refundRatio === value) ||
+        (refundRules[index].refundTime &&
+          refundRules.filter((d) => d.refundTime > refundRules[index].refundTime).some((d) => d.refundRatio < value)) ||
+        refundRules.filter((d) => d.refundTime < refundRules[index].refundTime).some((d) => d.refundRatio > value),
     };
     const flag = checkMap[type]();
     if (flag) {
       await Taro.showToast({
-        title: `${type === 'refundTime' ? '距开场时间' : '可退款比例'}不可重复`,
+        title: '选择错误，距开场时间越大，可退款比例也应该越大！',
         icon: 'none',
       });
       return false;
@@ -165,8 +206,16 @@ class RefundRulesPage extends Component<{}, IState> {
     return true;
   }
 
+  async handleSave() {
+    const eventChannel = Taro.getCurrentPages()[Taro.getCurrentPages().length - 1].getOpenerEventChannel();
+    eventChannel.emit('refundRulesStatus', this.state.refundStatus);
+    await Taro.navigateBack({
+      delta: -1,
+    });
+  }
+
   render() {
-    const { refundStatus, refundRules } = this.state;
+    const { refundStatus, refundRules, timeList, ratioTypes } = this.state;
 
     return (
       <View className="refund-rules-page">
@@ -176,7 +225,11 @@ class RefundRulesPage extends Component<{}, IState> {
           checked={refundStatus}
           onChange={(value) => this.handleChangeRefundStatus(value)}
         />
-        <View className="tips">关闭时，所有组队报名均不支持退款。</View>
+        <View className="tips">
+          <View>1、关闭时，所有组队报名均不支持退款。</View>
+          <View>2、规则修改保存后，新规则将实时生效。</View>
+          <View>3、距开场时间越大，可退款比例也应该越大。</View>
+        </View>
         <View className="list">
           {refundRules.map((item, index) => {
             return (
@@ -190,7 +243,7 @@ class RefundRulesPage extends Component<{}, IState> {
                 >
                   <View className="time">
                     {item.refundTime ? (
-                      <View className="wrap">{timeList.find((d) => d.value === item.refundTime)?.label}</View>
+                      <View className="wrap">{timeListSources.find((d) => d.value === item.refundTime)?.label}</View>
                     ) : (
                       <View className="placeholder wrap">请选择</View>
                     )}
@@ -206,7 +259,7 @@ class RefundRulesPage extends Component<{}, IState> {
                 >
                   <View className="ratio">
                     {item.refundRatio ? (
-                      <View className="wrap">{ratioTypes.find((d) => d.value === item.refundRatio)?.label}</View>
+                      <View className="wrap">{ratioTypesSources.find((d) => d.value === item.refundRatio)?.label}</View>
                     ) : (
                       <View className="placeholder wrap">请选择</View>
                     )}
@@ -230,6 +283,12 @@ class RefundRulesPage extends Component<{}, IState> {
               </View>
             </View>
           )}
+        </View>
+
+        <View className="btn-list">
+          <View className="btn" onClick={() => this.handleSave()}>
+            保存
+          </View>
         </View>
       </View>
     );

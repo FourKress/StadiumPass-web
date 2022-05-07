@@ -571,9 +571,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
       url: '/boss/pages/refundRules/index',
       events: {
         refundRulesStatus: (status) => {
-          console.log(status);
           this.setState({
-            refundRulesStatus: true,
+            refundRulesStatus: status,
           });
         },
       },
