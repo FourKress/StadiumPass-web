@@ -175,6 +175,16 @@ class RefundRulesPage extends Component<{}, IState> {
 
   async checkRulesValid() {
     const { refundRules } = this.state;
+    if (refundRules?.length) {
+      const status = refundRules.some((d) => !(d.refundTime && d.refundRatio));
+      if (status) {
+        await Taro.showToast({
+          title: '请先完善规则！',
+          icon: 'none',
+        });
+        return false;
+      }
+    }
     if (refundRules?.length === 1) return true;
     const rules = refundRules.sort((a, b) => a.refundTime - b.refundTime);
     let flag = true;
