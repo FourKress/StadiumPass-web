@@ -127,9 +127,6 @@ class RefundRulesPage extends Component<{}, IState> {
     } else if (key === 'refundTime') {
       value = timeList[selectIndex].value;
     }
-    if (!(await this.checkRulesValid(value, key, index))) {
-      return;
-    }
     refundRules[index][key] = value;
     this.changeSelectList(refundRules);
     this.setState({
@@ -177,28 +174,19 @@ class RefundRulesPage extends Component<{}, IState> {
     });
   }
 
-  async checkRulesValid(value, type, index) {
+  async checkRulesValid() {
     const { refundRules } = this.state;
-    const checkMap = {
-      refundTime: () =>
-        refundRules.some((d) => d.refundTime === value) ||
-        (refundRules[index].refundRatio &&
-          (refundRules
-            .filter((d) => d.refundRatio > refundRules[index].refundRatio)
-            .some((d) => d.refundTime < value) ||
-            refundRules
-              .filter((d) => d.refundRatio < refundRules[index].refundRatio)
-              .some((d) => d.refundTime > value))),
-      refundRatio: () =>
-        refundRules.some((d) => d.refundRatio === value) ||
-        (refundRules[index].refundTime &&
-          refundRules.filter((d) => d.refundTime > refundRules[index].refundTime).some((d) => d.refundRatio < value)) ||
-        refundRules.filter((d) => d.refundTime < refundRules[index].refundTime).some((d) => d.refundRatio > value),
-    };
-    const flag = checkMap[type]();
-    if (flag) {
+    if (refundRules?.length === 1) return true;
+    const rules = refundRules.sort((a, b) => a.refundTime - b.refundTime);
+    let flag = true;
+    for (let i = 1; i < rules.length; i++) {
+      if (rules[i].refundRatio < rules[i - 1].refundRatio) {
+        flag = false;
+      }
+    }
+    if (!flag) {
       await Taro.showToast({
-        title: '选择错误，距开场时间越大，可退款比例也应该越大！',
+        title: '规则错误，距开场时间越大，退款比例也应该越大！',
         icon: 'none',
       });
       return false;
@@ -207,6 +195,10 @@ class RefundRulesPage extends Component<{}, IState> {
   }
 
   async handleSave() {
+    if (!(await this.checkRulesValid())) {
+      return;
+    }
+
     const eventChannel = Taro.getCurrentPages()[Taro.getCurrentPages().length - 1].getOpenerEventChannel();
     eventChannel.emit('refundRulesStatus', this.state.refundStatus);
     await Taro.navigateBack({
@@ -228,7 +220,7 @@ class RefundRulesPage extends Component<{}, IState> {
         <View className="tips">
           <View>1、关闭时，所有组队报名均不支持退款。</View>
           <View>2、规则修改保存后，新规则将实时生效。</View>
-          <View>3、距开场时间越大，可退款比例也应该越大。</View>
+          <View>3、距开场时间越大，退款比例也应该越大。</View>
         </View>
         <View className="list">
           {refundRules.map((item, index) => {
