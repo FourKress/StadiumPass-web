@@ -85,7 +85,7 @@ class RefundRulesPage extends Component<{}, IState> {
     this.changeSelectList(refundRules);
     this.setState({
       refundRules,
-      refundStatus: true,
+      refundStatus: false,
     });
   }
 
@@ -121,12 +121,12 @@ class RefundRulesPage extends Component<{}, IState> {
 
   async handleSelectChange(event, key: string, index) {
     const selectIndex = event.detail.value;
-    const { refundRules } = this.state;
+    const { refundRules, ratioTypes, timeList } = this.state;
     let value;
     if (key === 'refundRatio') {
-      value = ratioTypesSources[selectIndex].value;
+      value = ratioTypes[selectIndex].value;
     } else if (key === 'refundTime') {
-      value = timeListSources[selectIndex].value;
+      value = timeList[selectIndex].value;
     }
     refundRules[index][key] = value;
     this.changeSelectList(refundRules);
