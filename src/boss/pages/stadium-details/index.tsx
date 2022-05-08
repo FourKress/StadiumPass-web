@@ -103,6 +103,21 @@ class StadiumDetailsPage extends Component<{}, IState> {
     await this.getUnitList();
     this.getStadiumInfo();
     this.getSpaceList();
+    this.getRefundRulesStatus();
+  }
+
+  getRefundRulesStatus() {
+    requestData({
+      method: 'POST',
+      api: '/refundRule/checkByStadium',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        refundRulesStatus: !!res,
+      });
+    });
   }
 
   async getUnitList() {
@@ -568,7 +583,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
 
   async jumpRefundRules() {
     await Taro.navigateTo({
-      url: '/boss/pages/refundRules/index',
+      url: `/boss/pages/refundRules/index?stadiumId=${this.state.stadiumId}`,
       events: {
         refundRulesStatus: (status) => {
           this.setState({

@@ -42,11 +42,11 @@ page {
 
       .time,
       .ratio {
-        width: 150px;
+        width: 130px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 16px;
+        padding-right: 16px;
 
         .wrap {
           flex: 1;
@@ -56,6 +56,10 @@ page {
         .placeholder {
           opacity: 0.5;
         }
+      }
+
+      .ratio {
+        width: 140px;
       }
 
       .clear-btn {

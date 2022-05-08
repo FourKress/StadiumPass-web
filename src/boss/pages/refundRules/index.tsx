@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Picker } from '@tarojs/components';
 import { AtIcon, AtSwitch } from 'taro-ui';
-// import requestData from '@/utils/requestData';
+import requestData from '@/utils/requestData';
 import Taro from '@tarojs/taro';
 
 import './index.scss';
@@ -15,6 +15,10 @@ const timeList = Array.from(new Array(24).keys()).map((d) => {
 });
 
 const ratioTypes = [
+  {
+    label: '0%',
+    value: 0,
+  },
   {
     label: '10%',
     value: 0.1,
@@ -60,6 +64,8 @@ const ratioTypes = [
 interface IState {
   refundStatus: boolean;
   refundRules: any[];
+  stadiumId: string;
+  refundInfo: any;
 }
 
 class RefundRulesPage extends Component<{}, IState> {
@@ -68,19 +74,34 @@ class RefundRulesPage extends Component<{}, IState> {
     this.state = {
       refundStatus: false,
       refundRules: [],
+      stadiumId: '',
+      refundInfo: null,
     };
   }
 
   componentDidShow() {
-    // const refundRules = [
-    //   { refundRatio: 0.9, refundTime: 3 },
-    //   { refundRatio: 0.8, refundTime: 2 },
-    //   { refundRatio: 0.7, refundTime: 1 },
-    // ];
-    const refundRules = [];
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const stadiumId = (pageParams.stadiumId + '').toString();
+    this.getRules(stadiumId);
     this.setState({
-      refundRules,
-      refundStatus: false,
+      stadiumId,
+    });
+  }
+
+  getRules(stadiumId) {
+    requestData({
+      method: 'POST',
+      api: '/refundRule/checkByStadium',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        refundInfo: res,
+        refundRules: res?.rules ?? [],
+        refundStatus: !!res,
+      });
     });
   }
 
@@ -158,6 +179,8 @@ class RefundRulesPage extends Component<{}, IState> {
 
   async checkRulesRepeat(value, type) {
     const { refundRules } = this.state;
+    console.log(value, refundRules);
+
     const checkMap = {
       refundTime: () => refundRules.some((d) => d.refundTime === value),
       refundRatio: () => refundRules.some((d) => d.refundRatio === value),
@@ -176,7 +199,7 @@ class RefundRulesPage extends Component<{}, IState> {
   async checkRulesValid() {
     const { refundRules } = this.state;
     if (refundRules?.length) {
-      const status = refundRules.some((d) => !(d.refundTime && d.refundRatio));
+      const status = refundRules.some((d) => d.refundTime === '' || d.refundRatio === '');
       if (status) {
         await Taro.showToast({
           title: '请先完善规则！',
@@ -207,7 +230,40 @@ class RefundRulesPage extends Component<{}, IState> {
     if (!(await this.checkRulesValid())) {
       return;
     }
+    const { refundRules, refundInfo, refundStatus, stadiumId } = this.state;
+    let url;
+    let params;
+    if (refundInfo?.id) {
+      if (!refundStatus) {
+        url = 'close';
+        params = {
+          id: refundInfo.id,
+        };
+      } else if (refundRules?.length) {
+        url = 'modify';
+        params = {
+          id: refundInfo.id,
+          rules: refundRules,
+        };
+      }
+    } else {
+      url = 'create';
+      params = {
+        rules: refundRules,
+        stadiumId,
+      };
+    }
 
+    requestData({
+      method: 'POST',
+      api: `/refundRule/${url}`,
+      params,
+    }).then(async () => {
+      await this.handleBack();
+    });
+  }
+
+  async handleBack() {
     const eventChannel = Taro.getCurrentPages()[Taro.getCurrentPages().length - 1].getOpenerEventChannel();
     eventChannel.emit('refundRulesStatus', this.state.refundStatus);
     await Taro.navigateBack({
@@ -235,7 +291,7 @@ class RefundRulesPage extends Component<{}, IState> {
           {refundRules.map((item, index) => {
             return (
               <View className="item">
-                <View>距开场</View>
+                <View>距开场小于</View>
                 <Picker
                   mode="selector"
                   range={timeList}
@@ -259,7 +315,7 @@ class RefundRulesPage extends Component<{}, IState> {
                   onChange={(event) => this.handleSelectChange(event, 'refundRatio', index)}
                 >
                   <View className="ratio">
-                    {item.refundRatio ? (
+                    {item.refundRatio !== '' ? (
                       <View className="wrap">{ratioTypes.find((d) => d.value === item.refundRatio)?.label}</View>
                     ) : (
                       <View className="placeholder wrap">请选择</View>
