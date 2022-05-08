@@ -112,7 +112,7 @@ class RefundRulesPage extends Component<{}, IState> {
     if (!value) {
       await this.handleCloseRefundRules();
     } else {
-      this.addRule();
+      this.addRule(true);
     }
   }
 
@@ -165,12 +165,31 @@ class RefundRulesPage extends Component<{}, IState> {
     });
   }
 
-  addRule() {
+  addRule(isInit = false) {
     const refundRules = this.state.refundRules;
-    refundRules.push({
-      refundTime: '',
-      refundRatio: '',
-    });
+    if (isInit) {
+      refundRules.push(
+        ...[
+          {
+            refundTime: 2,
+            refundRatio: 0,
+          },
+          {
+            refundTime: 4,
+            refundRatio: 0.5,
+          },
+          {
+            refundTime: 8,
+            refundRatio: 0.8,
+          },
+        ]
+      );
+    } else {
+      refundRules.push({
+        refundTime: '',
+        refundRatio: '',
+      });
+    }
     this.setState({
       refundRules,
       refundStatus: true,
