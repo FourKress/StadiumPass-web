@@ -45,6 +45,7 @@ interface IState {
   spaceId?: string;
   matchId?: string;
   userInfo: any;
+  refundDetails: any;
 }
 
 interface InjectStoreProps {
@@ -112,6 +113,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       refundInfo: {},
       spaceId: '',
       matchId: '',
+      refundDetails: [],
     };
   }
 
@@ -529,6 +531,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
   handleCancel(status) {
     if (status) {
+      this.getRefundRules();
       requestData({
         method: 'GET',
         api: '/order/getRefundInfo',
@@ -546,6 +549,21 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         cancelDialog: status,
       });
     }
+  }
+
+  getRefundRules() {
+    requestData({
+      method: 'POST',
+      api: '/refundRule/checkByStadium',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then((res: any) => {
+      const rules = res?.rules ?? [];
+      this.setState({
+        refundDetails: rules,
+      });
+    });
   }
 
   handleRefund = async () => {
@@ -697,6 +715,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       cancelDialog,
       refundInfo,
       userInfo,
+      refundDetails,
     } = this.state;
 
     const {
@@ -1016,10 +1035,13 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                     为防止部分用户报名后恶意取消，导致场次解散，影响队友的组队体验，特制定以下规则:
                   </View>
                   <View className="row">1、关于用户主动取消的退款规则：</View>
-                  <View className="row sub">距开场小于2小时，退款0;</View>
-                  <View className="row sub">距开场大于2小时，小于4小时，退款50%;</View>
-                  <View className="row sub">距开场大于4小时，小于8小时，退款80%;</View>
-                  <View className="row sub">距开场大于8小时，可全额退款。</View>
+                  {refundDetails.map((d) => {
+                    return (
+                      <View className="row sub">
+                        距开场小于{d.refundTime}小时，退款{d.refundRatio * 100}%;
+                      </View>
+                    );
+                  })}
                   <View className="row">2、月卡用户可随时无责取消订单，但不支持退款。</View>
                 </View>
                 <View className="btn-list">

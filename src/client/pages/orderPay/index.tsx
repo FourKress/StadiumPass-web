@@ -16,6 +16,7 @@ interface IState {
   hasMonthlyCardAmount: number;
   payMethod: string;
   methodDisabled: boolean;
+  refundDetails: any;
 }
 
 let timer: any = null;
@@ -33,6 +34,7 @@ class OrderPayPage extends Component<{}, IState> {
       hasMonthlyCardAmount: 0,
       payMethod: '',
       methodDisabled: false,
+      refundDetails: [],
     };
   }
 
@@ -65,7 +67,10 @@ class OrderPayPage extends Component<{}, IState> {
         prepayInfo = null,
         payMethod = null,
         payAmount = 0,
+        stadiumId,
       } = res;
+
+      this.getRefundRules(stadiumId);
 
       const diffPrice = totalPrice - price;
       const hasMonthlyCardAmount = isMonthlyCard ? diffPrice : monthlyCardPrice + diffPrice;
@@ -105,6 +110,21 @@ class OrderPayPage extends Component<{}, IState> {
           }, 1000);
         }
       );
+    });
+  }
+
+  getRefundRules(stadiumId) {
+    requestData({
+      method: 'POST',
+      api: '/refundRule/checkByStadium',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      const rules = res?.rules ?? [];
+      this.setState({
+        refundDetails: rules,
+      });
     });
   }
 
@@ -183,6 +203,7 @@ class OrderPayPage extends Component<{}, IState> {
 
   render() {
     const { orderInfo, countdown, payAmount, hasMonthlyCardAmount, payMethod, methodDisabled } = this.state;
+    const refundDetails = this.state.refundDetails;
     const countdownArr = dayjs(countdown).format('mm:ss').split(':');
 
     const M = countdownArr[0].split('');
@@ -273,7 +294,7 @@ class OrderPayPage extends Component<{}, IState> {
                   </View>
                 ) : (
                   <View className="tips">
-                    月卡有效期内，不限次数免费订场！仅需¥
+                    月卡购买后不可退款，有效期内不限次数免费订场！仅需¥
                     {orderInfo.monthlyCardPrice}/月！
                   </View>
                 )}
@@ -287,7 +308,20 @@ class OrderPayPage extends Component<{}, IState> {
             <View>注意事项：</View>
             <View>1、报名人数不足最低开赛标准时，即组队失败。订单将自动退款,款项将在1个工作日内按原路全额退回。</View>
             <View>
-              2、关于用户主动取消订单的退款规则距开场小于2小时，退款0；距开场大于2小时，小于4小时，退款50%；距开场大于4小时，小于8小时，退款80%；距开场大于8小时，可全额退款。
+              2、关于用户主动取消订单的退款规则：
+              {refundDetails?.length > 0 ? (
+                <View>
+                  {refundDetails.map((d) => {
+                    return (
+                      <View className="refund-rule">
+                        距开场小于{d.refundTime}小时，退款支付金额的{d.refundRatio * 100}%；
+                      </View>
+                    );
+                  })}
+                </View>
+              ) : (
+                '该场馆不支持退款'
+              )}
             </View>
             <View>3、场地月卡可随时无责取消订单,但不支持退款。</View>
           </View>
