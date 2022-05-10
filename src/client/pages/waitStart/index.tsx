@@ -16,6 +16,7 @@ import * as LoginService from '@/services/loginService';
 import { SERVER_PROTOCOL, SERVER_DOMAIN, SERVER_STATIC } from '@/src/config';
 import { setGlobalData } from '@/utils/globalData';
 import * as LocalService from '@/services/localService';
+import { updateReady } from '@/services/updateService';
 
 interface IState {
   headerPosition: any;
@@ -76,6 +77,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
   }
 
   componentWillMount() {
+    updateReady();
     Taro.getSetting().then(async (res) => {
       const userLocation = res?.authSetting['scope.userLocation'];
       if (!userLocation) {
