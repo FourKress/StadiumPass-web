@@ -22,14 +22,10 @@ interface IState {
   stadiumId: string;
   runDate: string;
   revenueInfo: any;
-  withdrawAmt: string;
+  showWithdrawBtn: boolean;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
-
-const {
-  miniProgram: { envVersion },
-} = Taro.getAccountInfoSync();
 
 @inject('tabBarStore')
 @observer
@@ -43,7 +39,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       stadiumId: '',
       runDate: dateNow(),
       revenueInfo: {},
-      withdrawAmt: '',
+      showWithdrawBtn: false,
     };
   }
 
@@ -54,6 +50,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
 
   async componentDidShow() {
     this.inject.tabBarStore.setSelected(0);
+    this.getWithdrawConfig();
     this.getMonthAndAayStatistics();
     await this.getStadiumList();
     const { stadiumId, runDate } = this.state;
@@ -63,6 +60,17 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     this.getRevenueInfo({
       runDate: runDate || dateNow(),
       stadiumId,
+    });
+  }
+
+  getWithdrawConfig() {
+    requestData({
+      method: 'GET',
+      api: '/withdraw/config',
+    }).then((res: any) => {
+      this.setState({
+        showWithdrawBtn: !!res,
+      });
     });
   }
 
@@ -170,7 +178,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo } = this.state;
+    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo, showWithdrawBtn } = this.state;
 
     return (
       <View className="indexPage">
@@ -185,10 +193,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                 <Text>统计</Text>
                 <AtIcon value="chevron-right" size="20" color="#0080FF"></AtIcon>
               </View>
-              {(envVersion === 'trial' ||
-                ['6215a4728e111c301d91689c', '623014323423f91f1465239d', '6214ed704389e820c372a671'].includes(
-                  stadiumList[0]?.bossId
-                )) && (
+              {showWithdrawBtn && (
                 <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
                   <Text>提现</Text>
                   <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
