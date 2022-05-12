@@ -404,6 +404,31 @@ class MatchEditPage extends Component<{}, IState> {
     });
   }
 
+  async handleDeleteSave() {
+    const { form } = this.state;
+    const { repeatModel } = form;
+    await Taro.showModal({
+      title: '提示',
+      content: `确定删除该场次${Number(repeatModel) !== 1 ? '及其重复场次' : ''}吗？已有人报名的场次不可删除。`,
+      success: async (res) => {
+        if (res.confirm) {
+          requestData({
+            method: 'POST',
+            api: '/match/delete',
+          }).then(async () => {
+            await Taro.navigateBack({
+              delta: -1,
+            });
+            await Taro.showToast({
+              icon: 'none',
+              title: '场次删除成功',
+            });
+          });
+        }
+      },
+    });
+  }
+
   render() {
     const { spaceList, repeatModelList, form, weekList, rebateStatus } = this.state;
     return (
@@ -570,6 +595,9 @@ class MatchEditPage extends Component<{}, IState> {
           </AtForm>
         </View>
         <View className="btn-list">
+          <View className="btn cancel" onClick={() => this.handleDeleteSave()}>
+            删除场次
+          </View>
           <View className="btn" onClick={() => this.handleSave()}>
             保存场次
           </View>
