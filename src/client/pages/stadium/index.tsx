@@ -20,6 +20,7 @@ import { inject, observer } from 'mobx-react';
 import { setGlobalData } from '@/utils/globalData';
 import { handleShare, setShareMenu } from '@/services/shareService';
 import { throttle } from 'lodash';
+import { updateReady } from '@/services/updateService';
 
 interface IState {
   tabValue: number;
@@ -118,6 +119,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
   }
 
   async componentWillMount() {
+    updateReady();
     await this.setHeaderPosition();
     // @ts-ignore
     const pageParams = await Taro.getCurrentInstance().router.params;
