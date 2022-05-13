@@ -165,25 +165,13 @@ class RefundRulesPage extends Component<{}, IState> {
     });
   }
 
-  addRule(isInit = false) {
+  async addRule(isInit = false) {
     const refundRules = this.state.refundRules;
     if (isInit) {
-      refundRules.push(
-        ...[
-          {
-            refundTime: 2,
-            refundRatio: 0,
-          },
-          {
-            refundTime: 4,
-            refundRatio: 0.5,
-          },
-          {
-            refundTime: 8,
-            refundRatio: 0.8,
-          },
-        ]
-      );
+      const defaultRules: any = await this.getDefaultRules();
+      if (defaultRules?.length) {
+        refundRules.push(...defaultRules);
+      }
     } else {
       refundRules.push({
         refundTime: '',
@@ -196,9 +184,19 @@ class RefundRulesPage extends Component<{}, IState> {
     });
   }
 
+  async getDefaultRules() {
+    let rules = [];
+    await requestData({
+      method: 'GET',
+      api: `/refundRule/default`,
+    }).then((res: any) => {
+      rules = res ?? [];
+    });
+    return rules;
+  }
+
   async checkRulesRepeat(value, type) {
     const { refundRules } = this.state;
-    console.log(value, refundRules);
 
     const checkMap = {
       refundTime: () => refundRules.some((d) => d.refundTime === value),
