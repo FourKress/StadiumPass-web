@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { checkLogin } from '@/services/loginService';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
+import { updateReady } from '@/services/updateService';
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
@@ -46,6 +47,10 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   get inject() {
     // 兼容注入store 类型
     return this.props as InjectStoreProps;
+  }
+
+  componentWillMount() {
+    updateReady();
   }
 
   async componentDidShow() {
