@@ -99,7 +99,7 @@ class RefundRulesPage extends Component<{}, IState> {
     }).then((res: any) => {
       this.setState({
         refundInfo: res,
-        refundRules: res?.rules ?? [],
+        refundRules: res?.rules || [],
         refundStatus: !!res,
       });
     });
@@ -190,7 +190,7 @@ class RefundRulesPage extends Component<{}, IState> {
       method: 'GET',
       api: `/refundRule/default`,
     }).then((res: any) => {
-      rules = res ?? [];
+      rules = res || [];
     });
     return rules;
   }

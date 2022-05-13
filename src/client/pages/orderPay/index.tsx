@@ -121,7 +121,7 @@ class OrderPayPage extends Component<{}, IState> {
         stadiumId,
       },
     }).then((res: any) => {
-      const rules = res?.rules ?? [];
+      const rules = res?.rules || [];
       this.setState({
         refundDetails: rules,
       });

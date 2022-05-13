@@ -559,7 +559,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         stadiumId: this.state.stadiumId,
       },
     }).then((res: any) => {
-      const rules = res?.rules ?? [];
+      const rules = res?.rules || [];
       this.setState({
         refundDetails: rules,
       });
