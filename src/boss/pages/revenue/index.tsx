@@ -213,7 +213,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             </View>
             <View className="item">
               <View className="title">本月总收入</View>
-              <View className="text">{summary.balanceAmt}</View>
+              <View className="text">{summary.monthCount}</View>
             </View>
           </View>
         </View>
