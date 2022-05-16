@@ -405,16 +405,21 @@ class MatchEditPage extends Component<{}, IState> {
   }
 
   async handleDeleteSave() {
-    const { form } = this.state;
+    const { form, matchId } = this.state;
     const { repeatModel } = form;
     await Taro.showModal({
       title: '提示',
-      content: `确定删除该场次${Number(repeatModel) !== 1 ? '及其重复场次' : ''}吗？已有人报名的场次不可删除。`,
+      content: `确定删除该场次${Number(repeatModel) !== 1 ? '及其重复场次' : ''}吗？${
+        Number(repeatModel) !== 1 ? '重复场次中' : ''
+      }已有人报名的场次不会被删除。`,
       success: async (res) => {
         if (res.confirm) {
           requestData({
-            method: 'POST',
+            method: 'GET',
             api: '/match/delete',
+            params: {
+              matchId,
+            },
           }).then(async () => {
             await Taro.navigateBack({
               delta: -1,
