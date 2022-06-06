@@ -112,7 +112,7 @@ class RefundRulesPage extends Component<{}, IState> {
     if (!value) {
       await this.handleCloseRefundRules();
     } else {
-      this.addRule(true);
+      await this.addRule(true);
     }
   }
 

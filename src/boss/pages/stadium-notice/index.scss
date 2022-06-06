@@ -1,0 +1,46 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '../../../assets/styles/mixins/index';
+
+page {
+  background-color: #f2f2f2;
+}
+
+.stadium-notice-page {
+  .at-switch {
+    margin: 32px 0;
+    padding-left: 32px;
+  }
+
+  .at-textarea {
+    padding: 32px;
+  }
+
+  .btn-list {
+    position: fixed;
+    z-index: 9;
+    box-sizing: border-box;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 12px 32px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    height: 110px;
+    height: calc(110px + env(safe-area-inset-bottom));
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 36px;
+
+    .btn {
+      height: 100%;
+      line-height: 86px;
+      border-radius: 86px;
+      background-color: #0080ff;
+      color: #fff;
+      border: 1px solid #0080ff;
+      width: 100%;
+    }
+  }
+}

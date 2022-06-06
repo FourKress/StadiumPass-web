@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, Image, Picker, Swiper, SwiperItem } from '@tarojs/components';
-import { AtTabs, AtIcon, AtTabsPane, AtTextarea } from 'taro-ui';
+import { AtTabs, AtIcon, AtTabsPane, AtTextarea, AtNoticebar } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
@@ -697,6 +697,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  async openNotice() {
+    console.log(123123);
+  }
+
   render() {
     const {
       tabValue,
@@ -771,6 +775,14 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
               size="24"
               color={isWatch ? '#FF5D46' : ''}
             ></AtIcon>
+          </View>
+
+          <View className="notice-panel">
+            <View className="notice-content" onClick={() => this.openNotice()}>
+              <AtNoticebar icon="volume-plus" marquee single showMore moreText="">
+                阿斯达 大声道 大叔大婶多 阿萨德
+              </AtNoticebar>
+            </View>
           </View>
 
           <AtTabs

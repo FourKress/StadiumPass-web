@@ -128,6 +128,33 @@ page {
       }
     }
 
+    .notice-panel {
+      padding: 0 48px;
+      height: 72px;
+      margin-top: 16px;
+
+      .notice-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+        margin: 0 auto;
+
+        .at-noticebar {
+          height: 100%;
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          background-color: #fde6d6;
+
+          .at-noticebar__content {
+            color: #f48335;
+            flex: 1;
+          }
+        }
+      }
+    }
+
     .at-tabs__header {
       border-bottom: 1px solid #f8f8f8;
 

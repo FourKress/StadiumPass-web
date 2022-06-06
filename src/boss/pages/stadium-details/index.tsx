@@ -38,6 +38,7 @@ interface IState {
   applyBot: boolean;
   botStatus: boolean;
   refundRulesStatus: boolean;
+  noticeStatus: boolean;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -61,6 +62,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       applyBot: false,
       botStatus: false,
       refundRulesStatus: false,
+      noticeStatus: false,
     };
   }
 
@@ -594,6 +596,19 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  async jumpNotice() {
+    await Taro.navigateTo({
+      url: `/boss/pages/stadium-notice/index?stadiumId=${this.state.stadiumId}`,
+      events: {
+        refundRulesStatus: (status) => {
+          this.setState({
+            noticeStatus: status,
+          });
+        },
+      },
+    });
+  }
+
   render() {
     const {
       current,
@@ -610,6 +625,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       openBot,
       botStatus,
       refundRulesStatus,
+      noticeStatus,
     } = this.state;
 
     return (
@@ -737,6 +753,22 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
                   <View>新增场地</View>
                 </View>
+
+                <View className="title">
+                  <View className="name">公告设置</View>
+                </View>
+                <AtInput
+                  className="refundRules"
+                  name="notice"
+                  title="弹窗公告"
+                  type="text"
+                  value={noticeStatus ? '开启公告' : '关闭公告'}
+                  editable={false}
+                  onChange={() => {}}
+                  onClick={() => this.jumpNotice()}
+                >
+                  <AtIcon value="chevron-right" size="20" color="#101010"></AtIcon>
+                </AtInput>
 
                 <View className="title">
                   <View className="name">月卡设置</View>

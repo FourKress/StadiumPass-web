@@ -18,6 +18,7 @@ const config: Config = {
     'boss/pages/monthlyCard-details/index',
     'boss/pages/withdraw/index',
     'boss/pages/refundRules/index',
+    'boss/pages/stadium-notice/index',
     'client/pages/community/index',
     'client/pages/monthlyCard/index',
     'client/pages/myWatch/index',
