@@ -297,6 +297,10 @@ class StadiumDetailsPage extends Component<{}, IState> {
         stadiumId: this.state.stadiumId,
       },
     });
+    await Taro.showModal({
+      title: '提示',
+      content: '申请成功！请在工作人员通知已开通机器人后，先刷新或重新打开小程序后进行后续操作！',
+    });
   }
 
   addSpace(spaceInfo, spaceIndex) {
@@ -386,6 +390,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
       api: '/stadium/modify',
       params: {
         ...stadiumInfo,
+        applyBot: undefined,
+        botStatus: undefined,
         stadiumUrls: fileList,
       },
     }).then(async () => {
