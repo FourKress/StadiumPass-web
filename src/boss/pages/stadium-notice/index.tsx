@@ -102,8 +102,8 @@ class StadiumNoticePage extends Component<{}, IState> {
         />
 
         <AtTextarea
-          maxLength={100}
-          height={200}
+          maxLength={200}
+          height={410}
           placeholder="请输入公告内容"
           value={noticeContent}
           onChange={(value) => this.handleChangeNoticeContent(value)}

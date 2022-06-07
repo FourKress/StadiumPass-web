@@ -800,6 +800,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 <AtNoticebar icon="volume-plus" marquee single showMore moreText="">
                   {stadiumInfo.noticeContent}
                 </AtNoticebar>
+                <View className="label">公告</View>
               </View>
             </View>
           )}
