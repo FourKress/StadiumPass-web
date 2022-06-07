@@ -161,6 +161,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
         openBot,
         applyBot: openBot,
         botStatus: res?.botStatus,
+        noticeStatus: res?.noticeStatus,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
           return {
@@ -392,6 +393,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
         ...stadiumInfo,
         applyBot: undefined,
         botStatus: undefined,
+        noticeContent: undefined,
+        noticeStatus: undefined,
         stadiumUrls: fileList,
       },
     }).then(async () => {
@@ -606,7 +609,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
     await Taro.navigateTo({
       url: `/boss/pages/stadium-notice/index?stadiumId=${this.state.stadiumId}`,
       events: {
-        refundRulesStatus: (status) => {
+        noticeStatus: (status) => {
+          console.log(status);
           this.setState({
             noticeStatus: status,
           });

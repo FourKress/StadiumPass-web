@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro';
 
 import './index.scss';
 import { AtSwitch, AtTextarea } from 'taro-ui';
+import requestData from '@/utils/requestData';
 
 interface IState {
   noticeStatus: boolean;
@@ -25,35 +26,31 @@ class StadiumNoticePage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const stadiumId = (pageParams.stadiumId + '').toString();
+    this.getNoticeInfo(stadiumId);
     this.setState({
       stadiumId,
+    });
+  }
+
+  getNoticeInfo(stadiumId) {
+    requestData({
+      method: 'GET',
+      api: '/stadium/getNoticeInfo',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      const { noticeContent, noticeStatus } = res;
+      this.setState({
+        noticeContent,
+        noticeStatus,
+      });
     });
   }
 
   async handleChangeNoticeStatus(value) {
     this.setState({
       noticeStatus: value,
-    });
-    if (!value) {
-      await this.handleCloseNotice();
-    }
-  }
-
-  async handleCloseNotice() {
-    await Taro.showModal({
-      title: '提示',
-      content: '确定要关闭弹窗公告吗？',
-      success: async (res) => {
-        if (res.confirm) {
-          this.setState({
-            noticeStatus: false,
-          });
-        } else {
-          this.setState({
-            noticeStatus: true,
-          });
-        }
-      },
     });
   }
 
@@ -64,7 +61,32 @@ class StadiumNoticePage extends Component<{}, IState> {
   }
 
   async saveNotice() {
-    console.log(this.state.noticeContent);
+    const { noticeContent, noticeStatus, stadiumId } = this.state;
+    if (!noticeContent) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请输入公告内容',
+      });
+    }
+    requestData({
+      method: 'POST',
+      api: '/stadium/modifyNotice',
+      params: {
+        noticeStatus,
+        noticeContent,
+        stadiumId,
+      },
+    }).then(async () => {
+      await this.handleBack();
+    });
+  }
+
+  async handleBack() {
+    const eventChannel = Taro.getCurrentPages()[Taro.getCurrentPages().length - 1].getOpenerEventChannel();
+    eventChannel.emit('noticeStatus', this.state.noticeStatus);
+    await Taro.navigateBack({
+      delta: -1,
+    });
   }
 
   render() {

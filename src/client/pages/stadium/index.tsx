@@ -220,10 +220,22 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       params: {
         id,
       },
-    }).then((res: any) => {
+    }).then(async (res: any) => {
       this.setState({
         stadiumInfo: res,
       });
+      const day = dayjs().day();
+      const oldNotice = JSON.parse(Taro.getStorageSync('notice') || '{}')[day];
+      const { noticeStatus, noticeContent } = res;
+      if (!oldNotice || (noticeStatus && noticeContent !== oldNotice)) {
+        Taro.setStorageSync(
+          'notice',
+          JSON.stringify({
+            [day]: noticeContent,
+          })
+        );
+        await this.openNotice(noticeContent);
+      }
     });
   }
 
@@ -697,8 +709,13 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  async openNotice() {
-    console.log(123123);
+  async openNotice(noticeContent) {
+    if (!noticeContent) return;
+    await Taro.showModal({
+      title: '公告',
+      content: noticeContent,
+      showCancel: false,
+    });
   }
 
   render() {
@@ -777,13 +794,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
             ></AtIcon>
           </View>
 
-          <View className="notice-panel">
-            <View className="notice-content" onClick={() => this.openNotice()}>
-              <AtNoticebar icon="volume-plus" marquee single showMore moreText="">
-                阿斯达 大声道 大叔大婶多 阿萨德
-              </AtNoticebar>
+          {stadiumInfo?.noticeStatus && stadiumInfo?.noticeContent && (
+            <View className="notice-panel">
+              <View className="notice-content" onClick={() => this.openNotice(stadiumInfo?.noticeContent)}>
+                <AtNoticebar icon="volume-plus" marquee single showMore moreText="">
+                  {stadiumInfo.noticeContent}
+                </AtNoticebar>
+              </View>
             </View>
-          </View>
+          )}
 
           <AtTabs
             current={tabValue}
