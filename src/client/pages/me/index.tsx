@@ -303,12 +303,12 @@ class MePage extends Component<{}, IState> {
           {userInfo?.id && !userInfo?.phoneNum ? (
             <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
               <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-              {userInfo?.bossId ? '我是场主' : '申请成为场主'}
+              {userInfo?.bossId ? '组织踢球' : '申请组织踢球'}
             </AuthorizePhoneBtn>
           ) : (
             <View className="btn" onClick={() => this.changeIdentity(true)}>
               <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-              {userInfo?.bossId ? '我是场主' : '申请成为场主'}
+              {userInfo?.bossId ? '组织踢球' : '申请组织踢球'}
             </View>
           )}
         </View>
@@ -316,15 +316,15 @@ class MePage extends Component<{}, IState> {
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
-            {userInfo?.bossId ? (
+            {!userInfo?.bossId ? (
               <View>
-                <View className="row">是否切换为场主模式？</View>
+                <View className="row">是否切换为组织模式？</View>
               </View>
             ) : (
               <View>
                 <AtIcon className="row" value="close-circle" size="24" color="#FF2000"></AtIcon>
-                <View className="row">对不起，您还未认证场主！</View>
-                <View className="row">是否要申请认证场主</View>
+                <View className="row">对不起，您还没有组织权限！</View>
+                <View className="row">是否要申请组织权限</View>
               </View>
             )}
           </AtModalContent>

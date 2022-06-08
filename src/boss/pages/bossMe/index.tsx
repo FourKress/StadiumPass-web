@@ -169,7 +169,7 @@ class BossMePage extends Component<any, IState> {
         <View className="footer-btn">
           <View className="btn" onClick={() => this.changeIdentity()}>
             <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-            切换为用户
+            我要踢球
           </View>
         </View>
 
