@@ -316,7 +316,7 @@ class MePage extends Component<{}, IState> {
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
-            {!userInfo?.bossId ? (
+            {userInfo?.bossId ? (
               <View>
                 <View className="row">是否切换为组织模式？</View>
               </View>
