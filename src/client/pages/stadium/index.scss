@@ -92,6 +92,10 @@ page {
           color: #101010;
           font-weight: bold;
           padding-bottom: 10px;
+          overflow: hidden;
+          width: 100%;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .address {
@@ -195,6 +199,12 @@ page {
           transform: translateX(-50%) scaleX(1);
         }
       }
+    }
+
+    .overdue {
+      width: 100%;
+      margin-top: 150px;
+      text-align: center;
     }
 
     .tips1,

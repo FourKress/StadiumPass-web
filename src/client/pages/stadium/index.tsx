@@ -47,6 +47,7 @@ interface IState {
   matchId?: string;
   userInfo: any;
   refundDetails: any;
+  overdue: boolean;
 }
 
 interface InjectStoreProps {
@@ -115,6 +116,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       spaceId: '',
       matchId: '',
       refundDetails: [],
+      overdue: false,
     };
   }
 
@@ -142,11 +144,17 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     await this.getUnitList();
     if (!orderId) {
       if (runDate && runDate !== currentDay()) {
-        await this.onSpaceDateChange({
-          detail: {
-            value: runDate,
-          },
-        });
+        if (dayjs().diff(runDate, 'day') > 3) {
+          this.setState({
+            overdue: true,
+          });
+        } else {
+          await this.onSpaceDateChange({
+            detail: {
+              value: runDate,
+            },
+          });
+        }
       } else {
         await this.getSpace(id, currentDay());
       }
@@ -225,16 +233,19 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         stadiumInfo: res,
       });
       const day = dayjs().day();
-      const oldNotice = JSON.parse(Taro.getStorageSync('notice') || '{}')[day];
       const { noticeStatus, noticeContent } = res;
-      if (!oldNotice || (noticeStatus && noticeContent !== oldNotice)) {
-        Taro.setStorageSync(
-          'notice',
-          JSON.stringify({
-            [day]: noticeContent,
-          })
-        );
-        await this.openNotice(noticeContent);
+      if (noticeStatus) {
+        const storageKey = `notice_${id}`;
+        const oldNotice = JSON.parse(Taro.getStorageSync(storageKey) || '{}')[day];
+        if (!oldNotice || (noticeStatus && noticeContent !== oldNotice)) {
+          Taro.setStorageSync(
+            storageKey,
+            JSON.stringify({
+              [day]: noticeContent,
+            })
+          );
+          await this.openNotice(noticeContent);
+        }
       }
     });
   }
@@ -739,6 +750,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       refundInfo,
       userInfo,
       refundDetails,
+      overdue,
     } = this.state;
 
     const {
@@ -824,10 +836,14 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                           >
                             <View className="type">{item.name}</View>
                             <View className="unit">{unitList.find((d) => d.value === item.unit)?.label}</View>
-                            {item.full ? (
-                              <View className="tips2">满</View>
-                            ) : (
-                              item.rebate !== 10 && <View className="tips1">折</View>
+                            {!overdue && (
+                              <View>
+                                {item.full ? (
+                                  <View className="tips2">满</View>
+                                ) : (
+                                  item.rebate !== 10 && <View className="tips1">折</View>
+                                )}
+                              </View>
                             )}
                           </View>
                         );
@@ -852,89 +868,97 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 </View>
               )}
 
-              <View className="people-panel">
-                {matchList.length > 0 &&
-                  matchList.map((match, index) => {
-                    return (
-                      <View className="panel">
-                        <View className="p-top" onClick={() => this.handlePeoPleOpen(index)}>
-                          <View className={match.isDone || match.isCancel ? 'info disabled' : 'info'}>
-                            <View>
-                              <Text className="text">
-                                {match.startAt} - {match.endAt}
-                              </Text>{' '}
-                              / <Text className="text">{match.duration}小时</Text> /{' '}
-                              <Text className="text">{match.selectPeople}</Text>
-                              <Text className="text">/</Text>
-                              <Text className="text">{match.totalPeople}人</Text>
+              {overdue ? (
+                <AtTabsPane current={tabValue} index={0}>
+                  <View className="overdue">抱歉！场次已过期，请重新选择日期</View>
+                </AtTabsPane>
+              ) : (
+                <View className="people-panel">
+                  {matchList.length > 0 &&
+                    matchList.map((match, index) => {
+                      return (
+                        <View className="panel">
+                          <View className="p-top" onClick={() => this.handlePeoPleOpen(index)}>
+                            <View className={match.isDone || match.isCancel ? 'info disabled' : 'info'}>
+                              <View>
+                                <Text className="text">
+                                  {match.startAt} - {match.endAt}
+                                </Text>{' '}
+                                / <Text className="text">{match.duration}小时</Text> /{' '}
+                                <Text className="text">{match.selectPeople}</Text>
+                                <Text className="text">/</Text>
+                                <Text className="text">{match.totalPeople}人</Text>
+                              </View>
+                              {match.selectPeople === match.totalPeople ? (
+                                <View className="tips2">满</View>
+                              ) : (
+                                match.rebate !== 10 && <View className="tips1">折</View>
+                              )}
                             </View>
-                            {match.selectPeople === match.totalPeople ? (
-                              <View className="tips2">满</View>
-                            ) : (
-                              match.rebate !== 10 && <View className="tips1">折</View>
-                            )}
+                            <AtIcon
+                              className={openList[index] ? '' : 'open'}
+                              value="chevron-down"
+                              size="24"
+                              color={match.isDone || match.isCancel ? '#ccc' : '#101010'}
+                            ></AtIcon>
                           </View>
-                          <AtIcon
-                            className={openList[index] ? '' : 'open'}
-                            value="chevron-down"
-                            size="24"
-                            color={match.isDone || match.isCancel ? '#ccc' : '#101010'}
-                          ></AtIcon>
-                        </View>
-                        <View className={openList[index] ? 'list' : 'list hidden'}>
-                          {personList?.length > 0 &&
-                            personList.map((item, index) => {
-                              const flag = index + 1 === currentMatch.minPeople;
-                              const isPrev = index + 2 === currentMatch.minPeople;
-                              const isOdd = currentMatch.minPeople % 2;
-                              let className = 'item';
-                              if (flag) {
-                                className += isOdd ? ' odd-line' : ' even-line';
-                              } else if (isPrev && !isOdd) {
-                                className += ' pre-line';
-                              }
-                              if (selectList.includes(index)) {
-                                className += ' hover';
-                              }
-                              return (
-                                <View className={className} onClick={() => this.handleSelectPerson(item, index)}>
-                                  <View className="img">
-                                    {item.avatarUrl ? (
-                                      <Image src={item.avatarUrl}></Image>
+                          <View className={openList[index] ? 'list' : 'list hidden'}>
+                            {personList?.length > 0 &&
+                              personList.map((item, index) => {
+                                const flag = index + 1 === currentMatch.minPeople;
+                                const isPrev = index + 2 === currentMatch.minPeople;
+                                const isOdd = currentMatch.minPeople % 2;
+                                let className = 'item';
+                                if (flag) {
+                                  className += isOdd ? ' odd-line' : ' even-line';
+                                } else if (isPrev && !isOdd) {
+                                  className += ' pre-line';
+                                }
+                                if (selectList.includes(index)) {
+                                  className += ' hover';
+                                }
+                                return (
+                                  <View className={className} onClick={() => this.handleSelectPerson(item, index)}>
+                                    <View className="img">
+                                      {item.avatarUrl ? (
+                                        <Image src={item.avatarUrl}></Image>
+                                      ) : (
+                                        <View className="index">{index + 1}</View>
+                                      )}
+                                    </View>
+                                    {item.nickName ? (
+                                      <View className="name-wrap">
+                                        <View className="name">{item.nickName}</View>
+                                        {item.isMonthlyCardPay && <View className="tag"></View>}
+                                      </View>
                                     ) : (
-                                      <View className="index">{index + 1}</View>
+                                      !selectList.includes(index) && (
+                                        <View className="name-wrap">
+                                          <View className="name default">
+                                            {match.isCancel ? '组队失败' : match.isDone ? '已结束' : '点击报名'}
+                                          </View>
+                                        </View>
+                                      )
+                                    )}
+                                    {selectList.includes(index) && (
+                                      <View className="icon">
+                                        <AtIcon value="check" size="24" color="#0092FF"></AtIcon>
+                                      </View>
+                                    )}
+                                    {flag && (
+                                      <View className="tips">
+                                        满{currentMatch.minPeople}人即可开赛，人数不足自动退款
+                                      </View>
                                     )}
                                   </View>
-                                  {item.nickName ? (
-                                    <View className="name-wrap">
-                                      <View className="name">{item.nickName}</View>
-                                      {item.isMonthlyCardPay && <View className="tag"></View>}
-                                    </View>
-                                  ) : (
-                                    !selectList.includes(index) && (
-                                      <View className="name-wrap">
-                                        <View className="name default">
-                                          {match.isCancel ? '组队失败' : match.isDone ? '已结束' : '点击报名'}
-                                        </View>
-                                      </View>
-                                    )
-                                  )}
-                                  {selectList.includes(index) && (
-                                    <View className="icon">
-                                      <AtIcon value="check" size="24" color="#0092FF"></AtIcon>
-                                    </View>
-                                  )}
-                                  {flag && (
-                                    <View className="tips">满{currentMatch.minPeople}人即可开赛，人数不足自动退款</View>
-                                  )}
-                                </View>
-                              );
-                            })}
+                                );
+                              })}
+                          </View>
                         </View>
-                      </View>
-                    );
-                  })}
-              </View>
+                      );
+                    })}
+                </View>
+              )}
             </AtTabsPane>
             <AtTabsPane current={tabValue} index={1}>
               <View className="details">
@@ -988,7 +1012,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
           </AtTabs>
         </View>
 
-        {tabValue === 0 && (
+        {!overdue && tabValue === 0 && (
           <View className="pay-btn">
             <View className="warp">
               {selectList.length > 0 ? (
