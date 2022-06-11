@@ -395,6 +395,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
         botStatus: undefined,
         noticeContent: undefined,
         noticeStatus: undefined,
+        remarks: undefined,
         stadiumUrls: fileList,
       },
     }).then(async () => {
