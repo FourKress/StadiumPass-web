@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Picker, Text, View, Swiper, SwiperItem, Image } from '@tarojs/components';
+import { Picker, Text, View, Swiper, SwiperItem, Image, Button } from '@tarojs/components';
 import {
   AtForm,
   AtInput,
@@ -11,6 +11,10 @@ import {
   AtListItem,
   AtImagePicker,
   AtCurtain,
+  AtModalHeader,
+  AtModalContent,
+  AtModalAction,
+  AtModal,
 } from 'taro-ui';
 import Taro from '@tarojs/taro';
 
@@ -39,6 +43,7 @@ interface IState {
   botStatus: boolean;
   refundRulesStatus: boolean;
   noticeStatus: boolean;
+  isOpened: boolean;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -63,6 +68,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       botStatus: false,
       refundRulesStatus: false,
       noticeStatus: false,
+      isOpened: false,
     };
   }
 
@@ -79,6 +85,26 @@ class StadiumDetailsPage extends Component<{}, IState> {
         this.matchInit();
       }
     );
+  }
+
+  async componentDidMount() {
+    await Taro.showShareMenu({
+      withShareTicket: true,
+      // @ts-ignore
+      menus: ['shareAppMessage'],
+    });
+  }
+
+  async onShareAppMessage() {
+    this.setState({
+      isOpened: false,
+    });
+    const { stadiumInfo, stadiumId } = this.state;
+    const authObj = {
+      title: stadiumInfo.name,
+      path: `pages/manageAuth/index?stadiumId=${stadiumId}`,
+    };
+    return authObj;
   }
 
   setMeBtnPosition() {
@@ -620,6 +646,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  async handleAuth(flag) {
+    this.setState({
+      isOpened: flag,
+    });
+  }
+
   render() {
     const {
       current,
@@ -637,6 +669,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       botStatus,
       refundRulesStatus,
       noticeStatus,
+      isOpened,
     } = this.state;
 
     return (
@@ -873,6 +906,30 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   value={stadiumInfo.description}
                   onChange={(value) => this.handleChange(value, 'description')}
                 />
+
+                <View className="title">
+                  <View className="name">球场管理员</View>
+                </View>
+                {/*{spaceList.length > 0 &&*/}
+                {/*  spaceList.map((item, index) => {*/}
+                {/*    return (*/}
+                {/*      <View className="space-row" onClick={() => this.handleSpaceEdit(item, index)}>*/}
+                {/*        <AtInput*/}
+                {/*          name="duration"*/}
+                {/*          title={item.name}*/}
+                {/*          type="text"*/}
+                {/*          editable={false}*/}
+                {/*          value={unitList.find((d) => d.value === item.unit)?.label}*/}
+                {/*          onChange={() => {}}*/}
+                {/*        />*/}
+                {/*        <AtIcon value="chevron-right" size="18" color="#000"></AtIcon>*/}
+                {/*      </View>*/}
+                {/*    );*/}
+                {/*  })}*/}
+                <View className="add" onClick={() => this.handleAuth(true)}>
+                  <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
+                  <View>新增管理员</View>
+                </View>
               </AtForm>
             </View>
           </View>
@@ -967,6 +1024,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
             </View>
           </View>
         )}
+
+        <AtModal isOpened={isOpened}>
+          <AtModalHeader>提示</AtModalHeader>
+          <AtModalContent>
+            <View>
+              <View className="row">管理员将拥有球场的完全控制权，确认添加管理员吗？</View>
+              <View className="row">邀请成功后请刷新或重新打开小程序后进行后续操作！</View>
+            </View>
+          </AtModalContent>
+          <AtModalAction>
+            <Button onClick={() => this.handleAuth(false)}>取消</Button>
+            <Button openType="share">发送邀请</Button>
+          </AtModalAction>
+        </AtModal>
       </View>
     );
   }

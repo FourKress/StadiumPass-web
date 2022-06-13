@@ -1,0 +1,37 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+.manage-auth-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 45% 32px 0;
+  box-sizing: border-box;
+
+  .tips {
+    width: 80%;
+    margin-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .name {
+    font-weight: bold;
+  }
+
+  .btn {
+    width: 60%;
+    height: 86px;
+    line-height: 86px;
+    border-radius: 16px;
+    background-color: #ff9502;
+    color: #fff;
+    border: 1px solid #ff9502;
+    text-align: center;
+  }
+}
