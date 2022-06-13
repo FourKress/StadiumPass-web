@@ -144,7 +144,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     await this.getUnitList();
     if (!orderId) {
       if (runDate && runDate !== currentDay()) {
-        if (dayjs().diff(runDate, 'day') > 3) {
+        if (dayjs().diff(runDate, 'day') > 5) {
           this.setState({
             overdue: true,
           });
