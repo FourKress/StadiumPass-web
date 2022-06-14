@@ -101,7 +101,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
     const { stadiumInfo, stadiumId } = this.state;
     const authObj = {
-      title: stadiumInfo.name,
+      title: `${stadiumInfo.name}邀请您成为管理员`,
       path: `pages/manageAuth/index?stadiumId=${stadiumId}`,
     };
     return authObj;
