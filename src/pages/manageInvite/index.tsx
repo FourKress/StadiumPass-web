@@ -14,7 +14,7 @@ interface IState {
   userInfo: any;
 }
 
-class ManageAuth extends Component<{}, IState> {
+class ManageInvite extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -83,7 +83,7 @@ class ManageAuth extends Component<{}, IState> {
     const { authorize, stadiumInfo } = this.state;
 
     return (
-      <View className="manage-auth-page">
+      <View className="manage-invite-page">
         <View className="tips">
           <View>
             <Text className="name">“{stadiumInfo.name}反倒是顺丰阿萨德”</Text>
@@ -102,4 +102,4 @@ class ManageAuth extends Component<{}, IState> {
   }
 }
 
-export default ManageAuth;
+export default ManageInvite;

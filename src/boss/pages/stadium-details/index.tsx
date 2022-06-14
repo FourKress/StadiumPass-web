@@ -100,11 +100,11 @@ class StadiumDetailsPage extends Component<{}, IState> {
       isOpened: false,
     });
     const { stadiumInfo, stadiumId } = this.state;
-    const authObj = {
+    const inviteObj = {
       title: `${stadiumInfo.name}邀请您成为管理员`,
-      path: `pages/manageAuth/index?stadiumId=${stadiumId}`,
+      path: `pages/manageInvite/index?stadiumId=${stadiumId}`,
     };
-    return authObj;
+    return inviteObj;
   }
 
   setMeBtnPosition() {
@@ -646,7 +646,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
-  async handleAuth(flag) {
+  async handleInvite(flag) {
     this.setState({
       isOpened: flag,
     });
@@ -926,7 +926,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 {/*      </View>*/}
                 {/*    );*/}
                 {/*  })}*/}
-                <View className="add" onClick={() => this.handleAuth(true)}>
+                <View className="add" onClick={() => this.handleInvite(true)}>
                   <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
                   <View>新增管理员</View>
                 </View>
@@ -1034,7 +1034,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
             </View>
           </AtModalContent>
           <AtModalAction>
-            <Button onClick={() => this.handleAuth(false)}>取消</Button>
+            <Button onClick={() => this.handleInvite(false)}>取消</Button>
             <Button openType="share">发送邀请</Button>
           </AtModalAction>
         </AtModal>
