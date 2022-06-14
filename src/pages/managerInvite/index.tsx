@@ -7,45 +7,68 @@ import * as LoginService from '@/services/loginService';
 import AuthorizeUserBtn from '@/components/authorizeUserModal';
 import requestData from '@/utils/requestData';
 import Taro from '@tarojs/taro';
+import { throttle } from 'lodash';
 
 interface IState {
   authorize: boolean;
-  stadiumInfo: any;
-  userInfo: any;
+  inviteInfo: any;
+  inviteId: string;
 }
 
 class ManagerInvite extends Component<{}, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      userInfo: {},
       authorize: false,
-      stadiumInfo: {},
+      inviteInfo: null,
+      inviteId: '',
     };
   }
 
   async componentDidShow() {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
-    const stadiumId = (pageParams.id + '').toString();
-    await this.getStadiumInfo(stadiumId);
+    const inviteId = (pageParams.inviteId + '').toString();
+    await this.setState({
+      inviteId,
+    });
+    await this.getManagerInviteInfo(inviteId);
   }
 
-  async getStadiumInfo(id) {
+  async getManagerInviteInfo(inviteId) {
     requestData({
       method: 'GET',
-      api: '/stadium/info',
+      api: '/stadium/getManagerInvite',
       params: {
-        id,
+        inviteId,
       },
     }).then((res: any) => {
+      if (res?.error) {
+        Taro.showModal({
+          title: '提示',
+          content: res?.msg,
+          showCancel: false,
+          success: async () => {
+            await Taro.reLaunch({
+              url: '/client/pages/waitStart/index',
+            });
+          },
+        });
+        return;
+      }
       this.setState({
-        stadiumInfo: res,
+        inviteInfo: res,
       });
     });
   }
 
-  async handleLogin() {
+  handleThrottle = (fun) =>
+    throttle(fun, 1000, {
+      leading: true,
+      trailing: false,
+    });
+
+  handleLogin = async () => {
     const userInfo: any = await LoginService.login();
     if (!userInfo?.id) {
       this.setState({
@@ -53,10 +76,8 @@ class ManagerInvite extends Component<{}, IState> {
       });
       return;
     }
-    this.setState({
-      userInfo,
-    });
-  }
+    await this.authManager();
+  };
 
   async handleAuthorize(status) {
     if (!status) {
@@ -65,11 +86,32 @@ class ManagerInvite extends Component<{}, IState> {
       });
       return;
     }
-    const userInfo = await LoginService.handleAuthorize();
+    await LoginService.handleAuthorize();
     this.setState({
       authorize: false,
-      userInfo,
     });
+    await this.authManager();
+  }
+
+  async authManager() {
+    const params = this.state.inviteInfo;
+    await Taro.showToast({ icon: 'none', duration: 0, title: '处理中...' });
+    requestData({
+      method: 'POST',
+      api: '/manager/auth',
+      params,
+    })
+      .then(async () => {
+        await Taro.hideToast();
+        await this.jump();
+        await Taro.showToast({
+          icon: 'none',
+          title: '恭喜你成为管理员！',
+        });
+      })
+      .catch(() => {
+        Taro.hideToast();
+      });
   }
 
   async jump() {
@@ -80,23 +122,32 @@ class ManagerInvite extends Component<{}, IState> {
   }
 
   render() {
-    const { authorize, stadiumInfo } = this.state;
+    const { authorize, inviteInfo } = this.state;
 
     return (
-      <View className="manager-invite-page">
-        <View className="tips">
-          <View>
-            <Text className="name">“{stadiumInfo.name}反倒是顺丰阿萨德”</Text>
-          </View>
-          <View>
-            <Text>邀请您成为球场管理员</Text>
-          </View>
-        </View>
-        <View className="btn" onClick={() => this.handleLogin()}>
-          同意成为管理员
-        </View>
+      <View>
+        {inviteInfo ? (
+          <View className="manager-invite-page">
+            <View className="tips">
+              <View>
+                <Text className="name">“{inviteInfo?.stadiumName}”</Text>
+              </View>
+              <View>
+                <Text>邀请您成为球场管理员</Text>
+              </View>
+            </View>
+            <View className="btn" onClick={this.handleThrottle(this.handleLogin)}>
+              同意成为管理员
+            </View>
 
-        <AuthorizeUserBtn authorize={authorize} onChange={(value) => this.handleAuthorize(value)}></AuthorizeUserBtn>
+            <AuthorizeUserBtn
+              authorize={authorize}
+              onChange={(value) => this.handleAuthorize(value)}
+            ></AuthorizeUserBtn>
+          </View>
+        ) : (
+          <View></View>
+        )}
       </View>
     );
   }

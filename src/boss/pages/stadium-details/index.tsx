@@ -96,15 +96,27 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   async onShareAppMessage() {
+    const inviteId = await this.addManagerInviteId();
     this.setState({
       isOpened: false,
     });
-    const { stadiumInfo, stadiumId } = this.state;
+    const { stadiumInfo } = this.state;
     const inviteObj = {
       title: `${stadiumInfo.name}邀请您成为管理员`,
-      path: `pages/managerInvite/index?stadiumId=${stadiumId}`,
+      path: `pages/managerInvite/index?inviteId=${inviteId}`,
+      imageUrl: `${SERVER_PROTOCOL}${SERVER_DOMAIN}/images/invite.jpg`,
     };
     return inviteObj;
+  }
+
+  async addManagerInviteId() {
+    return await requestData({
+      method: 'POST',
+      api: '/stadium/addManagerInvite',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    });
   }
 
   setMeBtnPosition() {
