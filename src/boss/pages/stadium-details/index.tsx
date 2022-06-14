@@ -102,7 +102,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     const { stadiumInfo, stadiumId } = this.state;
     const inviteObj = {
       title: `${stadiumInfo.name}邀请您成为管理员`,
-      path: `pages/manageInvite/index?stadiumId=${stadiumId}`,
+      path: `pages/managerInvite/index?stadiumId=${stadiumId}`,
     };
     return inviteObj;
   }

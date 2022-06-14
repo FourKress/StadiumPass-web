@@ -4,7 +4,7 @@ const config: Config = {
   pages: [
     'pages/load/index',
     'pages/userCenter/index',
-    'pages/manageInvite/index',
+    'pages/managerInvite/index',
     'boss/pages/fail-stadium/index',
     'boss/pages/match/index',
     'boss/pages/match-edit/index',
