@@ -104,22 +104,18 @@ class ManagerInvite extends Component<{}, IState> {
       method: 'POST',
       api: '/manager/auth',
       params,
-    })
-      .then(async (res: any) => {
-        if (res?.error) {
-          await this.handleAuthError(res?.msg);
-          return;
-        }
-        await Taro.hideToast();
-        await this.jump();
-        await Taro.showToast({
-          icon: 'none',
-          title: '恭喜你成为管理员！',
-        });
-      })
-      .catch(() => {
-        Taro.hideToast();
+    }).then(async (res: any) => {
+      await Taro.hideToast();
+      if (res?.error) {
+        await this.handleAuthError(res?.msg);
+        return;
+      }
+      await this.jump();
+      await Taro.showToast({
+        icon: 'none',
+        title: '恭喜你成为管理员！',
       });
+    });
   }
 
   async jump() {
