@@ -84,14 +84,14 @@ class ManagerInvite extends Component<{}, IState> {
     await this.authManager();
   }
 
-  async handleAuthError(msg) {
+  async handleAuthError(msg, isAuth = false) {
     await Taro.showModal({
       title: '提示',
       content: msg,
       showCancel: false,
       success: async () => {
         await Taro.reLaunch({
-          url: '/client/pages/waitStart/index',
+          url: isAuth ? '/boss/pages/revenue/index' : '/client/pages/waitStart/index',
         });
       },
     });
@@ -107,7 +107,7 @@ class ManagerInvite extends Component<{}, IState> {
     }).then(async (res: any) => {
       await Taro.hideToast();
       if (res?.error) {
-        await this.handleAuthError(res?.msg);
+        await this.handleAuthError(res?.msg, res?.isAuth);
         return;
       }
       await this.jump();
