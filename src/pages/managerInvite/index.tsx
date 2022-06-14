@@ -42,18 +42,9 @@ class ManagerInvite extends Component<{}, IState> {
       params: {
         inviteId,
       },
-    }).then((res: any) => {
+    }).then(async (res: any) => {
       if (res?.error) {
-        Taro.showModal({
-          title: '提示',
-          content: res?.msg,
-          showCancel: false,
-          success: async () => {
-            await Taro.reLaunch({
-              url: '/client/pages/waitStart/index',
-            });
-          },
-        });
+        await this.handleAuthError(res?.msg);
         return;
       }
       this.setState({
@@ -93,6 +84,19 @@ class ManagerInvite extends Component<{}, IState> {
     await this.authManager();
   }
 
+  async handleAuthError(msg) {
+    await Taro.showModal({
+      title: '提示',
+      content: msg,
+      showCancel: false,
+      success: async () => {
+        await Taro.reLaunch({
+          url: '/client/pages/waitStart/index',
+        });
+      },
+    });
+  }
+
   async authManager() {
     const params = this.state.inviteInfo;
     await Taro.showToast({ icon: 'none', duration: 0, title: '处理中...' });
@@ -101,7 +105,11 @@ class ManagerInvite extends Component<{}, IState> {
       api: '/manager/auth',
       params,
     })
-      .then(async () => {
+      .then(async (res: any) => {
+        if (res?.error) {
+          await this.handleAuthError(res?.msg);
+          return;
+        }
         await Taro.hideToast();
         await this.jump();
         await Taro.showToast({
