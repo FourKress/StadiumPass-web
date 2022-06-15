@@ -162,6 +162,9 @@ page {
     left: 0;
     width: 100%;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .phone-auth-btn {
       background-color: transparent;
@@ -179,8 +182,6 @@ page {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 220px;
-      margin: 0 auto;
 
       .at-icon {
         display: block;

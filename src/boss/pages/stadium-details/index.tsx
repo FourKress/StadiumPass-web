@@ -44,6 +44,7 @@ interface IState {
   refundRulesStatus: boolean;
   noticeStatus: boolean;
   isOpened: boolean;
+  managerList: any[];
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -69,6 +70,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       refundRulesStatus: false,
       noticeStatus: false,
       isOpened: false,
+      managerList: [],
     };
   }
 
@@ -119,6 +121,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  getManagerList() {
+    requestData({
+      method: 'POST',
+      api: '/manager/list',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        managerList: res,
+      });
+    });
+  }
+
   setMeBtnPosition() {
     let stateHeight = 0; //  接收状态栏高度
     Taro.getSystemInfo({
@@ -144,6 +160,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     this.getStadiumInfo();
     this.getSpaceList();
     this.getRefundRulesStatus();
+    this.getManagerList();
   }
 
   getRefundRulesStatus() {
@@ -664,6 +681,33 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  async handleManagerDelete(manager) {
+    await Taro.showModal({
+      title: '提示',
+      content: '删除管理员后，对方将无法管理球场，确认删除吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          requestData({
+            method: 'GET',
+            api: '/manager/delete',
+            params: {
+              id: manager.id,
+            },
+          }).then(async () => {
+            await Taro.showToast({
+              icon: 'none',
+              title: '管理员删除成功',
+            });
+            const managerList = this.state.managerList;
+            this.setState({
+              managerList: managerList.filter((d) => d.id !== manager.id),
+            });
+          });
+        }
+      },
+    });
+  }
+
   render() {
     const {
       current,
@@ -682,6 +726,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       refundRulesStatus,
       noticeStatus,
       isOpened,
+      managerList,
     } = this.state;
 
     return (
@@ -922,22 +967,20 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 <View className="title">
                   <View className="name">球场管理员</View>
                 </View>
-                {/*{spaceList.length > 0 &&*/}
-                {/*  spaceList.map((item, index) => {*/}
-                {/*    return (*/}
-                {/*      <View className="space-row" onClick={() => this.handleSpaceEdit(item, index)}>*/}
-                {/*        <AtInput*/}
-                {/*          name="duration"*/}
-                {/*          title={item.name}*/}
-                {/*          type="text"*/}
-                {/*          editable={false}*/}
-                {/*          value={unitList.find((d) => d.value === item.unit)?.label}*/}
-                {/*          onChange={() => {}}*/}
-                {/*        />*/}
-                {/*        <AtIcon value="chevron-right" size="18" color="#000"></AtIcon>*/}
-                {/*      </View>*/}
-                {/*    );*/}
-                {/*  })}*/}
+                {managerList.length > 0 &&
+                  managerList.map((item) => {
+                    return (
+                      <View className="manager-row">
+                        <View className="manager-info">
+                          <Image className="img" src={item.user?.avatarUrl}></Image>
+                          <Text>{item.user?.nickName}</Text>
+                        </View>
+                        <View className="delete-btn" onClick={() => this.handleManagerDelete(item)}>
+                          删除
+                        </View>
+                      </View>
+                    );
+                  })}
                 <View className="add" onClick={() => this.handleInvite(true)}>
                   <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
                   <View>新增管理员</View>

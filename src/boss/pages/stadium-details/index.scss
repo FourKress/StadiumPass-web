@@ -132,6 +132,37 @@ page {
     background-color: #f2f2f2;
     padding-bottom: 32px;
 
+    .manager-row {
+      width: 100%;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fff;
+      padding: 0 32px;
+      border-bottom: 1px solid #ffd9d9;
+      box-sizing: border-box;
+
+      .delete-btn {
+        color: red;
+        font-size: 24px;
+      }
+
+      .manager-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+
+        .img {
+          display: block;
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          margin-right: 24px;
+        }
+      }
+    }
+
     .space-row {
       width: 100%;
       display: flex;

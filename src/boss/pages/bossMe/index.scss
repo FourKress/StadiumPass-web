@@ -152,12 +152,13 @@ page {
     bottom: calc(132px + env(safe-area-inset-bottom));
     width: 100%;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .btn {
       display: flex;
       align-items: center;
-      width: 165px;
-      margin: 0 auto;
 
       .at-icon {
         display: block;

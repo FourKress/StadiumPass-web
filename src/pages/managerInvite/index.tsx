@@ -90,6 +90,7 @@ class ManagerInvite extends Component<{}, IState> {
       content: msg,
       showCancel: false,
       success: async () => {
+        Taro.setStorageSync('auth', isAuth ? 'boss' : 'client');
         await Taro.reLaunch({
           url: isAuth ? '/boss/pages/revenue/index' : '/client/pages/waitStart/index',
         });
@@ -99,13 +100,16 @@ class ManagerInvite extends Component<{}, IState> {
 
   async authManager() {
     const params = this.state.inviteInfo;
-    await Taro.showToast({ icon: 'none', duration: 0, title: '处理中...' });
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
     requestData({
       method: 'POST',
       api: '/manager/auth',
       params,
     }).then(async (res: any) => {
-      await Taro.hideToast();
+      await Taro.hideLoading();
       if (res?.error) {
         await this.handleAuthError(res?.msg, res?.isAuth);
         return;
