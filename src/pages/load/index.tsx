@@ -21,11 +21,12 @@ class LoadPage extends Component<{}, IState> {
       title: '拼命加载中...',
     });
     let userInfo = Taro.getStorageSync('userInfo');
+    const authIds = Taro.getStorageSync('authIds');
     if (userInfo) {
       userInfo = await LoginService.login();
     }
 
-    const isBoss = (userInfo?.bossId && userInfo?.phoneNum) || false;
+    const isBoss = (userInfo?.bossId && userInfo?.phoneNum) || authIds?.length || false;
     let url;
     let auth;
     if (isBoss) {

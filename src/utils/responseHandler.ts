@@ -21,6 +21,7 @@ export default function responseHandler() {
         Taro.hideLoading();
         if (response.statusCode === 401) {
           Taro.removeStorageSync('userInfo');
+          Taro.removeStorageSync('authIds');
           Taro.removeStorageSync('openId');
           let tips = '当前还未登录，请立即登录。';
           if (Taro.getStorageSync('token')) {

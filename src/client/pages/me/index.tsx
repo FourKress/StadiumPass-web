@@ -101,7 +101,8 @@ class MePage extends Component<{}, IState> {
   async handleConfirm() {
     await this.changeIdentity(false);
     const { userInfo } = this.state;
-    if (userInfo?.bossId) {
+    const authIds = Taro.getStorageSync('authIds');
+    if (userInfo?.bossId || authIds?.length) {
       await Taro.setStorageSync('auth', 'boss');
       await Taro.reLaunch({
         url: '/boss/pages/revenue/index',
@@ -204,6 +205,7 @@ class MePage extends Component<{}, IState> {
 
   render() {
     const { userInfo, isOpened, orderCount, authorize, isUpload } = this.state;
+    const authIds = Taro.getStorageSync('authIds');
 
     return (
       <View className="mePage">
@@ -303,12 +305,12 @@ class MePage extends Component<{}, IState> {
           {userInfo?.id && !userInfo?.phoneNum ? (
             <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
               <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-              {userInfo?.bossId ? '组织踢球' : '申请组织踢球'}
+              {userInfo?.bossId || authIds?.length ? '组织踢球' : '申请组织踢球'}
             </AuthorizePhoneBtn>
           ) : (
             <View className="btn" onClick={() => this.changeIdentity(true)}>
               <AtIcon value="repeat-play" size="18" color="#333D44"></AtIcon>
-              {userInfo?.bossId ? '组织踢球' : '申请组织踢球'}
+              {userInfo?.bossId || authIds?.length ? '组织踢球' : '申请组织踢球'}
             </View>
           )}
         </View>
@@ -316,7 +318,7 @@ class MePage extends Component<{}, IState> {
         <AtModal isOpened={isOpened}>
           <AtModalHeader>提示</AtModalHeader>
           <AtModalContent>
-            {userInfo?.bossId ? (
+            {userInfo?.bossId || authIds?.length ? (
               <View>
                 <View className="row">是否切换为组织模式？</View>
               </View>
