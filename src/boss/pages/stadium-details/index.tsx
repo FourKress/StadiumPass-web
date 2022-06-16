@@ -45,6 +45,7 @@ interface IState {
   noticeStatus: boolean;
   isOpened: boolean;
   managerList: any[];
+  userInfo: any;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -71,6 +72,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       noticeStatus: false,
       isOpened: false,
       managerList: [],
+      userInfo: {},
     };
   }
 
@@ -79,9 +81,11 @@ class StadiumDetailsPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const stadiumId = (pageParams.id + '').toString();
+    const userInfo = Taro.getStorageSync('userInfo') || {};
     this.setState(
       {
         stadiumId,
+        userInfo,
       },
       () => {
         this.matchInit();
@@ -122,6 +126,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   getManagerList() {
+    const { userInfo, stadiumInfo } = this.state;
+    if (userInfo?.bossId !== stadiumInfo.bossId) return;
     requestData({
       method: 'POST',
       api: '/manager/list',
@@ -160,7 +166,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
     this.getStadiumInfo();
     this.getSpaceList();
     this.getRefundRulesStatus();
-    this.getManagerList();
   }
 
   getRefundRulesStatus() {
@@ -209,9 +214,9 @@ class StadiumDetailsPage extends Component<{}, IState> {
       params: {
         id: this.state.stadiumId,
       },
-    }).then((res: any) => {
+    }).then(async (res: any) => {
       const openBot = (res?.wxGroup && res?.wxGroupId) || res?.botStatus;
-      this.setState({
+      await this.setState({
         stadiumInfo: res,
         openBot,
         applyBot: openBot,
@@ -226,6 +231,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
           };
         }),
       });
+      this.getManagerList();
     });
   }
 
@@ -727,6 +733,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       noticeStatus,
       isOpened,
       managerList,
+      userInfo,
     } = this.state;
 
     return (
@@ -964,9 +971,11 @@ class StadiumDetailsPage extends Component<{}, IState> {
                   onChange={(value) => this.handleChange(value, 'description')}
                 />
 
-                <View className="title">
-                  <View className="name">球场管理员</View>
-                </View>
+                {userInfo?.bossId === stadiumInfo.bossId && (
+                  <View className="title">
+                    <View className="name">球场管理员</View>
+                  </View>
+                )}
                 {managerList.length > 0 &&
                   managerList.map((item) => {
                     return (
@@ -981,10 +990,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
                       </View>
                     );
                   })}
-                <View className="add" onClick={() => this.handleInvite(true)}>
-                  <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
-                  <View>新增管理员</View>
-                </View>
+                {userInfo?.bossId === stadiumInfo.bossId && (
+                  <View className="add" onClick={() => this.handleInvite(true)}>
+                    <AtIcon value="add" size="14" color="#0080FF"></AtIcon>
+                    <View>新增管理员</View>
+                  </View>
+                )}
               </AtForm>
             </View>
           </View>
