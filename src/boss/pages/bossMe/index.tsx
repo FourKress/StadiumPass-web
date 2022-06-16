@@ -28,7 +28,8 @@ class BossMePage extends Component<any, IState> {
 
   componentWillMount() {
     const userInfo = Taro.getStorageSync('userInfo') || '';
-    if (userInfo.bossId) {
+    const authIds = Taro.getStorageSync('authIds') || [];
+    if (userInfo?.bossId || authIds.length) {
       requestData({
         method: 'GET',
         api: '/stadium/stadiumList',
@@ -132,6 +133,9 @@ class BossMePage extends Component<any, IState> {
                   <View className="item" onClick={() => this.jumpDetails(item.id)}>
                     <View className="icon icon-stadium"></View>
                     <Text className="label">{item.name}</Text>
+                    <View className={userInfo?.bossId === item.bossId ? 'tag boss' : 'tag'}>
+                      {userInfo?.bossId === item.bossId ? '场主' : '管理员'}
+                    </View>
                     <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
                   </View>
                 </View>

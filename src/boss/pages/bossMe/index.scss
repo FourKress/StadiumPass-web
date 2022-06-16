@@ -95,6 +95,22 @@ page {
               transform: translateY(4px);
             }
           }
+
+          .tag {
+            width: 120px;
+            height: 48px;
+            line-height: 48px;
+            border-radius: 8px;
+            background-color: #fde6d7;
+            color: #f4873a;
+            font-size: 28px;
+            text-align: center;
+
+            &.boss {
+              background-color: #cce6ff;
+              color: #2b80ff;
+            }
+          }
         }
 
         &:first-child {
