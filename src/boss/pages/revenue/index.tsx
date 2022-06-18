@@ -87,7 +87,6 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       userInfo,
     });
     this.getWithdrawConfig();
-    this.getMonthAndAayStatistics();
     await this.getStadiumList();
     const { stadiumId, runDate } = this.state;
     if (!stadiumId) {
@@ -110,10 +109,13 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  getMonthAndAayStatistics() {
+  getMonthAndAayStatistics(bossId) {
     requestData({
       method: 'GET',
       api: '/order/monthAndAayStatistics',
+      params: {
+        bossId,
+      },
     }).then((res) => {
       this.setState({
         summary: res,
@@ -138,10 +140,14 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
         stadiumList: res,
       });
       if (!this.state.stadiumId) {
+        const stadiumInfo = res[0];
         this.setState({
-          stadiumId: res[0].id,
-          stadiumInfo: res[0],
+          stadiumId: stadiumInfo.id,
+          stadiumInfo,
         });
+        this.getMonthAndAayStatistics(stadiumInfo?.bossId);
+      } else {
+        this.getMonthAndAayStatistics(this.state.stadiumInfo?.bossId);
       }
     });
   }
@@ -180,6 +186,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       stadiumId: value,
       stadiumInfo,
     });
+    this.getMonthAndAayStatistics(stadiumInfo?.bossId);
     await this.searchSubmit();
   }
 
