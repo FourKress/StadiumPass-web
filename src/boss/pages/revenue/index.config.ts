@@ -1,6 +1,4 @@
 export default {
-  navigationBarTitleText: '求队-管理端',
+  navigationStyle: 'custom',
   disableScroll: true,
-  navigationBarBackgroundColor: '#303043',
-  navigationBarTextStyle: 'white',
 };

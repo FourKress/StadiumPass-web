@@ -51,12 +51,6 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
-  jumpCustomer() {
-    Taro.navigateTo({
-      url: '/boss/pages/myClient/index',
-    });
-  }
-
   changeIdentity() {
     Taro.setStorageSync('auth', 'client');
     Taro.reLaunch({
@@ -141,18 +135,6 @@ class BossMePage extends Component<any, IState> {
                 </View>
               );
             })}
-          </View>
-
-          <View className="nav-list" style="margin-top: 16px;">
-            <View className="panel">
-              <View className="item" onClick={() => this.jumpCustomer()}>
-                <View className="icon client">
-                  <AtIcon value="star-2" color="#A4AAAE" size="24"></AtIcon>
-                </View>
-                <Text className="label">我的顾客</Text>
-                <AtIcon value="chevron-right" size="24" color="#333D44"></AtIcon>
-              </View>
-            </View>
           </View>
 
           <View className="nav-list" style="margin-top: 16px;">

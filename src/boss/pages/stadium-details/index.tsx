@@ -87,8 +87,9 @@ class StadiumDetailsPage extends Component<{}, IState> {
         stadiumId,
         userInfo,
       },
-      () => {
-        this.matchInit();
+      async () => {
+        // this.matchInit();
+        await this.handleTabClick(this.state.current);
       }
     );
   }
@@ -250,6 +251,12 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   async handleTabClick(index) {
+    if (index === 2) {
+      await Taro.navigateTo({
+        url: '/boss/pages/myClient/index',
+      });
+      return;
+    }
     this.setState({
       current: index,
     });
@@ -753,7 +760,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
           </View>
         </View>
         <AtTabBar
-          tabList={[{ title: '场次设置' }, { title: '场馆设置' }]}
+          tabList={[{ title: '场次设置' }, { title: '场馆设置' }, { title: '我的顾客' }]}
           onClick={(index) => this.handleTabClick(index)}
           current={current}
         />

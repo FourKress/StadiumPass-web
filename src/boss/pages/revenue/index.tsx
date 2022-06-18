@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { AtIcon, AtInput, AtDrawer } from 'taro-ui';
+import { AtIcon, AtInput } from 'taro-ui';
 import requestData from '@/utils/requestData';
 
 import './index.scss';
@@ -18,12 +18,14 @@ interface InjectStoreProps {
 
 interface IState {
   summary: any;
-  showDrawer: boolean;
   stadiumList: Array<any>;
   stadiumId: string;
   runDate: string;
   revenueInfo: any;
   showWithdrawBtn: boolean;
+  tabPosition: object;
+  stadiumInfo: any;
+  userInfo: any;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
@@ -35,12 +37,14 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     super(props);
     this.state = {
       summary: {},
-      showDrawer: false,
       stadiumList: [],
       stadiumId: '',
       runDate: dateNow(),
       revenueInfo: {},
       showWithdrawBtn: false,
+      tabPosition: {},
+      stadiumInfo: {},
+      userInfo: {},
     };
   }
 
@@ -53,8 +57,35 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     updateReady();
   }
 
+  async componentDidMount() {
+    this.setMeBtnPosition();
+  }
+
+  setMeBtnPosition() {
+    // 接收状态栏高度
+    let stateHeight = 0;
+    Taro.getSystemInfo({
+      success(res) {
+        stateHeight = res.statusBarHeight;
+      },
+    });
+
+    const menuButton = Taro.getMenuButtonBoundingClientRect();
+    const top = menuButton.top - stateHeight; //  获取top值
+    const { height } = menuButton;
+    this.setState({
+      tabPosition: {
+        top: stateHeight + top + (height - 26) / 2,
+      },
+    });
+  }
+
   async componentDidShow() {
     this.inject.tabBarStore.setSelected(0);
+    const userInfo = Taro.getStorageSync('userInfo') || {};
+    this.setState({
+      userInfo,
+    });
     this.getWithdrawConfig();
     this.getMonthAndAayStatistics();
     await this.getStadiumList();
@@ -102,10 +133,16 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
         });
         return;
       }
+
       this.setState({
         stadiumList: res,
-        stadiumId: res[0].id,
       });
+      if (!this.state.stadiumId) {
+        this.setState({
+          stadiumId: res[0].id,
+          stadiumInfo: res[0],
+        });
+      }
     });
   }
 
@@ -127,35 +164,28 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       url: `/boss/pages/statistics/index?stadiumId=${stadiumId}`,
     });
   }
-  handleShowDrawer() {
-    this.setState({
-      showDrawer: true,
-    });
-  }
 
-  handleCloseDrawer() {
-    this.setState({
-      showDrawer: false,
-    });
-  }
-  handleDateChange(e) {
+  async handleDateChange(e) {
     const { value } = e.detail;
-    this.setState({
+    await this.setState({
       runDate: value,
     });
+    await this.searchSubmit();
   }
-  handleSelect(e) {
+  async handleSelect(e) {
     const index = e.detail.value;
-    const value = this.state.stadiumList[index]?.id;
-    this.setState({
+    const stadiumInfo = this.state.stadiumList[index];
+    const value = stadiumInfo?.id;
+    await this.setState({
       stadiumId: value,
+      stadiumInfo,
     });
+    await this.searchSubmit();
   }
 
   reset() {
     this.setState({
       runDate: dateNow(),
-      stadiumId: '',
     });
   }
 
@@ -165,7 +195,6 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       stadiumId,
       runDate,
     });
-    this.handleCloseDrawer();
   }
 
   jumpDetails(item) {
@@ -183,10 +212,26 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const { summary, showDrawer, stadiumList, stadiumId, runDate, revenueInfo, showWithdrawBtn } = this.state;
+    const { summary, stadiumList, stadiumInfo, runDate, revenueInfo, showWithdrawBtn, tabPosition, userInfo } =
+      this.state;
 
     return (
       <View className="indexPage">
+        <View className="top-bar">
+          {stadiumList?.length ? (
+            <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
+              <View className="bar" style={tabPosition}>
+                <Text>{stadiumInfo?.name}</Text>
+                <AtIcon value="chevron-down" size="20" color="#fff"></AtIcon>
+              </View>
+            </Picker>
+          ) : (
+            <View className="bar" style={tabPosition}>
+              暂无场馆
+            </View>
+          )}
+        </View>
+
         <View className="top-info">
           <View className="top">
             <View className="left">
@@ -198,7 +243,7 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                 <Text>统计</Text>
                 <AtIcon value="chevron-right" size="20" color="#0080FF"></AtIcon>
               </View>
-              {showWithdrawBtn && (
+              {showWithdrawBtn && stadiumInfo?.bossId === userInfo?.bossId && (
                 <View className="btn withdraw-btn" onClick={() => this.handleWithdraw()}>
                   <Text>提现</Text>
                   <AtIcon value="chevron-right" size="20" color="#fff"></AtIcon>
@@ -221,9 +266,13 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
         <View className="panel">
           <View className="row">
             <Text className="name">营收</Text>
-            <View className="btn" onClick={() => this.handleShowDrawer()}>
-              <AtIcon className="search-icon" value="search" size="14" color="#000"></AtIcon>
-              <Text>自定义查询</Text>
+            <View className="btn">
+              <AtIcon className="clock" value="clock" size="14" color="#000"></AtIcon>
+              <View className="date-picker">
+                <Picker value={runDate} mode="date" onChange={(e) => this.handleDateChange(e)}>
+                  <AtInput name="runDate" onChange={() => {}} value={runDate} editable={false}></AtInput>
+                </Picker>
+              </View>
             </View>
           </View>
 
@@ -231,7 +280,6 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             <View className="info">
               <View className="title">
                 <Text>{revenueInfo.runDate}</Text>
-                <Text>{revenueInfo.stadiumName}</Text>
               </View>
 
               {revenueInfo?.matchCoverOrderList?.map((item) => {
@@ -307,40 +355,6 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             </View>
           </View>
         </View>
-
-        <AtDrawer show={showDrawer} onClose={() => this.handleCloseDrawer()} mask width="260px" right>
-          <View className="drawer-panel">
-            <View className="drawer-top">
-              <Text>自定义查询</Text>
-              <AtIcon onClick={() => this.handleCloseDrawer()} value="close" size="16" />
-            </View>
-            <View className="form-panel">
-              <View className="drawer-item">
-                <Picker mode="selector" rangeKey="name" range={stadiumList} onChange={(e) => this.handleSelect(e)}>
-                  <View className="title">请选择场馆</View>
-                  <AtInput
-                    name="stadiumId"
-                    onChange={() => {}}
-                    value={stadiumList.find((d) => d.id === stadiumId)?.name}
-                    editable={false}
-                  ></AtInput>
-                </Picker>
-              </View>
-              <View className="drawer-item">
-                <Picker value={runDate} mode="date" onChange={(e) => this.handleDateChange(e)}>
-                  <View className="title">请选择时间</View>
-                  <AtInput name="runDate" onChange={() => {}} value={runDate} editable={false}></AtInput>
-                </Picker>
-              </View>
-            </View>
-            <View className="drawer-footer">
-              <Text onClick={() => this.reset()}>重置</Text>
-              <View className="submit-btn" onClick={() => this.searchSubmit()}>
-                确定
-              </View>
-            </View>
-          </View>
-        </AtDrawer>
       </View>
     );
   }
