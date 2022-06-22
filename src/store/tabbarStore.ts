@@ -2,7 +2,7 @@ import { action, observable } from 'mobx';
 
 class TabBarStore {
   @observable
-  selected = 0;
+  selected = -1;
 
   @action
   setSelected(index: number) {
