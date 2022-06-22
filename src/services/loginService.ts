@@ -128,4 +128,4 @@ const checkLogin = async () => {
   return token;
 };
 
-export { login, handleAuthorize, checkLogin };
+export { login, handleAuthorize, checkLogin, sendLogin, saveUserInfo };

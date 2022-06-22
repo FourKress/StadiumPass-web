@@ -117,12 +117,15 @@ class ManagerInvite extends Component<{}, IState> {
       await this.jump();
       await Taro.showToast({
         icon: 'none',
-        title: '恭喜你成为管理员！',
+        title: '恭喜您成为管理员！',
       });
     });
   }
 
   async jump() {
+    const openId = Taro.getStorageSync('openId');
+    const result = await LoginService.sendLogin(openId);
+    await LoginService.saveUserInfo(result);
     await Taro.setStorageSync('auth', 'boss');
     await Taro.reLaunch({
       url: '/boss/pages/revenue/index',

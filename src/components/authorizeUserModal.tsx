@@ -36,8 +36,8 @@ class AuthorizeUserBtn extends Component<IProps> {
           <View>
             <View className="row">
               {upload
-                ? '更新需要微信授权，为了给你更好的体验，请授权获取用户信息。'
-                : '当前是您第一次登录，为了给你更好的体验，请授权完善用户信息。'}
+                ? '更新需要微信授权，为了给您更好的体验，请授权获取用户信息。'
+                : '当前是您第一次登录，为了给您更好的体验，请授权完善用户信息。'}
             </View>
           </View>
         </AtModalContent>

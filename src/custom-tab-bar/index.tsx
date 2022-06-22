@@ -6,6 +6,7 @@ import config from '@/src/app.config';
 
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
+import * as LoginService from '@/services/loginService';
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
@@ -23,8 +24,38 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
     return this.props as InjectStoreProps;
   }
 
-  onLoad() {
+  async onLoad() {
     console.log('刷新tabBar');
+    const token = Taro.getStorageSync('token');
+    const isBoss = Taro.getStorageSync('auth') === 'boss';
+    if (token && isBoss) {
+      const openId = Taro.getStorageSync('openId');
+      const res: any = await LoginService.sendLogin(openId);
+      LoginService.saveUserInfo(res);
+      const { authIds, userInfo } = res;
+      if (!userInfo?.bossId && !authIds?.length) {
+        Taro.setStorageSync('auth', 'client');
+        // @ts-ignore
+        const path = Taro.getCurrentInstance().router?.path;
+        if (path === '/pages/load/index') {
+          setTimeout(() => {
+            this.jump();
+          }, 800);
+        } else {
+          await this.jump();
+        }
+      }
+    }
+  }
+
+  async jump() {
+    await Taro.reLaunch({
+      url: '/client/pages/waitStart/index',
+    });
+    await Taro.showToast({
+      icon: 'none',
+      title: '对不起，您不是管理员！',
+    });
   }
 
   async switchTab(item, index) {

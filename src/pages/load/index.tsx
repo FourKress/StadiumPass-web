@@ -20,29 +20,35 @@ class LoadPage extends Component<{}, IState> {
       icon: 'loading',
       title: '拼命加载中...',
     });
-    let userInfo = Taro.getStorageSync('userInfo');
-    const authIds = Taro.getStorageSync('authIds');
-    if (userInfo) {
-      userInfo = await LoginService.login();
-    }
 
-    const isBoss = (userInfo?.bossId && userInfo?.phoneNum) || authIds?.length || false;
-    let url;
-    let auth;
-    if (isBoss) {
-      url = '/boss/pages/revenue/index';
-      auth = 'boss';
-    } else {
-      url = '/client/pages/waitStart/index';
-      auth = 'client';
-    }
+    setTimeout(async () => {
+      // @ts-ignore
+      const path = Taro.getCurrentInstance().router?.path;
+      const clientPath = '/client/pages/waitStart/index';
+      if (path === clientPath) return;
+      let userInfo = Taro.getStorageSync('userInfo');
+      const isClient = Taro.getStorageSync('auth') === 'client';
+      if (userInfo && isClient) {
+        userInfo = await LoginService.login();
+      }
+      const authIds = Taro.getStorageSync('authIds');
+      const isBoss = (userInfo?.bossId && userInfo?.phoneNum) || authIds?.length || false;
+      let url;
+      if (isBoss) {
+        url = '/boss/pages/revenue/index';
+        await Taro.setStorageSync('auth', 'boss');
+      } else {
+        url = clientPath;
+        await Taro.setStorageSync('auth', 'client');
+      }
 
-    Taro.setStorageSync('auth', auth);
-    Taro.hideToast();
-    setTimeout(() => {
-      Taro.reLaunch({
-        url,
-      });
+      Taro.hideToast();
+
+      setTimeout(() => {
+        Taro.reLaunch({
+          url,
+        });
+      }, 200);
     }, 1000);
   }
 
