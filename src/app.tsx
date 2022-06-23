@@ -14,13 +14,17 @@ const store = {
 };
 
 class App extends Component {
-  componentWillMount() {
-    const params = Taro.getCurrentInstance().router?.params;
-    console.log('启动参数params', params);
-  }
+  componentWillMount() {}
 
   componentDidShow() {
     console.log('渲染');
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router?.params;
+    const inviteId = (pageParams?.inviteId + '').toString();
+    if (inviteId) {
+      Taro.setStorageSync('auth', 'client');
+    }
+    console.log('启动参数params', pageParams);
   }
 
   componentDidMount() {

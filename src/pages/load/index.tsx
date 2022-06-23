@@ -6,6 +6,7 @@ import './index.scss';
 
 import * as LoginService from '@/services/loginService';
 import { SERVER_DOMAIN, SERVER_PROTOCOL } from '@/src/config';
+import { checkPath } from '@/utils/checkManagerPath';
 
 interface IState {}
 
@@ -22,10 +23,8 @@ class LoadPage extends Component<{}, IState> {
     });
 
     setTimeout(async () => {
-      // @ts-ignore
-      const path = Taro.getCurrentInstance().router?.path;
       const clientPath = '/client/pages/waitStart/index';
-      if (path === clientPath) return;
+      if (checkPath(clientPath)) return;
       let userInfo = Taro.getStorageSync('userInfo');
       const isClient = Taro.getStorageSync('auth') === 'client';
       if (userInfo && isClient) {

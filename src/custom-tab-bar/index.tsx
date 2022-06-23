@@ -7,6 +7,7 @@ import config from '@/src/app.config';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
 import * as LoginService from '@/services/loginService';
+import { checkPath } from '@/utils/checkManagerPath';
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
@@ -35,9 +36,7 @@ class CustomTabBar extends Component<InjectStoreProps, {}> {
       const { authIds, userInfo } = res;
       if (!userInfo?.bossId && !authIds?.length) {
         Taro.setStorageSync('auth', 'client');
-        // @ts-ignore
-        const path = Taro.getCurrentInstance().router?.path;
-        if (path === '/pages/load/index') {
+        if (checkPath('/pages/load/index')) {
           setTimeout(() => {
             this.jump();
           }, 800);
