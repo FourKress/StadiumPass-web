@@ -12,6 +12,7 @@ interface IState {
   userInfo: any;
   monthlyCardInfo: any;
   orderInfo: any;
+  bossId: any;
 }
 
 class ClientDetailsPage extends Component<{}, IState> {
@@ -22,6 +23,7 @@ class ClientDetailsPage extends Component<{}, IState> {
       userInfo: {},
       monthlyCardInfo: {},
       orderInfo: {},
+      bossId: '',
     };
   }
 
@@ -29,10 +31,18 @@ class ClientDetailsPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const userId = (pageParams.userId + '').toString();
+    const bossId = (pageParams.bossId + '').toString();
+    this.setState(
+      {
+        bossId,
+        userId,
+      },
+      () => {
+        this.getMonthlyCardInfo(userId);
+        this.getOrderInfo(userId);
+      }
+    );
     this.getUserInfo(userId);
-    this.getMonthlyCardInfo(userId);
-    this.getOrderInfo(userId);
-    this.setState({ userId });
   }
 
   getUserInfo(userId) {
@@ -55,6 +65,7 @@ class ClientDetailsPage extends Component<{}, IState> {
       api: '/monthlyCard/getInfoByUserId',
       params: {
         userId,
+        bossId: this.state.bossId,
       },
     }).then((res: any) => {
       this.setState({
@@ -69,6 +80,7 @@ class ClientDetailsPage extends Component<{}, IState> {
       api: '/order/infoByUserId',
       params: {
         userId,
+        bossId: this.state.bossId,
       },
     }).then((res: any) => {
       this.setState({
@@ -79,13 +91,13 @@ class ClientDetailsPage extends Component<{}, IState> {
 
   async jumpApplyDetails() {
     await Taro.navigateTo({
-      url: `/boss/pages/apply-details/index?userId=${this.state.userId}`,
+      url: `/boss/pages/apply-details/index?userId=${this.state.userId}&bossId=${this.state.bossId}`,
     });
   }
 
   async jumpMonthlyCardDetails() {
     await Taro.navigateTo({
-      url: `/boss/pages/monthlyCard-details/index?userId=${this.state.userId}`,
+      url: `/boss/pages/monthlyCard-details/index?userId=${this.state.userId}&bossId=${this.state.bossId}`,
     });
   }
 

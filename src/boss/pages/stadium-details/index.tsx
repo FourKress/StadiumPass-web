@@ -89,6 +89,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       },
       async () => {
         // this.matchInit();
+        this.getStadiumInfo();
         await this.handleTabClick(this.state.current);
       }
     );
@@ -253,7 +254,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
   async handleTabClick(index) {
     if (index === 2) {
       await Taro.navigateTo({
-        url: '/boss/pages/myClient/index',
+        url: `/boss/pages/myClient/index?bossId=${this.state.stadiumInfo.bossId}`,
       });
       return;
     }

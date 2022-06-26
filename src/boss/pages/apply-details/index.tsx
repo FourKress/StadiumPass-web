@@ -12,6 +12,7 @@ interface IState {
   orderInfo: any;
   tabValue: number;
   userId: string;
+  bossId: any;
 }
 
 class ApplyDetailsPage extends Component<{}, IState> {
@@ -25,6 +26,7 @@ class ApplyDetailsPage extends Component<{}, IState> {
       },
       tabValue: 0,
       userId: '',
+      bossId: '',
     };
   }
 
@@ -32,18 +34,26 @@ class ApplyDetailsPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const userId = (pageParams.userId + '').toString();
-    this.getApplyList(userId);
-    this.setState({
-      userId,
-    });
+    const bossId = (pageParams.bossId + '').toString();
+
+    this.setState(
+      {
+        userId,
+        bossId,
+      },
+      () => {
+        this.getApplyList();
+      }
+    );
   }
 
-  getApplyList(userId) {
+  getApplyList() {
     requestData({
       method: 'POST',
       api: '/order/infoByUserId',
       params: {
-        userId,
+        userId: this.state.userId,
+        bossId: this.state.bossId,
       },
     }).then((res: any) => {
       const tabValue = this.state.tabValue;
@@ -66,7 +76,7 @@ class ApplyDetailsPage extends Component<{}, IState> {
     this.setState({
       tabValue: value,
     });
-    this.getApplyList(this.state.userId);
+    this.getApplyList();
   }
 
   render() {

@@ -37,6 +37,7 @@ interface IState {
   clientTypeKey: number;
   clientTypes: any[];
   keywords: string;
+  bossId: any;
 }
 
 class MyClientPage extends Component<{}, IState> {
@@ -49,11 +50,22 @@ class MyClientPage extends Component<{}, IState> {
       clientTypeKey: 0,
       clientTypes,
       keywords: '',
+      bossId: '',
     };
   }
 
   componentDidShow() {
-    this.getClientList(this.state.type, this.state.keywords);
+    // @ts-ignore
+    const pageParams = Taro.getCurrentInstance().router.params;
+    const bossId = (pageParams.bossId + '').toString();
+    this.setState(
+      {
+        bossId,
+      },
+      () => {
+        this.getClientList(this.state.type, this.state.keywords);
+      }
+    );
   }
 
   getClientList(type, keywords) {
@@ -68,6 +80,7 @@ class MyClientPage extends Component<{}, IState> {
       api: '/order/userList',
       params: {
         ...params,
+        bossId: this.state.bossId,
       },
     }).then((res: any) => {
       const clientTypes = this.state.clientTypes;
@@ -128,7 +141,7 @@ class MyClientPage extends Component<{}, IState> {
 
   async jumpClientDetail(user) {
     await Taro.navigateTo({
-      url: `/boss/pages/client-details/index?userId=${user.id}`,
+      url: `/boss/pages/client-details/index?userId=${user.id}&?bossId=${this.state.bossId}`,
     });
   }
 

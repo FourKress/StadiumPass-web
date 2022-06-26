@@ -22,15 +22,17 @@ class MonthlyCardDetailsPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const userId = (pageParams.userId + '').toString();
-    this.getRecordList(userId);
+    const bossId = (pageParams.bossId + '').toString();
+    this.getRecordList(userId, bossId);
   }
 
-  getRecordList(userId) {
+  getRecordList(userId, bossId) {
     requestData({
       method: 'POST',
       api: '/monthlyCard/findAll',
       params: {
         userId,
+        bossId,
       },
     }).then((res: any) => {
       this.setState({
