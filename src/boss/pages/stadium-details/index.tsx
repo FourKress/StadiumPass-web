@@ -46,6 +46,7 @@ interface IState {
   isOpened: boolean;
   managerList: any[];
   userInfo: any;
+  bossId: any;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -73,6 +74,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       isOpened: false,
       managerList: [],
       userInfo: {},
+      bossId: '',
     };
   }
 
@@ -81,15 +83,15 @@ class StadiumDetailsPage extends Component<{}, IState> {
     // @ts-ignore
     const pageParams = Taro.getCurrentInstance().router.params;
     const stadiumId = (pageParams.id + '').toString();
+    const bossId = (pageParams.bossId + '').toString();
     const userInfo = Taro.getStorageSync('userInfo') || {};
     this.setState(
       {
         stadiumId,
         userInfo,
+        bossId,
       },
       async () => {
-        // this.matchInit();
-        this.getStadiumInfo();
         await this.handleTabClick(this.state.current);
       }
     );
@@ -128,8 +130,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   getManagerList() {
-    const { userInfo, stadiumInfo } = this.state;
-    if (userInfo?.bossId !== stadiumInfo.bossId) return;
+    const { userInfo, bossId } = this.state;
+    if (userInfo?.bossId !== bossId) return;
     requestData({
       method: 'POST',
       api: '/manager/list',
@@ -252,9 +254,10 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   async handleTabClick(index) {
+    if (this.state.current === index && index === 1) return;
     if (index === 2) {
       await Taro.navigateTo({
-        url: `/boss/pages/myClient/index?bossId=${this.state.stadiumInfo.bossId}`,
+        url: `/boss/pages/myClient/index?bossId=${this.state.bossId}`,
       });
       return;
     }

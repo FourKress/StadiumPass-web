@@ -44,10 +44,10 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
-  jumpDetails(id) {
-    if (!LoginService.checkLogin()) return;
-    Taro.navigateTo({
-      url: `/boss/pages/stadium-details/index?id=${id}`,
+  async jumpDetails(stadium) {
+    if (!(await LoginService.checkLogin())) return;
+    await Taro.navigateTo({
+      url: `/boss/pages/stadium-details/index?id=${stadium.id}&bossId=${stadium.bossId}`,
     });
   }
 
@@ -124,7 +124,7 @@ class BossMePage extends Component<any, IState> {
             {stadiumList.map((item) => {
               return (
                 <View className="panel stadium-panel">
-                  <View className="item" onClick={() => this.jumpDetails(item.id)}>
+                  <View className="item" onClick={() => this.jumpDetails(item)}>
                     <View className="icon icon-stadium"></View>
                     <Text className="label">{item.name}</Text>
                     <View className={userInfo?.bossId === item.bossId ? 'tag boss' : 'tag'}>
