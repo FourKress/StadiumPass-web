@@ -141,7 +141,7 @@ class MyClientPage extends Component<{}, IState> {
 
   async jumpClientDetail(user) {
     await Taro.navigateTo({
-      url: `/boss/pages/client-details/index?userId=${user.id}&?bossId=${this.state.bossId}`,
+      url: `/boss/pages/client-details/index?userId=${user.id}&bossId=${this.state.bossId}`,
     });
   }
 
