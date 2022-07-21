@@ -5,6 +5,8 @@ const config: Config = {
     'pages/load/index',
     'pages/userCenter/index',
     'pages/managerInvite/index',
+    'pages/about/index',
+    'pages/suggestions/index',
     'boss/pages/fail-stadium/index',
     'boss/pages/match/index',
     'boss/pages/match-edit/index',

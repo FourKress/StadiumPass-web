@@ -51,9 +51,9 @@ class BossMePage extends Component<any, IState> {
     });
   }
 
-  changeIdentity() {
+  async changeIdentity() {
     Taro.setStorageSync('auth', 'client');
-    Taro.reLaunch({
+    await Taro.reLaunch({
       url: '/client/pages/waitStart/index',
     });
   }
@@ -92,6 +92,12 @@ class BossMePage extends Component<any, IState> {
         });
       }, 200);
     }
+  }
+
+  async jumpAbout() {
+    await Taro.navigateTo({
+      url: '/pages/about/index',
+    });
   }
 
   render() {
@@ -144,6 +150,20 @@ class BossMePage extends Component<any, IState> {
                   <AtIcon value="reload" color="#A4AAAE" size="24"></AtIcon>
                 </View>
                 <Text className="label">更新昵称和头像</Text>
+                <View className="info">
+                  <Text className="name"></Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View className="nav-list" style="margin-top: 16px;">
+            <View className="panel">
+              <View className="item" onClick={() => this.jumpAbout()}>
+                <View className="icon reload">
+                  <AtIcon value="phone" color="#A4AAAE" size="24"></AtIcon>
+                </View>
+                <Text className="label">关于我们</Text>
                 <View className="info">
                   <Text className="name"></Text>
                 </View>

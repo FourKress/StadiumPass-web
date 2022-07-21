@@ -1,0 +1,27 @@
+@import '~@/assets/styles/themes/default.scss';
+@import '~taro-ui/dist/style/components/list.scss';
+@import '~taro-ui/dist/style/components/icon.scss';
+
+.about-page {
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  padding: 32px;
+  font-size: 28px;
+  position: relative;
+
+  .list {
+    line-height: 56px;
+  }
+
+  .btn {
+    color: #4e85ed;
+    font-size: 28px;
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+    text-decoration: underline;
+  }
+}
