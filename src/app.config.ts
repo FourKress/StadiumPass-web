@@ -66,6 +66,8 @@ const config: Config = {
       },
     ],
   },
+  // @ts-ignore
+  requiredPrivateInfos: ['getLocation', 'chooseLocation'],
   permission: {
     'scope.userLocation': {
       desc: '授权获取位置信息，获得更好的体验',
