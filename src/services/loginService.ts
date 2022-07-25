@@ -84,6 +84,7 @@ const sendLogin = (openId, userInfo = {}) => {
 const saveUserInfo = (res) => {
   Taro.setStorageSync('token', res.token);
   Taro.setStorageSync('authIds', res.authIds);
+  Taro.setStorageSync('authStadiumIds', res.authStadiumIds);
   Taro.setStorageSync('userInfo', res.userInfo);
   return res.userInfo;
 };

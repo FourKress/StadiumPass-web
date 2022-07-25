@@ -363,11 +363,13 @@ class StadiumDetailsPage extends Component<{}, IState> {
   }
 
   async applyWechatyBot() {
+    const { stadiumId, bossId } = this.state;
     await requestData({
       method: 'GET',
       api: '/wx/applyWechatyBot',
       params: {
-        stadiumId: this.state.stadiumId,
+        stadiumId,
+        bossId,
       },
     });
     await Taro.showModal({
