@@ -5,6 +5,7 @@ import './index.scss';
 import { AtCurtain, AtImagePicker, AtTextarea } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import uploadData from '@/utils/uploadData';
+import requestData from '@/utils/requestData';
 
 interface IState {
   files: any[];
@@ -62,10 +63,13 @@ class Suggestions extends Component<any, IState> {
     const uploadFiles = files.filter((d) => !d.fileId);
     await Promise.all(
       uploadFiles.map(async (item, index) => {
-        await uploadData({
-          filePath: item.file.path,
-          name: 'files',
-        })
+        await uploadData(
+          {
+            filePath: item.file.path,
+            name: 'files',
+          },
+          'suggestions'
+        )
           .then((res: any) => {
             fileList.push(res);
           })
@@ -86,6 +90,14 @@ class Suggestions extends Component<any, IState> {
 
   async submit() {
     const { remark, files } = this.state;
+    if (!remark) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请输入内容！',
+      });
+      return;
+    }
+
     let updateResult: any = {};
 
     if (files?.length) {
@@ -95,7 +107,7 @@ class Suggestions extends Component<any, IState> {
       }
     }
 
-    const fileList = updateResult.fileList.map((d) => {
+    const imageUrls = updateResult?.fileList?.map((d) => {
       const { fileId, path } = d;
       return {
         fileId,
@@ -103,7 +115,22 @@ class Suggestions extends Component<any, IState> {
       };
     });
 
-    console.log(remark, fileList);
+    requestData({
+      method: 'POST',
+      api: '/suggestions/add',
+      params: {
+        remark,
+        imageUrls,
+      },
+    }).then(async () => {
+      await Taro.navigateBack({
+        delta: -1,
+      });
+      await Taro.showToast({
+        icon: 'none',
+        title: '提交成功，感谢您的反馈',
+      });
+    });
   }
 
   render() {
@@ -118,7 +145,7 @@ class Suggestions extends Component<any, IState> {
               maxLength={200}
               height={300}
               placeholderClass="remark-input"
-              placeholder="请输入场馆说明"
+              placeholder="请输入内容"
               value={remark}
               onChange={(value) => this.handleRemarkChange(value)}
             />
