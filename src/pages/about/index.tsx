@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View } from '@tarojs/components';
+import { View, Text } from '@tarojs/components';
 
 import './index.scss';
 import Taro from '@tarojs/taro';
@@ -21,7 +21,9 @@ class About extends Component {
     return (
       <View className="about-page">
         <View className="list">
-          <View>求队官方微信：qiudui6666（官方微信/商务合作）</View>
+          <View>
+            求队官方微信：<Text className="wechaty">qiudui6666</Text>（官方微信/商务合作）
+          </View>
           <View>版本：v1.1.2</View>
         </View>
 

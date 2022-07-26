@@ -117,6 +117,7 @@ class Suggestions extends Component<any, IState> {
             <AtTextarea
               maxLength={200}
               height={300}
+              placeholderClass="remark-input"
               placeholder="请输入场馆说明"
               value={remark}
               onChange={(value) => this.handleRemarkChange(value)}
