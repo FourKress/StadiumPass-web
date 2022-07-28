@@ -203,6 +203,12 @@ class MePage extends Component<{}, IState> {
     }
   }
 
+  async jumpAbout() {
+    await Taro.navigateTo({
+      url: '/pages/about/index',
+    });
+  }
+
   render() {
     const { userInfo, isOpened, orderCount, authorize, isUpload } = this.state;
     const authIds = Taro.getStorageSync('authIds');
@@ -295,6 +301,20 @@ class MePage extends Component<{}, IState> {
                 <Text className="label">更新昵称和头像</Text>
                 <View className="info">
                   <Text className="name"></Text>
+                </View>
+              </View>
+            </View>
+
+            <View className="nav-list" style="margin-top: 16px;">
+              <View className="panel">
+                <View className="item" onClick={() => this.jumpAbout()}>
+                  <View className="icon reload">
+                    <AtIcon value="phone" color="#A4AAAE" size="24"></AtIcon>
+                  </View>
+                  <Text className="label">关于我们</Text>
+                  <View className="info">
+                    <Text className="name"></Text>
+                  </View>
                 </View>
               </View>
             </View>

@@ -4,9 +4,13 @@ import { SERVER_API_ROOT } from '../config';
 /**
  * 上传文件
  */
-export default function uploadData<T = void>(params) {
+export default function uploadData<T = void>(params, type = 'stadium') {
   return new Promise<T>((resolve: (data: any) => void, reject: (err) => void) => {
-    const completeApi = SERVER_API_ROOT + '/stadium/uploadFile';
+    const map = {
+      stadium: '/stadium/uploadFile',
+      suggestions: '/suggestions/uploadFile',
+    };
+    const completeApi = SERVER_API_ROOT + map[type];
 
     const requestParams = Object.assign({});
 
