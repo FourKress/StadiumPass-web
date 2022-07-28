@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from '@tarojs/components';
+import { AtButton } from 'taro-ui';
 
 import './index.scss';
 import Taro from '@tarojs/taro';
@@ -22,14 +23,19 @@ class About extends Component {
       <View className="about-page">
         <View className="list">
           <View>
-            求队官方微信：<Text className="wechaty">qiudui6666</Text>（官方微信/商务合作）
+            官方微信：<Text className="wechaty">qiudui6666</Text>
           </View>
-          <View>版本：v1.1.2</View>
+          <View>
+            版本：<Text className="wechaty">v1.1.2</Text>
+          </View>
+          <View className="btn" onClick={() => this.jump()}>
+            <AtButton size="small" type="primary">
+              投诉建议
+            </AtButton>
+          </View>
         </View>
 
-        <View className="btn" onClick={() => this.jump()}>
-          投诉建议
-        </View>
+        <View className="footer">【合作请微信联系】</View>
       </View>
     );
   }

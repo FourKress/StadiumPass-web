@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Image, Swiper, SwiperItem, View } from '@tarojs/components';
 
 import './index.scss';
-import { AtCurtain, AtImagePicker, AtTextarea } from 'taro-ui';
+import { AtButton, AtCurtain, AtImagePicker, AtTextarea } from 'taro-ui';
 import Taro from '@tarojs/taro';
 import uploadData from '@/utils/uploadData';
 import requestData from '@/utils/requestData';
@@ -192,7 +192,9 @@ class Suggestions extends Component<any, IState> {
         </AtCurtain>
 
         <View className="btn" onClick={() => this.submit()}>
-          提交
+          <AtButton size="small" type="primary">
+            提交
+          </AtButton>
         </View>
       </View>
     );
