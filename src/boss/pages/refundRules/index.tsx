@@ -6,7 +6,7 @@ import Taro from '@tarojs/taro';
 
 import './index.scss';
 
-const timeList = Array.from(new Array(24).keys()).map((d) => {
+const timeList = Array.from(new Array(48).keys()).map((d) => {
   const value = d + 1;
   return {
     label: value,
