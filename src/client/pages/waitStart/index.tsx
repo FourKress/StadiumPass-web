@@ -388,17 +388,6 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
     });
   }
 
-  async showMap(event, item) {
-    event.stopPropagation();
-    const { latitude, longitude, address } = item;
-    await Taro.openLocation({
-      latitude,
-      longitude,
-      scale: 18,
-      name: address,
-    });
-  }
-
   render() {
     const {
       headerPosition,
@@ -543,7 +532,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                         </View>
                         <View className="info" onClick={() => this.jumpStadium(item.id)}>
                           <View className="name">{item.name}</View>
-                          <View onClick={(e) => this.showMap(e, item)}>
+                          <View>
                             <Text className="address">[{item.district}]</Text>
                             <Text className="num">
                               {distance >= 1000 ? `${(distance / 1000).toFixed(2)}km` : `${distance}m`}
