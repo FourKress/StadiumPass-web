@@ -47,6 +47,7 @@ interface IState {
   managerList: any[];
   userInfo: any;
   bossId: any;
+  botInfo: any;
 }
 
 class StadiumDetailsPage extends Component<{}, IState> {
@@ -75,6 +76,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       managerList: [],
       userInfo: {},
       bossId: '',
+      botInfo: {},
     };
   }
 
@@ -219,12 +221,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
         id: this.state.stadiumId,
       },
     }).then(async (res: any) => {
-      const openBot = (res?.wxGroup && res?.wxGroupId) || res?.botStatus;
       await this.setState({
         stadiumInfo: res,
-        openBot,
-        applyBot: openBot,
-        botStatus: res?.botStatus,
         noticeStatus: res?.noticeStatus,
         files: res.stadiumUrls.map((d) => {
           const { path, fileId } = d;
@@ -274,7 +272,32 @@ class StadiumDetailsPage extends Component<{}, IState> {
         }
       });
       await this.stadiumInit();
+    } else {
+      this.getBotInfo();
     }
+  }
+
+  getBotInfo() {
+    requestData({
+      method: 'GET',
+      api: '/stadium/getBotInfo',
+      params: {
+        stadiumId: this.state.stadiumId,
+      },
+    }).then(async (res: any) => {
+      const { wxGroup, wxGroupId, botStatus, id } = res || {};
+      const openBot = (wxGroup && wxGroupId) || botStatus;
+      await this.setState({
+        openBot,
+        applyBot: openBot,
+        botStatus,
+        botInfo: {
+          wxGroup,
+          wxGroupId,
+          id,
+        },
+      });
+    });
   }
 
   jumpDetails(item) {
@@ -308,6 +331,16 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
   }
 
+  handleWxGroupChange(value, key) {
+    const botInfo = this.state.botInfo;
+    botInfo[key] = value;
+    this.setState({
+      botInfo: {
+        ...botInfo,
+      },
+    });
+  }
+
   async handleChangeBotStatus(value) {
     this.setState({
       openBot: value,
@@ -325,8 +358,8 @@ class StadiumDetailsPage extends Component<{}, IState> {
                 applyBot: false,
                 botStatus: false,
               });
-              this.handleChange('', 'wxGroup');
-              this.handleChange('', 'wxGroupId');
+              this.handleWxGroupChange('', 'wxGroup');
+              this.handleWxGroupChange('', 'wxGroupId');
             } else {
               this.setState({
                 openBot: true,
@@ -411,16 +444,41 @@ class StadiumDetailsPage extends Component<{}, IState> {
     this.handleSpaceChange(value, 'unit');
   }
 
+  async saveBot() {
+    const { wxGroup, wxGroupId, id } = this.state.botInfo;
+
+    if (!wxGroup) {
+      await Taro.showToast({
+        icon: 'none',
+        title: '请输入关联微信群名称！',
+      });
+      return;
+    }
+
+    requestData({
+      method: 'POST',
+      api: '/stadium/saveBotInfo',
+      params: {
+        wxGroup,
+        wxGroupId,
+        id,
+        bossId: this.state.bossId,
+      },
+    }).then(async () => {
+      Taro.showToast({
+        icon: 'none',
+        title: '机器人保存成功',
+      }).then(async () => {
+        await Taro.navigateBack({
+          delta: -1,
+        });
+      });
+    });
+  }
+
   async saveStadium() {
     const { stadiumInfo, spaceList, files } = this.state;
     const { address, longitude, latitude, monthlyCardPrice, monthlyCardStatus } = stadiumInfo;
-    // if (!wxGroup) {
-    //   await Taro.showToast({
-    //     icon: 'none',
-    //     title: '请设置关联的微信群！',
-    //   });
-    //   return;
-    // }
 
     if (monthlyCardStatus && monthlyCardPrice <= 0) {
       await Taro.showToast({
@@ -747,6 +805,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
       isOpened,
       managerList,
       userInfo,
+      botInfo,
     } = this.state;
 
     return (
@@ -813,6 +872,48 @@ class StadiumDetailsPage extends Component<{}, IState> {
             )}
           </View>
         )}
+
+        {current === 3 && !showSpaceDetails && (
+          <View
+            className="list stadium"
+            style={`height: calc(100vh - ${140 + meHeaderPosition.top}px - env(safe-area-inset-bottom))`}
+          >
+            <AtForm className="form">
+              <View className="title">
+                <View className="name">微信机器人设置</View>
+              </View>
+
+              <AtSwitch
+                title="开启机器人"
+                color="#00E36A"
+                checked={openBot}
+                onChange={(value) => this.handleChangeBotStatus(value)}
+              />
+
+              {botStatus && (
+                <AtInput
+                  name="wxGroup"
+                  title="关联微信群"
+                  type="text"
+                  placeholder="请输入关联微信群名称"
+                  value={botInfo.wxGroup}
+                  disabled={botInfo.wxGroupId}
+                  onChange={(value) => this.handleWxGroupChange(value, 'wxGroup')}
+                />
+              )}
+
+              {/*<AtInput*/}
+              {/*  name="welcomeWords"*/}
+              {/*  title="新人欢迎语"*/}
+              {/*  type="text"*/}
+              {/*  placeholder="请输入新人欢迎语"*/}
+              {/*  value={stadiumInfo.welcomeWords}*/}
+              {/*  onChange={(value) => this.handleChange(value, 'welcomeWords')}*/}
+              {/*/>*/}
+            </AtForm>
+          </View>
+        )}
+
         {current === 1 && !showSpaceDetails && (
           <View
             className="list stadium"
@@ -820,37 +921,6 @@ class StadiumDetailsPage extends Component<{}, IState> {
           >
             <View className="scroll-warp">
               <AtForm className="form">
-                <View className="title">
-                  <View className="name">微信机器人设置</View>
-                </View>
-
-                <AtSwitch
-                  title="开启机器人"
-                  color="#00E36A"
-                  checked={openBot}
-                  onChange={(value) => this.handleChangeBotStatus(value)}
-                />
-
-                {botStatus && (
-                  <AtInput
-                    name="wxGroup"
-                    title="关联微信群"
-                    type="text"
-                    placeholder="请输入关联微信群名称"
-                    value={stadiumInfo.wxGroup}
-                    disabled={stadiumInfo.wxGroupId}
-                    onChange={(value) => this.handleChange(value, 'wxGroup')}
-                  />
-                )}
-
-                {/*<AtInput*/}
-                {/*  name="welcomeWords"*/}
-                {/*  title="新人欢迎语"*/}
-                {/*  type="text"*/}
-                {/*  placeholder="请输入新人欢迎语"*/}
-                {/*  value={stadiumInfo.welcomeWords}*/}
-                {/*  onChange={(value) => this.handleChange(value, 'welcomeWords')}*/}
-                {/*/>*/}
                 <View className="title">
                   <View className="name">场地设置</View>
                 </View>
@@ -1054,6 +1124,13 @@ class StadiumDetailsPage extends Component<{}, IState> {
           <View className="btn-list">
             <View className="save btn" onClick={() => this.saveStadium()}>
               保存
+            </View>
+          </View>
+        )}
+        {current === 3 && openBot && !botInfo.wxGroupId && (
+          <View className="btn-list">
+            <View className="save btn" onClick={() => this.saveBot()}>
+              保存机器人
             </View>
           </View>
         )}
