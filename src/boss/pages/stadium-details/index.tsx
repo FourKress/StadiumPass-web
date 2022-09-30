@@ -266,7 +266,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
     });
     if (index === 0) {
       this.matchInit();
-    } else {
+    } else if (index === 1) {
       Taro.getSetting().then(async (res) => {
         const userLocation = res?.authSetting['scope.userLocation'];
         if (!userLocation) {
@@ -766,7 +766,7 @@ class StadiumDetailsPage extends Component<{}, IState> {
           </View>
         </View>
         <AtTabBar
-          tabList={[{ title: '场次设置' }, { title: '场馆设置' }, { title: '我的顾客' }]}
+          tabList={[{ title: '场次设置' }, { title: '场馆设置' }, { title: '我的顾客' }, { title: '机器人' }]}
           onClick={(index) => this.handleTabClick(index)}
           current={current}
         />
