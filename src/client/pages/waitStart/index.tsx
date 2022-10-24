@@ -432,15 +432,15 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
           </View>
         </View>
         <View className="my-match">
-          {waitStartList?.length ? (
-            <Swiper
-              className="swiper-wrapper"
-              indicatorColor="#999"
-              indicatorActiveColor="#0080ff"
-              indicatorDots
-              autoplay
-            >
-              {waitStartList.map((item) => {
+          <Swiper
+            className="swiper-wrapper"
+            indicatorColor="#999"
+            indicatorActiveColor="#0080ff"
+            indicatorDots
+            autoplay
+          >
+            {waitStartList?.length ? (
+              waitStartList.map((item) => {
                 return (
                   <SwiperItem>
                     <View className="panel" onClick={() => this.jumpOrder(item.isStart)}>
@@ -481,13 +481,13 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                     </View>
                   </SwiperItem>
                 );
-              })}
-            </Swiper>
-          ) : (
-            <View className="not-data" style="margin-top: 16px">
-              暂无场次信息
-            </View>
-          )}
+              })
+            ) : (
+              <SwiperItem>
+                <View className="panel not-data"></View>
+              </SwiperItem>
+            )}
+          </Swiper>
         </View>
 
         <View className="main">

@@ -841,12 +841,15 @@ class StadiumDetailsPage extends Component<{}, IState> {
                     return (
                       <View className="item" onClick={() => this.jumpDetails(item)}>
                         <View className="top">
-                          <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
+                          <View className="left">
+                            {item.repeatModel === 1 ? '单次' : '重复'}
+                            {item.type === 1 ? '包场' : '场次'}
+                          </View>
                           <View className="right">
                             <View className="money">
                               <Text>￥{item.rebatePrice}</Text>
                               {item.rebate !== 10 && <Text className="discount">{item.rebate}折</Text>}
-                              <Text>/人</Text>
+                              <Text>/{item.type === 1 ? '场' : '人'}</Text>
                             </View>
                           </View>
                         </View>
@@ -855,10 +858,19 @@ class StadiumDetailsPage extends Component<{}, IState> {
                           <View>
                             时间：{item.repeatName} / {item.startAt}-{item.endAt}
                           </View>
-                          <View>时长：{item.duration}小时</View>
-                          <View>
-                            人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
-                          </View>
+
+                          {item.type === 1 ? (
+                            <View>
+                              <View>最小包场时间：{item.interval}小时</View>
+                            </View>
+                          ) : (
+                            <View>
+                              <View>时长：{item.duration}小时</View>
+                              <View>
+                                人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                              </View>
+                            </View>
+                          )}
                         </View>
                       </View>
                     );

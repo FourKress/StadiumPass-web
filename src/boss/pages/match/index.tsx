@@ -226,10 +226,16 @@ class MatchPage extends Component<InjectStoreProps, IState> {
                 return (
                   <View className="item">
                     <View className="top">
-                      <View className="left">{item.repeatModel === 1 ? '单次场次' : '重复场次'}</View>
+                      <View className="left">
+                        {item.repeatModel === 1 ? '单次' : '重复'}
+                        {item.type === 1 ? '包场' : '场次'}
+                      </View>
                       <View className="right">
                         {item.status ? (
-                          <Text>已报名：{item.selectPeople}人</Text>
+                          <Text>
+                            已{item.type === 1 ? '包场' : '报名'}：{item.selectPeople}
+                            {item.type === 1 ? '场' : '人'}
+                          </Text>
                         ) : (
                           <Text style="color: #ff0000">本场已取消</Text>
                         )}
@@ -246,11 +252,21 @@ class MatchPage extends Component<InjectStoreProps, IState> {
                       <View>
                         时间：{item.repeatName} / {item.startAt}-{item.endAt}
                       </View>
-                      <View>时长：{item.duration}小时</View>
+                      {item.type === 1 ? (
+                        <View>
+                          <View>最小包场时间：{item.interval}小时</View>
+                        </View>
+                      ) : (
+                        <View>
+                          <View>时长：{item.duration}小时</View>
+                          <View>
+                            人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                          </View>
+                        </View>
+                      )}
                       <View>
-                        人数：最少{item.minPeople}人 / 最多{item.totalPeople}人
+                        价格：￥{item.rebatePrice}每{item.type === 1 ? '场' : '人'}
                       </View>
-                      <View>价格：￥{item.rebatePrice}每人</View>
                     </View>
                   </View>
                 );

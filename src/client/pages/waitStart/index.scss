@@ -195,6 +195,10 @@ page {
         }
       }
     }
+
+    .not-data {
+      background-color: red;
+    }
   }
 
   .main {
@@ -275,7 +279,7 @@ page {
 
   .stadium-list {
     width: 100%;
-    height: calc(100vh - 566px - env(safe-area-inset-bottom));
+    height: calc(100vh - 860px - env(safe-area-inset-bottom));
     overflow: hidden;
 
     .scroll-warp {
@@ -291,6 +295,10 @@ page {
       display: flex;
       align-items: center;
       margin-bottom: 40px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
 
       .logo {
         width: 160px;

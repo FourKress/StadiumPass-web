@@ -20,7 +20,7 @@ class UserCenter extends Component<InjectStoreProps, IState> {
   constructor(props) {
     super(props);
     this.state = {
-      renderKey: '',
+      renderKey: Date.now(),
     };
   }
 
@@ -39,6 +39,7 @@ class UserCenter extends Component<InjectStoreProps, IState> {
   render() {
     const isBoss = Taro.getStorageSync('auth') === 'boss';
     const { renderKey } = this.state;
+    console.log(isBoss, renderKey);
 
     return isBoss ? <BossMePage key={renderKey} /> : <MePage key={renderKey} />;
   }
