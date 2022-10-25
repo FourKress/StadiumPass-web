@@ -13,7 +13,7 @@ console.log(NODE_ENV, envVersion);
 
 if (NODE_ENV !== 'development') {
   serverProtocol = 'https://';
-  if (NODE_ENV === 'test') {
+  if (NODE_ENV === 'testEnv') {
     serverDomain = 'wx-test.qiuchangtong.xyz';
   } else {
     if (envVersion === 'trial') {
