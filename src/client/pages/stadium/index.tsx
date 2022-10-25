@@ -381,11 +381,34 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       if (res.length >= currentMatch.totalPeople) {
         list = res;
       } else {
-        const personList = new Array(currentMatch.totalPeople).fill({}).map((item, index) => {
-          if (index <= res.length - 1) return res[index];
-          return item;
-        });
-        list = personList;
+        if (currentMatch.type === 1) {
+          const { endAt, startAt, interval } = currentMatch;
+
+          const day = dayjs().format('YYYY-MM-DD');
+          const time = dayjs(`${day} ${endAt}`).valueOf() - dayjs(`${day} ${startAt}`).valueOf();
+          const step = Math.floor(time / (1000 * 60 * 60 * interval));
+          const personList = new Array(step).fill({}).map((item, index) => {
+            if (index <= res.length - 1) return res[index];
+            return {
+              ...item,
+              endAt: dayjs(`${day} ${startAt}`)
+                .add((index + 1) * interval, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+                .substring(11, 16),
+              startAt: dayjs(`${day} ${startAt}`)
+                .add(index * interval, 'hours')
+                .format('YYYY-MM-DD HH:mm:ss')
+                .substring(11, 16),
+            };
+          });
+          list = personList;
+        } else {
+          const personList = new Array(currentMatch.totalPeople).fill({}).map((item, index) => {
+            if (index <= res.length - 1) return res[index];
+            return item;
+          });
+          list = personList;
+        }
       }
       this.setState({
         personList: list,
@@ -876,19 +899,83 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 <View className="people-panel">
                   {matchList.length > 0 &&
                     matchList.map((match, index) => {
-                      return (
+                      return match.type === 1 ? (
+                        <View className="panel">
+                          <View className="p-top" onClick={() => this.handlePeoPleOpen(index)}>
+                            <View className="info">
+                              <View className="tag">包</View>&nbsp;
+                              <View>订整场</View>&nbsp;/&nbsp;<View>每场价格￥{match.price}</View>
+                              {match.selectPeople === match.totalPeople ? (
+                                <View className="tips2">满</View>
+                              ) : (
+                                match.rebate !== 10 && <View className="tips1">折</View>
+                              )}
+                            </View>
+                            <AtIcon
+                              className={openList[index] ? '' : 'open'}
+                              value="chevron-down"
+                              size="24"
+                              color="#101010"
+                            ></AtIcon>
+                          </View>
+
+                          <View className={openList[index] ? 'list' : 'list hidden'}>
+                            {personList?.length > 0 &&
+                              personList.map((item, index) => {
+                                let className = 'item';
+                                if (selectList.includes(index)) {
+                                  className += ' hover';
+                                }
+                                return (
+                                  <View className={className} onClick={() => this.handleSelectPerson(item, index)}>
+                                    <View className="img">
+                                      {item.avatarUrl ? (
+                                        <Image src={item.avatarUrl}></Image>
+                                      ) : (
+                                        <View className="index">{index + 1}</View>
+                                      )}
+                                    </View>
+
+                                    {item.nickName ? (
+                                      <View className="name-wrap">
+                                        <View className="name">{item.nickName}</View>
+                                        <View className="tag">
+                                          {item.startAt}-{item.endAt}
+                                        </View>
+                                      </View>
+                                    ) : (
+                                      !selectList.includes(index) && (
+                                        <View className="name-wrap">
+                                          <View className="name default">
+                                            {item.startAt}-{item.endAt}
+                                          </View>
+                                        </View>
+                                      )
+                                    )}
+                                    {selectList.includes(index) && (
+                                      <View className="name-wrap">
+                                        <View className="name" style="color: #0080ff">
+                                          {item.startAt}-{item.endAt}
+                                        </View>
+                                      </View>
+                                    )}
+                                  </View>
+                                );
+                              })}
+                          </View>
+                        </View>
+                      ) : (
                         <View className="panel">
                           <View className="p-top" onClick={() => this.handlePeoPleOpen(index)}>
                             <View className={match.isDone || match.isCancel ? 'info disabled' : 'info'}>
-                              <View>
-                                <Text className="text">
-                                  {match.startAt} - {match.endAt}
-                                </Text>{' '}
-                                / <Text className="text">{match.duration}小时</Text> /{' '}
-                                <Text className="text">{match.selectPeople}</Text>
-                                <Text className="text">/</Text>
-                                <Text className="text">{match.totalPeople}人</Text>
-                              </View>
+                              <View className="tag">散</View>&nbsp;
+                              <Text className="text">
+                                {match.startAt} - {match.endAt}
+                              </Text>{' '}
+                              / <Text className="text">{match.duration}小时</Text> /{' '}
+                              <Text className="text">{match.selectPeople}</Text>
+                              <Text className="text">/</Text>
+                              <Text className="text">{match.totalPeople}人</Text>
                               {match.selectPeople === match.totalPeople ? (
                                 <View className="tips2">满</View>
                               ) : (

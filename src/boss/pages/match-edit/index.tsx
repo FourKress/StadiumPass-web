@@ -423,9 +423,9 @@ class MatchEditPage extends Component<{}, IState> {
         ? {
             interval: Number(interval),
             type: 1,
-            duration: undefined,
             totalPeople: undefined,
             minPeople: undefined,
+            duration: undefined,
             repeatWeek: undefined,
             chargeModel: undefined,
           }
