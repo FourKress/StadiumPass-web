@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Picker } from '@tarojs/components';
+import { View, Text, Picker, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { AtIcon, AtInput } from 'taro-ui';
 import requestData from '@/utils/requestData';
@@ -11,6 +11,7 @@ import { checkLogin } from '@/services/loginService';
 import { inject, observer } from 'mobx-react';
 import TabBarStore from '@/store/tabbarStore';
 import { updateReady } from '@/services/updateService';
+import { throttle } from 'lodash';
 
 interface InjectStoreProps {
   tabBarStore: TabBarStore;
@@ -26,6 +27,8 @@ interface IState {
   tabPosition: object;
   stadiumInfo: any;
   userInfo: any;
+  packageRefundList: Array<any>;
+  refundInfo: any;
 }
 
 const dateNow = () => dayjs().format('YYYY-MM-DD');
@@ -45,6 +48,8 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
       tabPosition: {},
       stadiumInfo: {},
       userInfo: {},
+      packageRefundList: [],
+      refundInfo: null,
     };
   }
 
@@ -88,10 +93,20 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
     this.getWithdrawConfig();
     await this.getStadiumList();
+
+    this.initData();
+  }
+
+  initData() {
+    this.setState({
+      refundInfo: null,
+    });
     const { stadiumId, runDate } = this.state;
     if (!stadiumId) {
       return;
     }
+    this.getPackageRefund(stadiumId);
+
     this.getRevenueInfo({
       runDate: runDate || dateNow(),
       stadiumId,
@@ -164,6 +179,20 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     });
   }
 
+  getPackageRefund(stadiumId) {
+    requestData({
+      method: 'POST',
+      api: '/order/getPackageRefund',
+      params: {
+        stadiumId,
+      },
+    }).then((res: any) => {
+      this.setState({
+        packageRefundList: res,
+      });
+    });
+  }
+
   showTotal() {
     const { stadiumId } = this.state;
     Taro.navigateTo({
@@ -190,11 +219,67 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
     await this.searchSubmit();
   }
 
-  reset() {
+  async handlePackageRefund(order) {
     this.setState({
-      runDate: dateNow(),
+      refundInfo: order,
     });
+    console.log(order);
   }
+
+  handleThrottle = (fun) =>
+    throttle(fun, 1000, {
+      leading: true,
+      trailing: false,
+    });
+
+  handleRefundConfirm = async () => {
+    const { refundInfo } = this.state;
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
+
+    requestData({
+      method: 'POST',
+      api: '/order/launchPackageRefund',
+      params: {
+        orderId: refundInfo.id,
+      },
+    })
+      .then(async () => {
+        await Taro.showToast({
+          icon: 'none',
+          title: '包场退款成功',
+        });
+
+        this.initData();
+      })
+      .catch();
+  };
+
+  handleRefundCancel = async () => {
+    const { refundInfo } = this.state;
+    await Taro.showLoading({
+      title: '处理中...',
+      mask: true,
+    });
+
+    await requestData({
+      method: 'POST',
+      api: '/order/modify',
+      params: {
+        id: refundInfo.id,
+        packageRefund: false,
+      },
+    }).then(async () => {
+      await Taro.showToast({
+        icon: 'none',
+        title: '拒绝包场退款成功',
+      });
+
+      this.initData();
+    });
+  };
 
   async searchSubmit() {
     const { stadiumId, runDate } = this.state;
@@ -219,8 +304,18 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
   }
 
   render() {
-    const { summary, stadiumList, stadiumInfo, runDate, revenueInfo, showWithdrawBtn, tabPosition, userInfo } =
-      this.state;
+    const {
+      summary,
+      stadiumList,
+      stadiumInfo,
+      runDate,
+      revenueInfo,
+      showWithdrawBtn,
+      tabPosition,
+      userInfo,
+      packageRefundList,
+      refundInfo,
+    } = this.state;
 
     return (
       <View className="indexPage">
@@ -270,6 +365,47 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
           </View>
         </View>
 
+        {packageRefundList?.length ? (
+          <View className="panel">
+            <View className="row">
+              <Text className="name">包场退款</Text>
+            </View>
+
+            <View className="list-panel">
+              <View className="info">
+                {packageRefundList?.map((item) => {
+                  return (
+                    <View className="list" style="border: none">
+                      <View className="item">
+                        <View className="left package-left">
+                          <View className="item-title">
+                            {item.startAt} - {item.endAt}
+                          </View>
+                          <Text className="index package-index">{item.space?.name}</Text>
+                        </View>
+
+                        <View className="mid">
+                          <Image className="img" src={item.user.avatarUrl}></Image>
+                          <View className="user-info">
+                            <View className="name">{item.user.nickName}</View>
+                            <View>{item.user.phoneNum}</View>
+                          </View>
+                        </View>
+
+                        <View className="refund-btn" onClick={() => this.handlePackageRefund(item)}>
+                          <Text>处理</Text>
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+        ) : (
+          <View></View>
+        )}
+
         <View className="panel">
           <View className="row">
             <Text className="name">营收</Text>
@@ -294,18 +430,15 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                   <View className="list">
                     <View className="item" onClick={() => this.jumpDetails(item)}>
                       <View className="left">
-                        <Text>
-                          {item.startAt} — {item.endAt}
-                        </Text>
+                        <View className="item-title">
+                          <Text className="tag">{item.type === 1 ? '包' : '散'}</Text>
+                          &nbsp;
+                          {item.startAt} - {item.endAt}
+                        </View>
                         <Text className="index">{item.space?.name}</Text>
                       </View>
-                      <View className="right">
-                        {item.selectPeople < item.minPeople ? (
-                          <View className="price">
-                            <View className="fail">组队失败</View>
-                            <View className="tips">差{item.minPeople - item.selectPeople}人</View>
-                          </View>
-                        ) : (
+                      {item.type === 1 ? (
+                        <View className="right">
                           <View className="price">
                             <View className="success">
                               <Text className="sign">
@@ -315,19 +448,45 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
                               <Text className="money">{item.sumPayAmount}</Text>
                             </View>
                             <View className="tips">
-                              {item.ordinaryCount > 0 && (
-                                <Text>
-                                  ￥{item.rebatePrice}X{item.ordinaryCount}
-                                </Text>
-                              )}
-                              {item.monthlyCardCount > 0 && <Text> + {item.monthlyCardCount}月卡</Text>}
-                              {item.refundAmt > 0 && <Text> + 水费{item.refundAmt}</Text>}
+                              <Text>
+                                ￥{item.rebatePrice}X{item.ordinaryCount}
+                              </Text>
                             </View>
                           </View>
-                        )}
 
-                        <AtIcon value="chevron-right" size="20" color="#93A7B6"></AtIcon>
-                      </View>
+                          <AtIcon value="chevron-right" size="20" color="#93A7B6"></AtIcon>
+                        </View>
+                      ) : (
+                        <View className="right">
+                          {item.selectPeople < item.minPeople ? (
+                            <View className="price">
+                              <View className="fail">组队失败</View>
+                              <View className="tips">差{item.minPeople - item.selectPeople}人</View>
+                            </View>
+                          ) : (
+                            <View className="price">
+                              <View className="success">
+                                <Text className="sign">
+                                  <Text style="font-size: 18px;">+</Text>
+                                  <Text style="font-size: 14px;">￥</Text>
+                                </Text>
+                                <Text className="money">{item.sumPayAmount}</Text>
+                              </View>
+                              <View className="tips">
+                                {item.ordinaryCount > 0 && (
+                                  <Text>
+                                    ￥{item.rebatePrice}X{item.ordinaryCount}
+                                  </Text>
+                                )}
+                                {item.monthlyCardCount > 0 && <Text> + {item.monthlyCardCount}月卡</Text>}
+                                {item.refundAmt > 0 && <Text> + 水费{item.refundAmt}</Text>}
+                              </View>
+                            </View>
+                          )}
+
+                          <AtIcon value="chevron-right" size="20" color="#93A7B6"></AtIcon>
+                        </View>
+                      )}
                     </View>
                   </View>
                 );
@@ -362,6 +521,27 @@ class RevenuePage extends Component<InjectStoreProps, IState> {
             </View>
           </View>
         </View>
+
+        {refundInfo && (
+          <View className="refund-dialog">
+            <View className="panel">
+              <View className="dialog-body">
+                <View className="content">
+                  <View className="title">提示</View>
+                  <View className="details">确定同意包场订单退款吗?</View>
+                </View>
+                <View className="btn-list">
+                  <View className="btn confirm" onClick={this.handleThrottle(this.handleRefundCancel)}>
+                    <View>拒绝退款</View>
+                  </View>
+                  <View className="btn cancel" onClick={this.handleThrottle(this.handleRefundConfirm)}>
+                    <View className="tips">退款￥{refundInfo.payAmount}</View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
       </View>
     );
   }

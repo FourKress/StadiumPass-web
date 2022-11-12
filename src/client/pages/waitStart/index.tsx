@@ -48,6 +48,13 @@ const statusMap = {
   '3': '进行中',
 };
 
+const packageMap = {
+  '0': '待付款',
+  '1': '待开场',
+  '2': '待开场',
+  '3': '进行中',
+};
+
 @inject('tabBarStore', 'loginStore')
 @observer
 class WaitStartPage extends Component<InjectStoreProps, IState> {
@@ -444,7 +451,7 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                 return (
                   <SwiperItem>
                     <View className="panel" onClick={() => this.jumpOrder(item.isStart)}>
-                      <View className="title">我的场次</View>
+                      <View className="title">我的{item.type === 1 ? '包场' : '场次'}</View>
                       <View className="info">
                         <Image
                           src={`${SERVER_PROTOCOL}${SERVER_DOMAIN}${SERVER_STATIC}${item.stadiumUrls[0]?.path}`}
@@ -458,18 +465,21 @@ class WaitStartPage extends Component<InjectStoreProps, IState> {
                       <View className="line"></View>
                       <View className="match-info">
                         <View className="left">
-                          <View className="tips">当前成员</View>
+                          <View className="tips">当前{item.type === 1 ? '包场' : '成员'}</View>
                           <View className="count">
-                            <View>
-                              <Text className="bold">{item.selectPeople}</Text>/{item.totalPeople}
-                            </View>
+                            {item.type === 0 && (
+                              <View>
+                                <Text className="bold">{item.selectPeople}</Text>/{item.totalPeople}
+                              </View>
+                            )}
+
                             <View className={item.isStart ? (item.isStart === 3 ? 'tag run' : 'tag wait') : 'tag pay'}>
-                              {statusMap[item.isStart]}
+                              {item.type === 1 ? packageMap[item.isStart] : statusMap[item.isStart]}
                             </View>
                           </View>
                         </View>
                         <View className="right">
-                          <View className="tips">场次时间</View>
+                          <View className="tips">{item.type === 1 ? '包场' : '场次'}时间</View>
                           <View>
                             <Text className="bold">
                               {item.startAt}-{item.endAt}

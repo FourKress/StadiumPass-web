@@ -5,6 +5,7 @@ import requestData from '@/utils/requestData';
 import { handleShare, setShareMenu } from '@/services/shareService';
 
 import './index.scss';
+import dayjs from 'dayjs';
 
 interface IState {
   peopleList: Array<any>;
@@ -82,9 +83,10 @@ class MatchDetailsPage extends Component<{}, IState> {
 
   handleCancel() {
     const { matchInfo } = this.state;
+    const tips = matchInfo.type === 1 ? '包场' : '场次';
     Taro.showModal({
       title: '提示',
-      content: '确认取消本场次吗？取消只针对本场次，不影响后续重复场次。取消后，已付款订单将自动退款。该操作不能撤销！',
+      content: `确认取消本${tips}吗？取消只针对本${tips}，不影响后续重复${tips}。取消后，已付款订单将自动退款。该操作不能撤销！`,
       success: function (res) {
         if (res.confirm) {
           requestData({
@@ -96,7 +98,7 @@ class MatchDetailsPage extends Component<{}, IState> {
           }).then(() => {
             Taro.showToast({
               icon: 'none',
-              title: '取消场次成功',
+              title: `取消${tips}成功`,
             });
             Taro.navigateBack({
               delta: -1,
@@ -122,6 +124,8 @@ class MatchDetailsPage extends Component<{}, IState> {
           <View className="scroll-wrap">
             {matchList.map((index) => {
               const target = peopleList[index];
+              const day = dayjs().format('YYYY-MM-DD');
+
               const isMinPeople = (
                 <View className="tips-panel">
                   <View className="tips">满{matchInfo.minPeople}人即可开赛，人数不足自动退款</View>
@@ -142,21 +146,31 @@ class MatchDetailsPage extends Component<{}, IState> {
                     </View>
                     <View className="info">
                       <Text className="count">{target.orderStatus}</Text>
-                      <Text className="tips">本月第{target.stadiumTempCount}次报名</Text>
+                      <Text className="tips">
+                        本月第{target.stadiumTempCount}次{matchInfo.type === 1 ? '包场' : '报名'}
+                      </Text>
                     </View>
                   </View>
-                  {index + 1 === matchInfo.minPeople && isMinPeople}
+                  {index + 1 === matchInfo.minPeople && matchInfo.type !== 1 && isMinPeople}
                 </View>
               ) : (
                 <View>
                   <View className="item">
                     <Text className="img"></Text>
-                    <Text className="index">{index}</Text>
+                    <Text className="index">{index + 1}</Text>
                     <Text className="left" style="color: #DEDEDD;">
-                      {matchInfo.isCancel ? '组队失败' : matchInfo.isDone ? '已结束' : '等待报名'}
+                      {matchInfo.type === 1
+                        ? `${dayjs(`${day} ${matchInfo.startAt}`)
+                            .add(index * matchInfo.interval, 'hours')
+                            .format('YYYY-MM-DD HH:mm:ss')
+                            .substring(11, 16)} - ${dayjs(`${day} ${matchInfo.startAt}`)
+                            .add((index + 1) * matchInfo.interval, 'hours')
+                            .format('YYYY-MM-DD HH:mm:ss')
+                            .substring(11, 16)}`
+                        : `${matchInfo.isCancel ? '组队失败' : matchInfo.isDone ? '已结束' : '等待报名'}`}
                     </Text>
                   </View>
-                  {index + 1 === matchInfo.minPeople && isMinPeople}
+                  {index + 1 === matchInfo.minPeople && matchInfo.type !== 1 && isMinPeople}
                 </View>
               );
             })}
@@ -165,11 +179,13 @@ class MatchDetailsPage extends Component<{}, IState> {
 
         {matchInfo.status && !matchInfo.isDone && !matchInfo.isCancel && (
           <View className="btn-list">
-            <View className="btn" onClick={() => this.handleCancel()}>
-              取消本场次
-            </View>
+            {matchInfo.type !== 1 && (
+              <View className="btn" onClick={() => this.handleCancel()}>
+                取消{matchInfo.type === 1 ? '包场' : '场次'}
+              </View>
+            )}
             <Button className="btn share" openType="share">
-              分享场次
+              分享{matchInfo.type === 1 ? '包场' : '场次'}
             </Button>
           </View>
         )}

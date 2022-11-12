@@ -343,8 +343,6 @@ class MatchEditPage extends Component<{}, IState> {
     const {
       repeatModel,
       rebate,
-      totalPeople,
-      minPeople,
       price,
       rebatePrice,
       duration,
@@ -356,6 +354,7 @@ class MatchEditPage extends Component<{}, IState> {
       matchTotalAmt,
       interval,
     } = form;
+    let { minPeople, totalPeople } = form;
     const key = Object.keys(form).find(
       (d) =>
         !form[d] &&
@@ -365,7 +364,7 @@ class MatchEditPage extends Component<{}, IState> {
           : !['totalPeople', 'minPeople', 'chargeModel', 'duration'].includes(d))
     );
 
-    const tips = `${current ? '场次' : '包场'}`;
+    const tips = `${current ? '包场' : '场次'}`;
 
     if ((parseInt(repeatModel) === 2 && !repeatWeek?.length) || (!matchTotalAmt && chargeModel === 1) || key) {
       await Taro.showToast({
@@ -410,6 +409,14 @@ class MatchEditPage extends Component<{}, IState> {
       }
     }
 
+    if (current === 1) {
+      const day = dayjs().format('YYYY-MM-DD');
+      const time = dayjs(`${day} ${endAt}`).valueOf() - dayjs(`${day} ${startAt}`).valueOf();
+      const step = Math.floor(time / (1000 * 60 * 60 * Number(interval))).toString();
+      totalPeople = step;
+      minPeople = step;
+    }
+
     const params = {
       ...form,
       repeatModel: Number(repeatModel),
@@ -418,22 +425,20 @@ class MatchEditPage extends Component<{}, IState> {
       price: Number(price),
       rebatePrice: Number(rebatePrice),
       runDate: realDate,
+      totalPeople: Number(totalPeople),
+      minPeople: Number(minPeople),
 
       ...(current === 1
         ? {
             interval: Number(interval),
-            type: 1,
-            totalPeople: undefined,
-            minPeople: undefined,
             duration: undefined,
-            repeatWeek: undefined,
             chargeModel: undefined,
+            type: 1,
           }
         : {
-            totalPeople: Number(totalPeople),
-            minPeople: Number(minPeople),
             duration: Number(duration),
             matchTotalAmt: Number(matchTotalAmt),
+            interval: undefined,
             type: 0,
           }),
     };

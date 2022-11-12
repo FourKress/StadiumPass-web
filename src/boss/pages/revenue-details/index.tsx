@@ -84,7 +84,10 @@ class RevenueDetailsPage extends Component<{}, IState> {
 
   render() {
     const { payInfo, stadiumInfo, matchInfo } = this.state;
-    const success = payInfo?.success?.reduce((sum, curr) => sum + curr.personCount, 0) >= matchInfo.minPeople;
+    const success =
+      matchInfo.type === 1
+        ? true
+        : payInfo?.success?.reduce((sum, curr) => sum + curr.personCount, 0) >= matchInfo.minPeople;
     const list = success ? payInfo?.success : payInfo?.systemRefund;
     const isList = list?.length || payInfo?.cancel?.length || payInfo?.selfRefund?.length;
 
@@ -98,7 +101,7 @@ class RevenueDetailsPage extends Component<{}, IState> {
         </View>
         <View className="main">
           <View className="title">
-            <View className="left">报名详情</View>
+            <View className="left">{matchInfo.type === 1 ? '包场' : '报名'}详情</View>
             {!success && (
               <View className="right">
                 组队失败：差

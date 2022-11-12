@@ -54,7 +54,7 @@ interface InjectStoreProps {
   loginStore: LoginStore;
 }
 
-const tabList = [{ title: '场次报名' }, { title: '场馆介绍' }];
+const tabList = [{ title: '报名/包场' }, { title: '场馆介绍' }];
 const currentDay = () => dayjs().format('YYYY-MM-DD');
 
 @inject('loginStore')
@@ -276,7 +276,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       if (!res?.length) {
         await Taro.showToast({
           icon: 'none',
-          title: '暂无组队场次，请重新选择其它日期。',
+          title: '暂无组队场次或包场，请重新选择其它日期。',
         });
         return false;
       }
@@ -323,12 +323,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       },
     }).then(async (res: any) => {
       const { matchId } = this.state;
-      const openIndex = res.findIndex((d) => (matchId ? d.id === matchId : !d.isDone && !d.isCancel));
-      const openList = res.map(() => false);
-      const currentMatch = res[openIndex] || res.reverse()[0];
+      const matchList = res.filter((r) => r.type === 1).concat(res.filter((r) => r.type === 0));
+      const openIndex = matchList.findIndex((d) =>
+        matchId ? d.id === matchId : !d.isDone && !d.isCancel && d.type === 0
+      );
+      const openList = matchList.map(() => false);
+      const currentMatch = matchList[openIndex] || matchList.reverse()[0];
       openList[openIndex] = true;
       this.setState({
-        matchList: res,
+        matchList,
         openList,
         spaceActive: index,
         currentMatch,
@@ -378,32 +381,37 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       },
     }).then((res: any) => {
       let list: any = null;
-      if (res.length >= currentMatch.totalPeople) {
+      const { totalPeople } = currentMatch;
+      if (res.length >= totalPeople) {
         list = res;
       } else {
         if (currentMatch.type === 1) {
-          const { endAt, startAt, interval } = currentMatch;
+          const { startAt, interval } = currentMatch;
 
           const day = dayjs().format('YYYY-MM-DD');
-          const time = dayjs(`${day} ${endAt}`).valueOf() - dayjs(`${day} ${startAt}`).valueOf();
-          const step = Math.floor(time / (1000 * 60 * 60 * interval));
-          const personList = new Array(step).fill({}).map((item, index) => {
-            if (index <= res.length - 1) return res[index];
+
+          const personList = new Array(totalPeople).fill({}).map((item, index) => {
+            const end = dayjs(`${day} ${startAt}`)
+              .add((index + 1) * interval, 'hours')
+              .format('YYYY-MM-DD HH:mm:ss')
+              .substring(11, 16);
+            const start = dayjs(`${day} ${startAt}`)
+              .add(index * interval, 'hours')
+              .format('YYYY-MM-DD HH:mm:ss')
+              .substring(11, 16);
+
+            const target = res.find((d) => d?.endAt === end && d?.startAt === start) || {};
+
             return {
               ...item,
-              endAt: dayjs(`${day} ${startAt}`)
-                .add((index + 1) * interval, 'hours')
-                .format('YYYY-MM-DD HH:mm:ss')
-                .substring(11, 16),
-              startAt: dayjs(`${day} ${startAt}`)
-                .add(index * interval, 'hours')
-                .format('YYYY-MM-DD HH:mm:ss')
-                .substring(11, 16),
+              endAt: end,
+              startAt: start,
+              ...target,
             };
           });
           list = personList;
         } else {
-          const personList = new Array(currentMatch.totalPeople).fill({}).map((item, index) => {
+          const personList = new Array(totalPeople).fill({}).map((item, index) => {
             if (index <= res.length - 1) return res[index];
             return item;
           });
@@ -449,7 +457,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
   }
 
   handleSelectPerson(item, index) {
-    const { isDone, isCancel } = this.state.currentMatch;
+    const { isDone, isCancel, type } = this.state.currentMatch;
     if (isDone || isCancel) {
       return;
     }
@@ -462,9 +470,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
     const { selectList } = this.state;
     const flag = selectList.some((d) => d === index);
     if (!flag) {
-      this.setState({
-        selectList: [...selectList, index],
-      });
+      if (type === 1) {
+        this.setState({
+          selectList: [index],
+        });
+      } else {
+        this.setState({
+          selectList: [...selectList, index],
+        });
+      }
     } else {
       this.setState({
         selectList: selectList.filter((d) => d !== index),
@@ -519,8 +533,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
       title: '处理中...',
       mask: true,
     });
-    const { spaceId, id } = currentMatch;
+    const { spaceId, id, type } = currentMatch;
     const payAmount = selectList.length * currentMatch.price * (currentMatch.rebate / 10);
+
     return requestData({
       method: 'POST',
       api: '/order/add',
@@ -530,7 +545,8 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
         stadiumId,
         bossId,
         payAmount,
-        personCount: selectList.length,
+        personCount:
+          type === 1 ? this.state.personList.filter((_d, index) => selectList.includes(index)) : selectList.length,
       },
     })
       .then(async (res: any) => {
@@ -579,6 +595,32 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
   handleCancel(status) {
     if (status) {
+      if (this.state.currentMatch.type === 1) {
+        Taro.showModal({
+          title: '提示',
+          content:
+            '包场除特殊情况外不能申请退款，如遇特殊情况(不可控天气原因，政府疫情特殊管控等)需要退款可提交申请后等待管理员审核。确定申请取消吗？',
+          success: async (res) => {
+            if (res.confirm) {
+              requestData({
+                method: 'POST',
+                api: '/order/applePackageRefund',
+                params: {
+                  orderId: this.state.orderId,
+                },
+              }).then(async () => {
+                await Taro.showToast({
+                  icon: 'none',
+                  title: `取消包场成功，请耐心等待场主审核通过。`,
+                });
+                await this.handleRefundSuccess();
+              });
+            }
+          },
+        });
+        return;
+      }
+
       this.getRefundRules();
       requestData({
         method: 'GET',
@@ -893,7 +935,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
 
               {overdue ? (
                 <AtTabsPane current={tabValue} index={0}>
-                  <View className="overdue">抱歉！场次已过期，请重新选择日期</View>
+                  <View className="overdue">抱歉！已过期，请重新选择日期</View>
                 </AtTabsPane>
               ) : (
                 <View className="people-panel">
@@ -902,9 +944,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                       return match.type === 1 ? (
                         <View className="panel">
                           <View className="p-top" onClick={() => this.handlePeoPleOpen(index)}>
-                            <View className="info">
+                            <View className={match.isDone ? 'info disabled' : 'info'}>
                               <View className="tag">包</View>&nbsp;
-                              <View>订整场</View>&nbsp;/&nbsp;<View>每场价格￥{match.price}</View>
+                              <View className="text">订整场</View>&nbsp;/&nbsp;
+                              <View className="text">每场价格￥{match.price}</View>
                               {match.selectPeople === match.totalPeople ? (
                                 <View className="tips2">满</View>
                               ) : (
@@ -939,7 +982,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                                     {item.nickName ? (
                                       <View className="name-wrap">
                                         <View className="name">{item.nickName}</View>
-                                        <View className="tag">
+                                        <View className="timer">
                                           {item.startAt}-{item.endAt}
                                         </View>
                                       </View>
@@ -970,9 +1013,9 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                             <View className={match.isDone || match.isCancel ? 'info disabled' : 'info'}>
                               <View className="tag">散</View>&nbsp;
                               <Text className="text">
-                                {match.startAt} - {match.endAt}
-                              </Text>{' '}
-                              / <Text className="text">{match.duration}小时</Text> /{' '}
+                                {match.startAt}-{match.endAt}
+                              </Text>
+                              &nbsp;/&nbsp;<Text className="text">{match.duration}小时</Text>&nbsp;/&nbsp;
                               <Text className="text">{match.selectPeople}</Text>
                               <Text className="text">/</Text>
                               <Text className="text">{match.totalPeople}人</Text>
@@ -1107,7 +1150,7 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                   <View className="text left-text">
                     <View className="row-left">
                       <Text>
-                        已选人数：
+                        已选{currentMatch.type === 1 ? '时段' : '人数'}：
                         <Text style="font-weight： bold;">{selectList.length}</Text>，
                       </Text>
                       {currentMatch.chargeModel === 1 && <Text className="pre">本次预支付</Text>}
@@ -1134,7 +1177,15 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                   }}
                 >
                   <View className="cancel-icon"></View>
-                  <View>取消报名</View>
+                  <View>取消{currentMatch.type === 1 ? '包场' : '报名'}</View>
+                </View>
+              ) : currentMatch.type === 1 ? (
+                <View className="not-login">
+                  <View className="text">
+                    当前包场时段：
+                    <Text style="font-weight： bold;">{selectList.length}</Text>
+                  </View>
+                  <View className="tips">选择一个包场时段即可进行包场</View>
                 </View>
               ) : (
                 <View className="not-login">
@@ -1152,8 +1203,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
               <View className={selectList.length ? 'btn' : 'btn disabled'}>
                 <AuthorizePhoneBtn onAuthSuccess={() => this.handlePhoneAuthSuccess()}>
                   {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
-                    ? '已满员'
-                    : `${orderId ? '追加' : `${currentMatch.chargeModel === 1 ? '平摊模式' : '立即'}`}报名`}
+                    ? `已${currentMatch.type === 1 ? '包满' : '满员'}`
+                    : `${orderId ? '追加' : `${currentMatch.chargeModel === 1 ? '平摊模式' : '立即'}`}${
+                        currentMatch.type === 1 ? '包场' : '报名'
+                      }`}
                 </AuthorizePhoneBtn>
               </View>
             ) : (
@@ -1162,8 +1215,10 @@ class StadiumPage extends Component<InjectStoreProps, IState> {
                 className={selectList.length ? 'btn' : 'btn disabled'}
               >
                 {currentMatch.totalPeople && currentMatch.selectPeople === currentMatch.totalPeople
-                  ? '已满员'
-                  : `${orderId ? '追加' : `${currentMatch.chargeModel === 1 ? '平摊模式' : '立即'}`}报名`}
+                  ? `已${currentMatch.type === 1 ? '包满' : '满员'}`
+                  : `${orderId ? '追加' : `${currentMatch.chargeModel === 1 ? '平摊模式' : '立即'}`}${
+                      currentMatch.type === 1 ? '包场' : '报名'
+                    }`}
               </View>
             )}
           </View>

@@ -125,20 +125,28 @@ class OrderPage extends Component<{}, IState> {
               return (
                 <View className="item" onClick={() => this.handleOrderJump(item)}>
                   <View className="top">
-                    <Text className="name">{item.stadiumName}</Text>
+                    <View className="name">
+                      <Text>{item.stadiumName}</Text>&nbsp;
+                      <Text className="tag">{item.matchType === 1 ? '包' : '散'}</Text>
+                    </View>
                     <Text style={{ color: colorMap[item.status] }} className="status">
-                      {[1, 7].includes(item.status) && <Text>组队成功 </Text>}
+                      {[1, 7].includes(item.status) && <Text>{item.matchType === 1 ? '包场' : '组队'}成功 </Text>}
                       {[3, 4].includes(item.status) &&
-                        (item.refundType === 1 ? <Text>组队失败 </Text> : <Text>主动取消 </Text>)}
+                        (item.refundType === 1 ? (
+                          <Text>{item.matchType === 1 ? '包场' : '组队'}失败 </Text>
+                        ) : (
+                          <Text>主动取消 </Text>
+                        ))}
                       {item.refundAmount === 0 ? '' : item.statusName}
                     </Text>
                   </View>
                   <View className="info">
                     <View className="row">
-                      {item.runDate} / {item.runAt} / {item.duration}小时
+                      {item.runDate} / {item.runAt} / {item.matchType === 1 ? item.interval : item.duration}小时
                     </View>
                     <View className="row">
-                      足球 / {item.unit} / {item.spaceName} / {item.personCount}人
+                      足球 / {item.unit} / {item.spaceName} / {item.personCount}
+                      {item.matchType === 1 ? '场' : '人'}
                     </View>
                   </View>
                   <View className="footer">

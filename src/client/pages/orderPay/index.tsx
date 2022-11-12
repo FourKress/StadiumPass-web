@@ -173,7 +173,7 @@ class OrderPayPage extends Component<{}, IState> {
   handleOrderCancel = async () => {
     await Taro.showModal({
       title: '提示',
-      content: '确定要取消报名吗?',
+      content: `确定要取消${this.state.orderInfo.matchType === 1 ? '包场' : '报名'}吗?`,
       success: async (res) => {
         if (res.confirm) {
           const { orderId } = this.state;
@@ -212,7 +212,7 @@ class OrderPayPage extends Component<{}, IState> {
     return (
       <View className="pay-page">
         <View className="top-bar">
-          <View className="tips">注意: 超时未支付将取消报名！</View>
+          <View className="tips">注意: 超时未支付将取消{orderInfo.matchType === 1 ? '包场' : '报名'}！</View>
           <View className="date">
             <View className="block">{M[0]}</View>
             <View className="block">{M[1]}</View>
@@ -224,7 +224,7 @@ class OrderPayPage extends Component<{}, IState> {
 
         <View className="panel">
           <View className="info">
-            <View className="top">场次信息</View>
+            <View className="top">{orderInfo.matchType === 1 ? '包场' : '场次'}信息</View>
             <View className="row">
               <Text className="label">场馆</Text>
               <Text className="text">{orderInfo.stadiumName}</Text>
@@ -236,19 +236,26 @@ class OrderPayPage extends Component<{}, IState> {
               </Text>
             </View>
             <View className="row">
-              <Text className="label">时间</Text>
+              <Text className="label">{orderInfo.matchType === 0 ? '时间' : '时段'}</Text>
+
               <Text className="text">
-                {orderInfo.runDate?.replace(/-/g, '.').substring(5, 10)} / {orderInfo.runAt} / {orderInfo.duration}小时
+                {orderInfo.runDate?.replace(/-/g, '.').substring(5, 10)} / {orderInfo.runAt} /{' '}
+                {orderInfo.matchType === 0 ? orderInfo.duration : orderInfo.interval}
+                小时
               </Text>
             </View>
-            <View className="row">
-              <Text className="label">人数</Text>
-              <Text className="text">{orderInfo.personCount}人</Text>
-            </View>
+
+            {orderInfo.matchType === 0 && (
+              <View className="row">
+                <Text className="label">人数</Text>
+                <Text className="text">{orderInfo.personCount}人</Text>
+              </View>
+            )}
+
             <View className="row">
               <Text className="label">金额</Text>
               <Text className="text">
-                ￥{orderInfo.price}/人，共
+                ￥{orderInfo.price}/{orderInfo.matchType === 1 ? '场' : '人'}，共
                 {orderInfo.totalPrice.toFixed(2)}
               </Text>
             </View>
@@ -257,7 +264,7 @@ class OrderPayPage extends Component<{}, IState> {
 
         <View className="panel">
           <View className="pay">
-            <View className="top">场次信息</View>
+            <View className="top">支付方式</View>
             <View className={methodDisabled ? 'row disabled' : 'row'}>
               <Text className="icon icon-1"></Text>
               <Text className="label">微信支付</Text>
@@ -267,7 +274,7 @@ class OrderPayPage extends Component<{}, IState> {
                 onClick={() => this.selectPayMethod(orderInfo.totalPrice, 'wechat')}
               ></Text>
             </View>
-            {orderInfo.monthlyCardStatus && (
+            {orderInfo.monthlyCardStatus && orderInfo.matchType === 0 && (
               <View>
                 <View className={!orderInfo.monthlyCardPayStatus || methodDisabled ? 'row disabled' : 'row'}>
                   <Text className="icon icon-2"></Text>
@@ -303,33 +310,44 @@ class OrderPayPage extends Component<{}, IState> {
           </View>
         </View>
 
-        <View className="details">
-          <View>
-            <View>注意事项：</View>
-            <View>1、报名人数不足最低开赛标准时，即组队失败。订单将自动退款,款项将在1个工作日内按原路全额退回。</View>
+        {orderInfo.matchType === 1 ? (
+          <View className="details">
             <View>
-              2、关于用户主动取消订单的退款规则：
-              {refundDetails?.length > 0 ? (
-                <View>
-                  {refundDetails.map((d) => {
-                    return (
-                      <View className="refund-rule">
-                        距开场小于{d.refundTime}小时，退款支付金额的{d.refundRatio * 100}%；
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                '该场馆不支持退款'
-              )}
+              <View>注意事项：</View>
+              <View>
+                1、为了更好的用户体验和方便球场管理订场除特殊情况外不能退款，如遇特殊情况需要退款可提交申请后等待管理员审核。（特殊情况包括：不可控天气原因，政府疫情特殊管控等）
+              </View>
             </View>
-            <View>3、场地月卡可随时无责取消订单,但不支持退款。</View>
           </View>
-        </View>
+        ) : (
+          <View className="details">
+            <View>
+              <View>注意事项：</View>
+              <View>1、报名人数不足最低开赛标准时，即组队失败。订单将自动退款,款项将在1个工作日内按原路全额退回。</View>
+              <View>
+                2、关于用户主动取消订单的退款规则：
+                {refundDetails?.length > 0 ? (
+                  <View>
+                    {refundDetails.map((d) => {
+                      return (
+                        <View className="refund-rule">
+                          距开场小于{d.refundTime}小时，退款支付金额的{d.refundRatio * 100}%；
+                        </View>
+                      );
+                    })}
+                  </View>
+                ) : (
+                  '该场馆不支持退款'
+                )}
+              </View>
+              <View>3、场地月卡可随时无责取消订单,但不支持退款。</View>
+            </View>
+          </View>
+        )}
 
         <View className="pay-btn">
           <View className="btn cancel" onClick={this.handleThrottle(this.handleOrderCancel)}>
-            取消订单
+            取消{orderInfo.matchType === 1 ? '包场' : '订单'}
           </View>
           <View className="btn" onClick={this.handleThrottle(this.handleOrderPay)}>
             {orderInfo.chargeModel === 1 ? '平摊模式支付' : '立即支付'} ￥{payAmount.toFixed(2)}

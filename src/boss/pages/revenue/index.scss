@@ -242,10 +242,78 @@
               font-size: 32px;
               color: #101010;
 
+              &.package-left {
+                width: 220px;
+              }
+
               .index {
                 margin-top: 8px;
                 font-size: 28px;
                 color: #93a7b6;
+                max-width: 220px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+                &.package-index {
+                  width: 220px;
+                }
+              }
+
+              .item-title {
+                display: flex;
+                align-content: center;
+                line-height: 36px;
+              }
+
+              .tag {
+                display: block;
+                width: 40px;
+                height: 36px;
+                border-radius: 8px;
+                background-color: rgba(0, 128, 255, 1);
+                color: rgba(255, 255, 255, 1);
+                font-size: 24px;
+                text-align: center;
+              }
+            }
+
+            .mid {
+              flex: 1;
+              height: 120px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              box-sizing: border-box;
+              margin-left: 16px;
+
+              .user-info {
+                flex: 1;
+                margin-left: 16px;
+                text-align: left;
+                font-size: 28px;
+                color: #000;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                align-items: flex-start;
+                overflow: hidden;
+
+                .name {
+                  width: 210px;
+                  max-width: 210px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                }
+              }
+
+              .img {
+                display: block;
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background-color: #f1f4f1;
               }
             }
 
@@ -283,6 +351,16 @@
               .at-icon {
                 margin-left: 8px;
               }
+            }
+
+            .refund-btn {
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              color: #ff0000;
+              font-weight: bold;
+              font-size: 32px;
             }
           }
         }
@@ -345,6 +423,90 @@
               font-weight: bold;
               font-size: 32px;
             }
+          }
+        }
+      }
+    }
+  }
+
+  .refund-dialog {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9;
+
+    .panel {
+      width: 620px;
+      height: 344px;
+      background-color: #fff;
+      border-radius: 32px;
+      position: absolute;
+      left: 50%;
+      top: 30vh;
+      transform: translateX(-50%);
+      padding: 0;
+
+      .dialog-body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .content {
+          width: 100%;
+          flex: 1;
+          padding: 32px;
+          color: #302f43;
+          font-size: 24px;
+          box-sizing: border-box;
+
+          .title {
+            text-align: center;
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 52px;
+            font-weight: bold;
+          }
+
+          .details {
+            margin-bottom: 24px;
+            line-height: 38px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+          }
+        }
+
+        .btn-list {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-top: 1px solid #e5e5e5;
+          height: 120px;
+          width: 100%;
+          font-size: 32px;
+          text-align: center;
+
+          .btn {
+            height: 100%;
+            width: 50%;
+            flex: 1;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .cancel {
+            color: #0080ff;
+          }
+
+          .confirm {
+            border-right: 1px solid #e5e5e5;
+            color: #f00;
           }
         }
       }

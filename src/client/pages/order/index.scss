@@ -46,7 +46,21 @@ page {
         font-weight: bold;
 
         .name {
+          flex: 1;
           color: #93a7b6;
+          display: flex;
+          align-items: center;
+
+          .tag {
+            display: block;
+            width: 40px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: rgba(0, 128, 255, 1);
+            color: rgba(255, 255, 255, 1);
+            font-size: 24px;
+            text-align: center;
+          }
         }
       }
 

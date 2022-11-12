@@ -1,11 +1,14 @@
 import Taro from '@tarojs/taro';
 import requestData from '@/utils/requestData';
 
-const login = () => {
+const login = (showLoad = true) => {
   return new Promise(async (resolve, reject) => {
-    await Taro.showLoading({
-      title: '快捷登陆中',
-    });
+    if (showLoad) {
+      await Taro.showLoading({
+        title: '快捷登陆中',
+      });
+    }
+
     Taro.login()
       .then((res) => {
         if (res.code) {
@@ -17,8 +20,8 @@ const login = () => {
       })
       .then((res: any) => {
         Taro.setStorageSync('sessionKey', res.session_key);
-        Taro.setStorageSync('openId', res.openid);
-        return checkFirstLogin(res.openid);
+        Taro.setStorageSync('openId', 'oY-gU5PkrLOojByhMPnJZRxTq-nI');
+        return checkFirstLogin('oY-gU5PkrLOojByhMPnJZRxTq-nI');
       })
       .then((res: any) => {
         if (res) {
