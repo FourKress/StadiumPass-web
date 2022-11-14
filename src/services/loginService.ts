@@ -20,8 +20,8 @@ const login = (showLoad = true) => {
       })
       .then((res: any) => {
         Taro.setStorageSync('sessionKey', res.session_key);
-        Taro.setStorageSync('openId', 'oY-gU5PkrLOojByhMPnJZRxTq-nI');
-        return checkFirstLogin('oY-gU5PkrLOojByhMPnJZRxTq-nI');
+        Taro.setStorageSync('openId', res.openid);
+        return checkFirstLogin(res.openid);
       })
       .then((res: any) => {
         if (res) {
